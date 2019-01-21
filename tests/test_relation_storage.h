@@ -139,39 +139,3 @@ private:
 
 
 
-
-// TODO replace to DbManager
-//void test_isValid()
-//{
-//    // prepare
-//    // get first id
-//    PeopleStorage people;
-//    people.addPerson(Person("Артем", "Оношко", "12.01.1998", "лох", false));
-
-//    QSqlQuery query("SELECT max(id) FROM people");
-//    query.next();
-//    int pers_id_1 = query.value(0).toInt();
-
-//    // get second id
-//    people.addPerson(Person("Артем", "Оношко", "12.01.1998", "лох", false));
-
-//    query.exec("SELECT max(id) FROM people");
-//    query.next();
-//    int pers_id_2 = query.value(0).toInt();
-
-//    // create relation storage
-//    RelationStorage links;
-
-//    // compare
-//    // everything is ok
-//    QCOMPARE(links.isValid(
-//                 Relation(pers_id_1, pers_id_2)), true);
-
-//    // pers_id_2 is out
-//    QCOMPARE(links.isValid(
-//                 Relation(pers_id_1, pers_id_2 + 1)), false);
-
-//    // pers_id_1 is out
-//    QCOMPARE(links.isValid(
-//                 Relation(-1, pers_id_2)), false);
-//}

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include <QtSql>
-
 #include "people_storage.h"
 
 class TestPeopleStorage : public QObject

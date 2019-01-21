@@ -11,7 +11,8 @@ HEADERS += \
     people_storage.h \
     relation_storage.h \
     tests/test_people_storage.h \
-    tests/test_relation_storage.h
+    tests/test_relation_storage.h \
+    tests/test_db_manager.h
 
 SOURCES += \
     main.cpp
