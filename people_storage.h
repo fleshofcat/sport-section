@@ -11,10 +11,19 @@ class PeopleStorage : public QObject
     QString tableName = "people";
 
 public:
-    explicit PeopleStorage(/*QString db_path, */QObject *parent = nullptr)
+    explicit PeopleStorage(QObject *parent = nullptr)
         : QObject(parent)
     {
+            QSqlQuery query; // create database if not exist
+            query.exec("CREATE TABLE IF NOT EXISTS people (                 "
+                       " id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,     "
+                       " first_name TEXT NOT NULL,                          "
+                       " last_name TEXT NOT NULL,                           "
+                       " birthday TEXT NOT NULL,                            "
+                       " sport_type TEXT NOT NULL,                          "
+                       " is_trainer INTEGER )                               ");
 
+            qDebug() << "Creating people table inside database";
     }
 
 
@@ -39,28 +48,29 @@ public:
         bool ret = query.exec();
 
         if (!ret)
-            qDebug() << "query.exec() in add failed";
+            qDebug() << "query.exec() in add person failed";
 
         return ret;
     }
 
 
-    bool removePerson(int id)
+    bool removePerson(Person person)
     {
         QSqlQuery query;
+
         query.prepare("DELETE FROM " + tableName + " WHERE id = (:id)");
-        query.bindValue(":id", id);
+        query.bindValue(":id", person.id);
 
         bool ret = query.exec();
 
         if (!ret)
-            qDebug() << "query.exec() in remove failed";
+            qDebug() << "query.exec() in remove person failed";
 
         return ret;
     }
 
 
-    bool replacePersonById(Person person) // Edit by id
+    bool replacePersonById(Person person)
     {
         QSqlQuery query;
         query.prepare(" UPDATE " + tableName + " SET    "
@@ -82,7 +92,7 @@ public:
         bool ret = query.exec();
 
         if (!ret)
-            qDebug() << "query.exec() in edit failed";
+            qDebug() << "query.exec() in replace person failed";
 
         return ret;
     }
@@ -116,11 +126,6 @@ public:
 
         qDebug() << "query.exec() in getAllPeople failed";
         return nullptr;
-    }
-
-    ~PeopleStorage()
-    {
-        // TODO
     }
 };
 

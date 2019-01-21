@@ -12,6 +12,7 @@ class TestPeopleStorage : public QObject
 private slots:
     void initTestCase()
     {
+        // prepare tests to manual check
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName("../record/tests/test_res/sport_people.db");
         QVERIFY(db.open());
@@ -27,7 +28,8 @@ private slots:
         QVERIFY(people.addPerson(pers));
 
         // get examine data
-        QSqlQuery query("SELECT * FROM people WHERE id = (SELECT MAX(id) FROM people)");
+        QSqlQuery query;//(QSqlDatabase::database("people_storage_connection"));
+        query.exec("SELECT * FROM people WHERE id = (SELECT MAX(id) FROM people)");
         query.next();
 
         // compare
@@ -36,30 +38,37 @@ private slots:
         QCOMPARE(pers.birthday, query.value("birthday").toString());
         QCOMPARE(pers.sportType, query.value("sport_type").toString());
         QCOMPARE(pers.isTrainer, query.value("is_trainer").toBool());
-
     }
 
     void test_removePerson()
     {
         // preparing
-        // get id
-        QSqlQuery query;
-        query.prepare("SELECT max(id) FROM people");
 
-        QVERIFY(query.exec());
-        QVERIFY(query.next());
-
-        int max_id = query.value(0).toInt();
-        qDebug() << "max id = " << max_id;
-
-        // test
+        // create person for delete
         PeopleStorage people;
-        people.removePerson(max_id);
+        Person pers("person", "for", "delete", "in test", false);
 
-        QVERIFY(query.exec("SELECT max(id) FROM people"));
-        QVERIFY(query.next());
+        people.addPerson(pers);
 
-        QVERIFY(max_id != query.value(0).toInt());
+        // get id
+        QSqlQuery query("SELECT max(id) FROM people");
+        query.next();
+
+        int last_id = query.value(0).toInt();
+        qDebug() << "max id = " << last_id;
+
+        pers.id = last_id;
+
+        // examine
+
+        // removePerson() is deleting by pers.id
+        QVERIFY(people.removePerson(pers));
+
+        query.exec("SELECT max(id) FROM people");
+        query.next();
+
+        // compare pers.id with last id
+        QVERIFY(pers.id != query.value(0).toInt());
     }
 
     void test_replacePersonById()
@@ -121,7 +130,7 @@ private slots:
     {
         {
             QSqlQuery query("DELETE FROM people");
-            QSqlDatabase db = QSqlDatabase::database("QSQLITE");
+            QSqlDatabase db = QSqlDatabase::database("qt_sql_default_connection");
             db.close();
         }
         QSqlDatabase::removeDatabase("qt_sql_default_connection");
