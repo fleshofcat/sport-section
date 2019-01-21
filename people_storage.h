@@ -13,17 +13,23 @@ class PeopleStorage : public QObject
 public:
     explicit PeopleStorage(QObject *parent = nullptr)
         : QObject(parent)
-    {
-            QSqlQuery query; // create database if not exist
-            query.exec("CREATE TABLE IF NOT EXISTS people (                 "
-                       " id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,     "
-                       " first_name TEXT NOT NULL,                          "
-                       " last_name TEXT NOT NULL,                           "
-                       " birthday TEXT NOT NULL,                            "
-                       " sport_type TEXT NOT NULL,                          "
-                       " is_trainer INTEGER )                               ");
+    {                   // create people table in db if not exist
+            QSqlQuery query("SELECT name FROM sqlite_master"
+                            " WHERE name='" + tableName + "'");
 
-            qDebug() << "Creating people table inside database";
+            query.next();
+            if (query.value(0).toString() != tableName)
+            {
+                query.exec("CREATE TABLE IF NOT EXISTS people (                 "
+                           " id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,     "
+                           " first_name TEXT NOT NULL,                          "
+                           " last_name TEXT NOT NULL,                           "
+                           " birthday TEXT NOT NULL,                            "
+                           " sport_type TEXT NOT NULL,                          "
+                           " is_trainer INTEGER )                               ");
+
+                qDebug() << "Creating people table inside database";
+            }
     }
 
 

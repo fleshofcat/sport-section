@@ -12,15 +12,21 @@ class RelationStorage : public QObject
 public:
     explicit RelationStorage(QObject *parent = nullptr)
         : QObject(parent)
-    {
-        QSqlQuery query; // create table if not exist
-        query.exec("CREATE TABLE IF NOT EXISTS relations                "
-                   " ( id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,   "
-                   " trainer_id INTEGER NOT NULL,                       "
-                   " child_id INTEGER NOT NULL)                         ");
-//                   " sport_type TEXT NOT NULL)                          ");
+    {               // create relation table in db if not exist
+        QSqlQuery query("SELECT name FROM sqlite_master"
+                        " WHERE name='" + tableName + "'");
 
-        qDebug() << "Creating relation table inside database";
+        query.next();
+        if (query.value(0).toString() != tableName)
+        {
+            query.exec("CREATE TABLE IF NOT EXISTS relations                "
+                       " ( id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,   "
+                       " trainer_id INTEGER NOT NULL,                       "
+                       " child_id INTEGER NOT NULL)                         ");
+            //                   " sport_type TEXT NOT NULL)                          ");
+
+            qDebug() << "Creating relation table inside database";
+        }
     }
 
 

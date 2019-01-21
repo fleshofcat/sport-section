@@ -26,7 +26,7 @@ private slots:
         QVERIFY(people.addPerson(pers));
 
         // get examine data
-        QSqlQuery query;//(QSqlDatabase::database("people_storage_connection"));
+        QSqlQuery query;
         query.exec("SELECT * FROM people WHERE id = (SELECT MAX(id) FROM people)");
         query.next();
 
@@ -48,20 +48,18 @@ private slots:
 
         people.addPerson(pers);
 
-        // get id
+        // get last id before removing
         QSqlQuery query("SELECT max(id) FROM people");
         query.next();
 
         int last_id = query.value(0).toInt();
-        qDebug() << "max id = " << last_id;
-
         pers.id = last_id;
 
-        // examine
-
-        // removePerson() is deleting by pers.id
+        // run test method
+        // is working by pers.id
         QVERIFY(people.removePerson(pers));
 
+        // get new last id
         query.exec("SELECT max(id) FROM people");
         query.next();
 

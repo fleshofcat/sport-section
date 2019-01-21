@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     MainTest::runAllTests(argc, argv);
     return app.exec();
 #else
+
     MainTest::runAllTests(argc, argv);
     return 0;
 #endif
