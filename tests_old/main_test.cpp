@@ -2,7 +2,9 @@
 
 bool MainTest::runAllTests()
 {
-    QTest::qExec(new TestDbManager());
+    TestDbManager test_db;
+
+    QTest::qExec(&test_db);
 
     return true;
 }

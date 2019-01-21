@@ -1,24 +1,21 @@
-QT += quick testlib sql
-CONFIG += c++11 testcase
+QT += quick sql testlib #TODO
+CONFIG += c++11 testcase #TODO
 DEFINES += QT_DEPRECATED_WARNINGS
 
 # for work:
 HEADERS += \
-    src/common/person.h \
-    src/db/db_manager.h
-
-SOURCES += \
-    src/main.cpp \
-    src/db/db_manager.cpp
-
-# for test:
-HEADERS += \
+    person.h \
+    db_manager.h \
+    relation.h \
     tests/main_test.h \
-    tests/test_dbmanager.h
+    people_storage.h \
+    relation_storage.h \
+    tests/test_people_storage.h \
+    tests/test_relation_storage.h
 
 SOURCES += \
-    tests/test_dbmanager.cpp \
-    tests/main_test.cpp
+    main.cpp
+
 
 
 RESOURCES += qml.qrc
@@ -33,6 +30,7 @@ QML_DESIGNER_IMPORT_PATH =
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
 
 
 

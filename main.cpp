@@ -1,10 +1,11 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include <tests/main_test.h>
+#include "tests/main_test.h"
 
 int main(int argc, char *argv[])
 {
+#if 0 // switch test mode
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
@@ -14,9 +15,12 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
-    MainTest::runAllTests();
-
+    MainTest::runAllTests(argc, argv);
     return app.exec();
+#else
+    MainTest::runAllTests(argc, argv);
+    return 0;
+#endif
 }
 
 

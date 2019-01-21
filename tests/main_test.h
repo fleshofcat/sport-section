@@ -2,7 +2,8 @@
 
 #include <QtTest/QtTest>
 
-#include <tests/test_dbmanager.h>
+#include "test_people_storage.h"
+#include "test_relation_storage.h"
 
 class MainTest : QObject
 {
@@ -10,6 +11,10 @@ class MainTest : QObject
 public:
     MainTest() {}
 
-    static bool runAllTests(); // TODO
+    static void runAllTests(int argc, char *argv[])
+    {
+        QTest::qExec(new TestPeopleStorage, argc, argv);
+        QTest::qExec(new TestRelationStorage, argc, argv);
+    }
 
 };
