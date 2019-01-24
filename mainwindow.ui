@@ -93,6 +93,9 @@
       <attribute name="horizontalHeaderHighlightSections">
        <bool>false</bool>
       </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
       <column>
        <property name="text">
         <string>id</string>
@@ -106,11 +109,6 @@
       <column>
        <property name="text">
         <string>Фамилия</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Отчество</string>
        </property>
       </column>
       <column>
@@ -153,6 +151,12 @@
       <attribute name="horizontalHeaderHighlightSections">
        <bool>false</bool>
       </attribute>
+      <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
       <column>
        <property name="text">
         <string>id</string>
@@ -166,11 +170,6 @@
       <column>
        <property name="text">
         <string>Фамилия</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Отчество</string>
        </property>
       </column>
       <column>

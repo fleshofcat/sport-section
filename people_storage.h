@@ -39,17 +39,15 @@ public:
             return false;
 
         QSqlQuery query;
-        query.prepare("INSERT INTO " + tableName +
-                      " (first_name, last_name, birthday,       "
-                      "    sport_type, is_trainer)              "
-                      " VALUES (:first_name, :last_name,        "
-                      "    :birthday, :sport_type, :is_trainer)");
+        query.prepare("INSERT INTO " + tableName + "                            "
+        "        (first_name, last_name, birthday, sport_type, is_trainer)      "
+        " VALUES (:first_name, :last_name, :birthday, :sport_type, :is_trainer) ");
 
         query.bindValue(":first_name", person.firstName);
         query.bindValue(":last_name", person.lastName);
         query.bindValue(":birthday", person.birthday);
         query.bindValue(":sport_type", person.sportType);
-        query.bindValue(":is_trainer", person.isTrainer);//, int(person.isTrainer));
+        query.bindValue(":is_trainer", person.isTrainer);
 
         bool ret = query.exec();
 

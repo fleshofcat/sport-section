@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QtDebug>
 
 #include "ui_mainwindow.h"
 #include "db_manager.h"
@@ -16,6 +17,9 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+private:
+    DbManager *db = new DbManager("../record/res/sport_people.db", this);
+
 public:
     explicit MainWindow(QWidget *parent = nullptr) :
         QMainWindow(parent)
@@ -23,15 +27,14 @@ public:
         ui = new Ui::MainWindow;
         ui->setupUi(this);
 
-//        ui->childrenTable->horizontalHeader()->     ;setResizeMode( 0, QHeaderView::Stretch );
-
         ui->childrenTable->horizontalHeader()->setVisible(true);
         ui->childrenTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
         ui->trainerTable->horizontalHeader()->setVisible(true);
         ui->trainerTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-
+        QList<Person> *people = db->getAllPersons();
+        showPeople(people);
     }
 
 
@@ -43,9 +46,6 @@ public:
         ui->tabWidget->setMaximumSize(resizeEvent->size());
         ui->tabWidget->resize(resizeEvent->size());
 
-//                ui->childrenTab->setMaximumSize(resizeEvent->size());
-//                ui->childrenTab->resize(resizeEvent->size());
-
         ui->childrenTable->setMaximumSize(resizeEvent->size());
         ui->childrenTable->resize(resizeEvent->size());
 
@@ -54,28 +54,57 @@ public:
     }
 
 
-    void fillChildren()
+    void showPeople(QList<Person> *people)
     {
-        DbManager storage("../record/res/sport_people.db");
 
-        auto people = storage.getAllPersons();
-
-        QStandardItemModel model;
-
-        for (Person pers: *people)
+        for (Person pers : *people)
         {
-            model.appendRow({new QStandardItem(pers.id),
-                             new QStandardItem(pers.firstName),
-                             new QStandardItem(pers.lastName),
-                             new QStandardItem(pers.birthday),
-                             new QStandardItem(pers.sportType) });
+            if (pers.isTrainer == true)
+            {
+                ui->trainerTable->setRowCount(ui->trainerTable->rowCount() + 1);
+
+
+                ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 0,
+                                           new QTableWidgetItem(QString::number(pers.id)));
+
+
+
+                ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 1,
+                                           new QTableWidgetItem(pers.firstName));
+
+                ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 2,
+                                           new QTableWidgetItem(pers.lastName));
+
+                ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 3,
+                                           new QTableWidgetItem(pers.birthday));
+
+                ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 4,
+                                           new QTableWidgetItem(pers.sportType));
+            }
+            else
+            {
+                ui->childrenTable->setRowCount(ui->childrenTable->rowCount() + 1);
+
+
+                ui->childrenTable->setItem(ui->childrenTable->rowCount() - 1, 0,
+                                           new QTableWidgetItem(QString::number(pers.id)));
+
+
+
+                ui->childrenTable->setItem(ui->childrenTable->rowCount() - 1, 1,
+                                           new QTableWidgetItem(pers.firstName));
+
+                ui->childrenTable->setItem(ui->childrenTable->rowCount() - 1, 2,
+                                           new QTableWidgetItem(pers.lastName));
+
+                ui->childrenTable->setItem(ui->childrenTable->rowCount() - 1, 3,
+                                           new QTableWidgetItem(pers.birthday));
+
+                ui->childrenTable->setItem(ui->childrenTable->rowCount() - 1, 4,
+                                           new QTableWidgetItem(pers.sportType));
+            }
         }
 
-
-        QStandardItem item;
-
-        model.appendRow(new QStandardItem("qwerty"));
-        model.appendRow()
     }
 
 
