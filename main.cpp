@@ -5,13 +5,15 @@
 
 int main(int argc, char *argv[])
 {
-#if 0 // switch test mode
+#if 1 // switch test mode
 
     QApplication app(argc, argv);
 
-    // TODO make app class
+    MainWindow mw;
+    mw.show();
 
-    MainTest::runAllTests(argc, argv);
+
+//    MainTest::runAllTests(argc, argv);
     return app.exec();
 #else
 

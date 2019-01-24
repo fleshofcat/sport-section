@@ -110,11 +110,6 @@
       </column>
       <column>
        <property name="text">
-        <string>Отчество</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
         <string>Дата рождения</string>
        </property>
       </column>

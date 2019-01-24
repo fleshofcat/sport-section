@@ -71,11 +71,7 @@ public:
                              new QStandardItem(pers.sportType) });
         }
 
-
-        QStandardItem item;
-
-        model.appendRow(new QStandardItem("qwerty"));
-        model.appendRow()
+//        ui->childrenTable.
     }
 
 
