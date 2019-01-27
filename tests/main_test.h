@@ -5,6 +5,7 @@
 #include "test_people_storage.h"
 #include "test_relation_storage.h"
 #include "test_db_manager.h"
+#include "test_mainwindow.h"
 
 class MainTest : QObject
 {
@@ -17,6 +18,7 @@ public:
         QTest::qExec(new TestPeopleStorage, argc, argv);
         QTest::qExec(new TestRelationStorage, argc, argv);
         QTest::qExec(new TestDbManager, argc, argv);
+        QTest::qExec(new TestMainWindow, argc, argv);
     }
 
 };

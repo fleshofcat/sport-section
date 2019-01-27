@@ -5,8 +5,6 @@
 class Person
 {
 public:
-    Person() {}
-
     Person(QString firstName, QString lastName,
            QString birthday, QString sportType, bool isTrainer)
     {
@@ -16,6 +14,9 @@ public:
         this->sportType = sportType;
         this->isTrainer = isTrainer;
     }
+
+    Person() {}
+
 
     bool isFull()
     {
@@ -31,6 +32,22 @@ public:
     QString birthday;
     QString sportType;
     bool isTrainer;
+};
+
+
+class Lesson
+{
+public:
+    Lesson(){}
+    Lesson(Person trainer, Person child)
+    {
+        this->trainer = trainer;
+        this->child = child;
+    }
+
+    int id = 0;
+    Person trainer;
+    Person child;
 };
 
 

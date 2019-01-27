@@ -33,47 +33,87 @@ public:
         return people->addPerson(pers);
     }
 
-
     bool removePerson(Person pers)
     {
         return people->removePerson(pers);
     }
-
 
     bool replacePersonById(Person pers)
     {
         return people->replacePersonById(pers);
     }
 
-
-    QList<Person> *getAllPersons()
+    QList<Person> *getChildren()
     {
-        return people->getAllPeople();
+        QList<Person> peopleList = *people->getAllPeople();
+        QList<Person> *children = new QList<Person>;
+
+        for (Person pers : peopleList)
+        {
+            if (pers.isTrainer == false)
+            {
+                *children << pers;
+            }
+        }
+        return children;
+    }
+
+    QList<Person> *getTrainers()
+    {
+        QList<Person> peopleList = *people->getAllPeople();
+        QList<Person> *trainers = new QList<Person>;
+
+        for (Person pers : peopleList)
+        {
+            if (pers.isTrainer == true)
+            {
+                *trainers << pers;
+            }
+        }
+        return trainers;
     }
 
 
-    // relations
-    bool addRelation(Relation rel)
+    // lessons
+    bool addLession(Lesson les)
     {
+        Relation rel(les.trainer.id, les.child.id);
         return relations->addRelation(rel);
     }
 
-
-    bool removeRelation(Relation rel)
+    bool removeLession(Lesson les)
     {
+        Relation rel;
+        rel.id = les.id;
         return relations->removeRelation(rel);
     }
 
-
-    bool replaceRelationById(Relation rel)
+    bool replaceLessonById(Lesson les)
     {
+        Relation rel;
+        rel.id = les.id;
+        rel.trainer_id = les.trainer.id;
+        rel.child_id = les.child.id;
         return relations->replaceRelationById(rel);
     }
 
-
-    QList<Relation> *getAllRelations()
+    QList<Lesson> *getLessons()
     {
-        return relations->getAllRelations();
+        QList<Relation> *rels = relations->getAllRelations();
+        QList<Lesson> *lessons = new QList<Lesson>;
+
+        for (Relation rel : *rels)
+        {
+            Lesson les;
+
+            les.id = rel.id;
+            les.trainer = people->getPerson(rel.trainer_id);
+            les.child = people->getPerson(rel.child_id);
+
+            *lessons << les;
+        }
+
+        return lessons;
     }
 
     ~DbManager()

@@ -102,6 +102,26 @@ public:
     }
 
 
+    Person getPerson(int id)
+    {
+        QSqlTableModel model; // TODO change to sqlModel
+        model.setTable("people");
+        model.setFilter("id = " + QString::number(id));
+        model.select();
+
+        Person pers;
+
+        pers.id = model.record(0).value("id").toInt();
+        pers.firstName = model.record(0).value("first_name").toString();
+        pers.lastName = model.record(0).value("last_name").toString();
+        pers.birthday = model.record(0).value("birthday").toString();
+        pers.sportType = model.record(0).value("sport_type").toString();
+        pers.isTrainer = model.record(0).value("is_trainer").toBool();
+
+        return pers;
+    }
+
+
     QList<Person> *getAllPeople()
     {
         QSqlQuery query;

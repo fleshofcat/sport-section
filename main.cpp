@@ -8,14 +8,14 @@ int main(int argc, char *argv[])
 #if 1 // switch test mode
 
     QApplication app(argc, argv);
+    MainTest::runAllTests(argc, argv);
 
     MainWindow mw;
     mw.show();
 
-
-//    MainTest::runAllTests(argc, argv);
     return app.exec();
 #else
+    QApplication app(argc, argv);
 
     MainTest::runAllTests(argc, argv);
     return 0;

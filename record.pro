@@ -16,7 +16,8 @@ HEADERS += \
     tests/test_relation_storage.h   \
     tests/test_db_manager.h         \
                                     \
-    mainwindow.h
+    mainwindow.h \
+    tests/test_mainwindow.h
 
 SOURCES += \
     main.cpp
