@@ -74,6 +74,12 @@ public:
     }
 
 
+    QList<Person> *getPeople()
+    {
+        return people->getAllPeople();
+    }
+
+
     // lessons
     bool addLession(Lesson les)
     {
