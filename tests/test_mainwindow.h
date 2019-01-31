@@ -202,6 +202,29 @@ private slots:
     }
 #endif
 
+#if 0 // manual testing
+    void test_signal_editPersonIsRequred()
+    {
+        MainWindow mw;
+        mw.update(getTestPeople(), getTestSchedule());
+
+        mw.show();
+
+        qRegisterMetaType<Person>("Person");
+
+        QSignalSpy spy(&mw, &MainWindow::editPersonIsRequred);
+
+        // it must provoke the signal
+
+        QTest::mouseClick(mw.ui->editChildButton, Qt::LeftButton,
+                          Qt::NoModifier, QPoint(0, 0));
+
+        // check the signal is emitted
+        QCOMPARE(spy.count(), 1);
+    }
+#endif
+
+
 
 private:
     QList<Person> getTestPeople()

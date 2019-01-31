@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 //    MainTest::runAllTests(argc, argv);
 
-    MainWindow mw;
+    MainWindow mw(nullptr, true);
     mw.show();
 
     return app.exec();

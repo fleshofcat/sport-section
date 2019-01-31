@@ -9,6 +9,7 @@
 #include <QMessageBox>
 
 #include "ui_mainwindow.h"
+
 #include "db_manager.h"
 
 namespace Ui {
@@ -23,6 +24,7 @@ class MainWindow : public QMainWindow
 signals:
     void addPersonIsRequred(Person newPerson);
     void removePersonIsRequred(Person personForRemove);
+    void editPersonIsRequred(Person personForRemove);
 
 private:
     Ui::MainWindow *ui;
@@ -31,10 +33,11 @@ private:
     QList<Lesson> lessons;
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr) :
+    explicit MainWindow(QWidget *parent = nullptr, bool testFill = false) :
         QMainWindow(parent)
     {
         ui = new Ui::MainWindow;
+
         ui->setupUi(this);
 
         ui->childrenTable->horizontalHeader()->setVisible(true);
@@ -46,9 +49,11 @@ public:
         ui->relationTable->horizontalHeader()->setVisible(true);
         ui->relationTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-
 //        if (people != nullptr && relations != nullptr) // TODO test return *nullptr;
-//        update(*db->getPeople(), *db->getLessons());
+        if (testFill) // TODO remove the feature
+        {
+            update(*db->getPeople(), *db->getLessons());
+        }
 
     }
 
@@ -127,12 +132,50 @@ private slots:
                     QMessageBox::Ok);
     }
 
+    void on_editChildButton_clicked()
+    {
+        Person editPerson;
+
+        editPerson.id = QInputDialog::getInt(
+                    this, "",
+                    "Введите id изменяемого ребенка",
+                    QLineEdit::Normal);
+
+        editPerson.firstName = QInputDialog::getText(this, "",
+            "Введите новое имя", QLineEdit::Normal);
+
+        if (editPerson.firstName.isEmpty())
+            return;
+
+        editPerson.lastName = QInputDialog::getText(this, "",
+            "Введите новую фамилию", QLineEdit::Normal);
+
+        if (editPerson.lastName.isEmpty())
+            return;
+
+        editPerson.birthday = QInputDialog::getText(this, "",
+            "Введите новую дату рождения", QLineEdit::Normal);
+
+        if (editPerson.birthday.isEmpty())
+            return;
+
+        editPerson.sportType = QInputDialog::getText(this, "",
+            "Введите новый вид спорта", QLineEdit::Normal);
+
+
+        if (editPerson.isFull())
+        {
+            emit editPersonIsRequred(editPerson);
+        }
+    }
+
 private:
 
     void updateChildren(QList<Person> children)
     {
         ui->childrenTable->clearContents();
         ui->childrenTable->setRowCount(0);
+
 
         for (Person pers : children)
         {
@@ -155,7 +198,6 @@ private:
 
             ui->childrenTable->setItem(ui->childrenTable->rowCount() - 1, 4,
                                        new QTableWidgetItem(pers.sportType));
-
         }
     }
 
@@ -185,7 +227,6 @@ private:
                                       new QTableWidgetItem(pers.sportType));
         }
     }
-
 
     void updateSchedule(QList<Lesson> lessons)
     {
