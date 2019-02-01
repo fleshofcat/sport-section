@@ -7,7 +7,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
     person.h                        \
     db_manager.h                    \
-    relation.h                      \
     people_storage.h                \
     relation_storage.h              \
                                     \                                    \
@@ -17,7 +16,8 @@ HEADERS += \
     tests/test_db_manager.h         \
                                     \
     mainwindow.h \
-    tests/test_mainwindow.h
+    tests/test_mainwindow.h \
+    sport_section.h
 
 SOURCES += \
     main.cpp

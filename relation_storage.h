@@ -2,7 +2,7 @@
 
 #include <QtSql>
 
-#include "relation.h"
+#include "person.h"
 
 class RelationStorage : public QObject
 {
@@ -30,7 +30,7 @@ public:
     }
 
 
-    bool addRelation(Relation rel)
+    bool addRelation(Record rel)
     {
         if (rel.isFull() == false)
             return false;
@@ -52,7 +52,7 @@ public:
     }
 
 
-    bool removeRelation(Relation rel)
+    bool removeRelation(Record rel)
     {
         QSqlQuery query;
 
@@ -68,7 +68,7 @@ public:
     }
 
 
-    bool replaceRelationById(Relation rel)
+    bool replaceRelationById(Record rel)
     {
         QSqlQuery query;
         query.prepare(" UPDATE " + tableName + " SET    "
@@ -90,19 +90,19 @@ public:
     }
 
 
-    QList<Relation> *getAllRelations()
+    QList<Record> *getAllRelations()
     {
         QSqlQuery query;
         query.prepare("SELECT * FROM " + tableName);
 
-        QList<Relation> *relationsList = new QList<Relation>();
+        QList<Record> *relationsList = new QList<Record>();
 
         if (query.exec())
         {
             while (query.next())
             {
 
-                Relation *rel = new Relation();
+                Record *rel = new Record();
 
                 rel->id = query.value("id").toInt();
                 rel->trainer_id = query.value("trainer_id").toInt();

@@ -31,7 +31,7 @@ public:
     QString lastName;
     QString birthday;
     QString sportType;
-    bool isTrainer;
+    bool isTrainer = false;
 };
 
 
@@ -50,5 +50,26 @@ public:
     Person child;
 };
 
+class Record
+{
+public:
+    Record(int child_id, int trainer_id)
+    {
+        this->child_id = child_id;
+        this->trainer_id = trainer_id;
+    }
+    Record() {}
+
+    bool isFull()
+    {
+        return (trainer_id > 0)
+                && (child_id > 0);
+    }
+
+    int id = 0;
+    int trainer_id = 0;
+    int child_id = 0;
+
+};
 
 

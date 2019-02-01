@@ -2,16 +2,21 @@
 #include <QApplication>
 
 #include "tests/main_test.h"
+#include "sport_section.h"
 
 int main(int argc, char *argv[])
 {
-#if 0 // switch test mode
+#if 1 // switch test mode
 
     QApplication app(argc, argv);
 //    MainTest::runAllTests(argc, argv);
 
-    MainWindow mw(nullptr, true);
-    mw.show();
+
+    SportSection sect;
+
+
+//    MainWindow mw;
+//    mw.show();
 
     return app.exec();
 #else

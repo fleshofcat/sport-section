@@ -21,7 +21,7 @@ private slots:
     {
         // prepare
         RelationStorage relations;
-        Relation rel(1, 2); // relation don't care about validation
+        Record rel(1, 2); // relation don't care about validation
 
         // run test method
         QVERIFY(relations.addRelation(rel));
@@ -43,7 +43,7 @@ private slots:
 
         // create relation for delete
         RelationStorage links;
-        Relation rel(1, 2);
+        Record rel(1, 2);
 
         links.addRelation(rel);
 
@@ -74,10 +74,10 @@ private slots:
 
         // add basic relation
         RelationStorage links;
-        links.addRelation(Relation(1, 2));
+        links.addRelation(Record(1, 2));
 
         // make relation for update
-        Relation rel(3, 4);
+        Record rel(3, 4);
 
         // get new relation id
         QSqlQuery query("SELECT max(id) FROM relations");
@@ -107,14 +107,14 @@ private slots:
 
         RelationStorage links;
 
-        Relation insertRel_1(1, 2);
+        Record insertRel_1(1, 2);
         links.addRelation(insertRel_1);
 
-        Relation insertRel_2(3, 4);
+        Record insertRel_2(3, 4);
         links.addRelation(insertRel_2);
 
         // run test method
-        QList<Relation> *relationList = links.getAllRelations();
+        QList<Record> *relationList = links.getAllRelations();
 
         QVERIFY(compareRelations(insertRel_1, relationList->at(0)));
         QVERIFY(compareRelations(insertRel_2, relationList->at(1)));
@@ -131,7 +131,7 @@ private slots:
     }
 
 private:
-    bool compareRelations(Relation rel_1, Relation rel_2)
+    bool compareRelations(Record rel_1, Record rel_2)
     {
         return     (rel_1.trainer_id == rel_2.trainer_id)
                 && (rel_1.child_id == rel_2.child_id);

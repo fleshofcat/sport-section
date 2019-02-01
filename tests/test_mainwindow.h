@@ -52,34 +52,51 @@ private slots:
     {
         // test 1 - test recording
 
-        // make the data
-        QList<Lesson> schedule;
 
-        // make first lession
-        Person ivan("Иван", "Вытовтов", "10.02.1997", "лох", true);
-        ivan.id = 5;
+        // make children
+
         Person oleg("Олег", "Полушин", "хх.хх.1995", "мошенник", false);
         oleg.id = 2;
-        Lesson me(ivan, oleg);
-        me.id = 10;
 
-        schedule << me;
-
-        // make second lession
-        Person vadim("Вадим", "Сурков", "26.04.1997", "реп", true);
-        vadim.id = 3;
         Person artem("Артем", "Оношко", "12.01.1997", "лох", false);
         artem.id = 1;
-        Lesson vad(vadim, artem);
-        vad.id = 11;
 
-        schedule << vad;
+        QList<Person> children;
+        children << oleg;
+        children << artem;
+
+
+        // make trainers
+
+        Person ivan("Иван", "Вытовтов", "10.02.1997", "лох", true);
+        ivan.id = 5;
+
+        Person vadim("Вадим", "Сурков", "26.04.1997", "реп", true);
+        vadim.id = 3;
+
+        QList<Person> trainers;
+        trainers << ivan;
+        trainers << vadim;
+
+
+        // make Schedule
+
+        Record first_training(oleg.id, ivan.id);
+        first_training.id = 5;
+
+        Record second_training(artem.id, vadim.id);
+        second_training.id = 1;
+
+        QList<Record> schedule;
+        schedule << first_training;
+        schedule << second_training;
+
 
         MainWindow mw;
         mw.show();
 
         // run
-        mw.updateSchedule(schedule);
+        mw.updateSchedule(schedule, children, trainers);
 
 
         QCOMPARE(mw.ui->relationTable->item(0, 1)->text(), "Иван Вытовтов");
@@ -90,18 +107,19 @@ private slots:
 
         // test 2 - it must only update (not add)
 
-        // make the data
-        QList<Lesson> lessions_for_update;
-
         Person kirya("Кирилл", "Лукьяновский", "05.06.1997", "что-то поломалось", false);
         kirya.id = 6;
+        children << kirya;
 
-        lessions_for_update << Lesson(ivan, kirya);
+        Record third_training(kirya.id, ivan.id);
+
+        QList<Record> schedule_for_update;
+        schedule_for_update << third_training;
 
         // run
-        mw.updateSchedule(lessions_for_update);
+        mw.updateSchedule(schedule_for_update, children, trainers);
 
-
+        // compare
         QCOMPARE(mw.ui->relationTable->item(0, 1)->text(), "Иван Вытовтов");
         QCOMPARE(mw.ui->relationTable->item(0, 2)->text(), "Кирилл Лукьяновский");
     }
@@ -141,10 +159,10 @@ private slots:
         QList<Person> peopleForUpdate;
         peopleForUpdate << kirya;
 
-        QList<Lesson> lessonsForUpdate;
+        QList<Record> scheduleForUpdate;
 
         // run test method
-        mw.update(peopleForUpdate, lessonsForUpdate);
+        mw.update(peopleForUpdate, scheduleForUpdate);
 
         // compare
         // trainers
@@ -174,7 +192,8 @@ private slots:
         QSignalSpy spy(&mw, &MainWindow::addPersonIsRequred);
 
         // it must provoke the signal if all dialogs will be filled
-        QTest::mouseClick(mw.ui->addChildButton, Qt::LeftButton, Qt::NoModifier, QPoint(0, 0));
+//        QTest::mouseClick(mw.ui->addChildButton, Qt::LeftButton, Qt::NoModifier, QPoint(0, 0));
+        QTest::mouseClick(mw.ui->addTrainerButton, Qt::LeftButton, Qt::NoModifier, QPoint(0, 0));
 
 
         QCOMPARE(spy.count(), 1);
@@ -195,7 +214,8 @@ private slots:
 
         // it must provoke the signal
 
-        QTest::mouseClick(mw.ui->removeChildButton, Qt::LeftButton, Qt::NoModifier, QPoint(0, 0));
+//        QTest::mouseClick(mw.ui->removeChildButton, Qt::LeftButton, Qt::NoModifier, QPoint(0, 0));
+        QTest::mouseClick(mw.ui->removeTrainerButton, Qt::LeftButton, Qt::NoModifier, QPoint(0, 0));
 
         // check the signal is emitted
         QCOMPARE(spy.count(), 1);
@@ -216,14 +236,17 @@ private slots:
 
         // it must provoke the signal
 
-        QTest::mouseClick(mw.ui->editChildButton, Qt::LeftButton,
+        //        QTest::mouseClick(mw.ui->editChildButton, Qt::LeftButton,
+        //                          Qt::NoModifier, QPoint(0, 0));
+
+        QTest::mouseClick(mw.ui->editTrainerButton, Qt::LeftButton,
                           Qt::NoModifier, QPoint(0, 0));
 
         // check the signal is emitted
         QCOMPARE(spy.count(), 1);
     }
-#endif
 
+#endif
 
 
 private:
@@ -274,29 +297,15 @@ private:
         return testChildren;
     }
 
-    QList<Lesson> getTestSchedule()
+    QList<Record> getTestSchedule()
     {
-        QList<Lesson> schedule;
+        QList<Record> schedule;
 
-        // make first lession
-        Person ivan("Иван", "Вытовтов", "10.02.1997", "лох", true);
-        ivan.id = 5;
-        Person oleg("Олег", "Полушин", "хх.хх.1995", "мошенник", false);
-        oleg.id = 4;
-        Lesson me(ivan, oleg);
-        me.id = 10;
+        Record record(2, 5);
+        Record record_2(1, 4);
 
-        schedule << me;
-
-        // make second lession
-        Person vadim("Вадим", "Сурков", "26.04.1997", "реп", true);
-        vadim.id = 3;
-        Person artem("Артем", "Оношко", "12.01.1997", "лох", false);
-        artem.id = 1;
-        Lesson vad(vadim, artem);
-        vad.id = 11;
-
-        schedule << vad;
+        schedule << record;
+        schedule << record_2;
 
         return schedule;
     }

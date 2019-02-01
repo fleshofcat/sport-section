@@ -13,7 +13,8 @@ class DbManager : public QObject
     RelationStorage *relations;
 public:
 
-    explicit DbManager(QString db_path, QObject *parent = nullptr) : QObject (parent)
+    explicit DbManager(QString db_path, QObject *parent = nullptr)
+        : QObject (parent)
     {        
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(db_path);
@@ -35,7 +36,11 @@ public:
 
     bool removePerson(Person pers)
     {
-        return people->removePerson(pers);
+        if (isBelongToSomeRecord(pers, *this->getRecords()) == false)
+        {
+            return people->removePerson(pers);
+        }
+        return false;
     }
 
     bool replacePersonById(Person pers)
@@ -73,53 +78,39 @@ public:
         return trainers;
     }
 
-
     QList<Person> *getPeople()
     {
         return people->getAllPeople();
     }
 
 
-    // lessons
-    bool addLession(Lesson les)
+    // records
+    bool addRecord(Record record)
     {
-        Relation rel(les.trainer.id, les.child.id);
-        return relations->addRelation(rel);
-    }
-
-    bool removeLession(Lesson les)
-    {
-        Relation rel;
-        rel.id = les.id;
-        return relations->removeRelation(rel);
-    }
-
-    bool replaceLessonById(Lesson les)
-    {
-        Relation rel;
-        rel.id = les.id;
-        rel.trainer_id = les.trainer.id;
-        rel.child_id = les.child.id;
-        return relations->replaceRelationById(rel);
-    }
-
-    QList<Lesson> *getLessons()
-    {
-        QList<Relation> *rels = relations->getAllRelations();
-        QList<Lesson> *lessons = new QList<Lesson>;
-
-        for (Relation rel : *rels)
+        if (isRecordValid(record, *this->people->getAllPeople()))
         {
-            Lesson les;
-
-            les.id = rel.id;
-            les.trainer = people->getPerson(rel.trainer_id);
-            les.child = people->getPerson(rel.child_id);
-
-            *lessons << les;
+            return relations->addRelation(record);
         }
+        return false;
+    }
 
-        return lessons;
+    bool removeRecord(Record record)
+    {
+        return relations->removeRelation(record);
+    }
+
+    bool replaceRecordById(Record record)
+    {
+        if (isRecordValid(record, *this->people->getAllPeople()))
+        {
+            return relations->replaceRelationById(record);
+        }
+        return false;
+    }
+
+    QList<Record> *getRecords()
+    {
+        return relations->getAllRelations();
     }
 
     ~DbManager()
@@ -130,6 +121,44 @@ public:
         }
         QSqlDatabase::removeDatabase("qt_sql_default_connection");
     }
+
+private:
+    bool isPersonExist(int pers_id, QList<Person> people)
+    {
+        for (Person pers : people)
+        {
+            if (pers.id == pers_id)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool isBelongToSomeRecord(Person pers, QList<Record> records)
+    {
+        for (Record record : records)
+        {
+            if (record.child_id == pers.id
+                    || record.trainer_id == pers.id)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool isRecordValid(Record record, QList<Person> people)
+    {
+        if (isPersonExist(record.child_id, people)
+                && isPersonExist(record.trainer_id, people))
+        {
+            return true;
+        }
+        return false;
+    }
+
+
 };
 
 
