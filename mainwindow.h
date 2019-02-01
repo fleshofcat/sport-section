@@ -1,16 +1,11 @@
 #pragma once
 
-#include <QResizeEvent> // TODO provide code review here
-#include <QMainWindow>
-#include <QStandardItemModel>
-#include <QStandardItem>
-#include <QtDebug>
+#include <QResizeEvent>
 #include <QInputDialog>
 #include <QMessageBox>
 
 #include "ui_mainwindow.h"
-#include "person.h"
-#include "db_manager.h"
+#include "common_objects.h"
 
 namespace Ui {
 class MainWindow;
@@ -26,20 +21,19 @@ signals:
     void removePersonIsRequred(Person removedPerson);
     void editPersonIsRequred(Person editedPerson);
 
-    void addTrainingRecordIsRequred(Record newRecord);
-    void removeTrainingRecordIsRequred(Record removedRecord);
-    void editTrainingRecordIsRequred(Record editedRecord);
+    void addRecordIsRequred(Record newRecord);
+    void removeRecordIsRequred(Record removedRecord);
+    void editRecordIsRequred(Record editedRecord);
 
 private:
     Ui::MainWindow *ui;
-    DbManager *db = new DbManager("../record/res/sport_people.db", this);
     QList<Person> children;
     QList<Person> trainers;
     QList<Record> schedule;
 
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr, bool testFill = false)
+    explicit MainWindow(QWidget *parent = nullptr)
         : QMainWindow(parent)
     {
         ui = new Ui::MainWindow;
@@ -55,19 +49,15 @@ public:
         ui->relationTable->horizontalHeader()->setVisible(true);
         ui->relationTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-//        if (people != nullptr && relations != nullptr) // TODO test return *nullptr;
-        if (testFill) // TODO remove the feature
-        {
-            update(*db->getPeople(), *db->getRecords());
-        }
-
     }
 
 
     void update(QList<Person> people, QList<Record> schedule)
     {
-        QList<Person> children = getChildrenFromPeople(people);
-        QList<Person> trainers = getTrainersFromPeople(people);
+        QList<QList<Person>> splittedPeople = splitPeopleByChildrenTrainers(people);
+
+        QList<Person> children = splittedPeople[0];
+        QList<Person> trainers = splittedPeople[1];
 
 
         this->children = children;
@@ -108,7 +98,7 @@ private slots:
             return;
 
 
-        if (isPersonExists(child_id , this->children))
+        if (isPersonExistsById(child_id , this->children))
         {
             Person childForRemove;
             childForRemove.id = child_id;
@@ -131,7 +121,7 @@ private slots:
             return;
 
 
-        if (isPersonExists(child_id , this->children))
+        if (isPersonExistsById(child_id , this->children))
         {
             Person editChild = getPersonDataFromUi();
             editChild.id = child_id;
@@ -181,7 +171,7 @@ private slots:
             return;
 
 
-        if (isPersonExists(trainer_id , this->trainers))
+        if (isPersonExistsById(trainer_id , this->trainers))
         {
             Person removeTrainer;
             removeTrainer.id = trainer_id;
@@ -203,7 +193,7 @@ private slots:
         if (trainer_id <= 0) return;
 
 
-        if (isPersonExists(trainer_id , this->trainers))
+        if (isPersonExistsById(trainer_id , this->trainers))
         {
             Person editTrainer = getPersonDataFromUi();
             editTrainer.id = trainer_id;
@@ -225,14 +215,14 @@ private slots:
 
 
 
-    void on_addScheduleButton_clicked()
+    void on_addRecordButton_clicked()
     {
         // Ввод ребенка
         int child_id = getIdFromUi("Введите id ребенка");
 
         if (child_id <= 0) return; // проверка на отмену
 
-        if (isPersonExists(child_id, this->children) == false) // проверка что ребенок существует
+        if (isPersonExistsById(child_id, this->children) == false) // проверка что ребенок существует
         {
             QMessageBox::warning(this, "Сообщение",
                                  "Такого ребенка не существует", QMessageBox::Ok);
@@ -245,7 +235,7 @@ private slots:
 
         if (trainer_id <= 0) return; // проверка на отмену
 
-        if (isPersonExists(trainer_id, this->trainers) == false) // проверка что тренер существует
+        if (isPersonExistsById(trainer_id, this->trainers) == false) // проверка что тренер существует
         {
             QMessageBox::warning(this, "Сообщение",
                                  "Такого тренера не существует", QMessageBox::Ok);
@@ -254,11 +244,11 @@ private slots:
 
         // Создание записи тренировки
         Record record(child_id, trainer_id);
-        emit addTrainingRecordIsRequred(record);
+        emit addRecordIsRequred(record);
     }
 
 
-    void on_removeScheduleButton_clicked()
+    void on_removeRecordButton_clicked()
     {
         int record_id = getIdFromUi("Введите id удаляемой записи");
 
@@ -266,12 +256,12 @@ private slots:
         if (record_id <= 0) return;
 
 
-        if (isRecordExists(record_id , this->schedule))
+        if (isRecordExistsById(record_id , this->schedule))
         {
             Record removeRecord;
             removeRecord.id = record_id;
 
-            emit removeTrainingRecordIsRequred(removeRecord);
+            emit removeRecordIsRequred(removeRecord);
             return;
         }
 
@@ -280,7 +270,7 @@ private slots:
     }
 
 
-    void on_editScheduleButton_clicked()
+    void on_editRecordButton_clicked()
     {
         // получение id изменяемой записи
         int record_id = getIdFromUi("Введите id изменяемой записи");
@@ -289,7 +279,7 @@ private slots:
         {
             return;
         }
-        else if (isRecordExists(record_id, this->schedule) == false)
+        else if (isRecordExistsById(record_id, this->schedule) == false)
         {
             QMessageBox::warning(this, "Сообщение",
                                  "Такой записи не существует", QMessageBox::Ok);
@@ -306,7 +296,7 @@ private slots:
         {
             return;
         }
-        else if (isPersonExists(child_id, this->children) == false)
+        else if (isPersonExistsById(child_id, this->children) == false)
         {
             QMessageBox::warning(this, "Сообщение",
                                  "Такого ребенка не существует", QMessageBox::Ok);
@@ -323,7 +313,7 @@ private slots:
         {
             return;
         }
-        else if (isPersonExists(trainer_id, this->trainers) == false)
+        else if (isPersonExistsById(trainer_id, this->trainers) == false)
         {
             QMessageBox::warning(this, "Сообщение",
                                  "Такого тренера не существует", QMessageBox::Ok);
@@ -332,9 +322,9 @@ private slots:
 
         // редактирование записи тренировки
         Record editedRecord(child_id, trainer_id);
-        emit editTrainingRecordIsRequred(editedRecord);
+        editedRecord.id = record_id;
+        emit editRecordIsRequred(editedRecord);
     }
-
 
 
 private:
@@ -404,16 +394,11 @@ private:
         ui->relationTable->setRowCount(0);  // из таблицы
 
 
-        // если расписание содержит id не существующих людей, то обновления не будет
-        if (isScheduleValid(schedule, children, trainers) == false)
-            return;
-
-
         // для каждой записи в массиве расписаний выполняются действия
         for (Record record : schedule)
         {
-            Person *trainer = getPerson(record.trainer_id, trainers);           // ребенок и тренер
-            Person *child = getPerson(record.child_id, children);               // у которых занятие
+            Person *trainer = getPersonById(record.trainer_id, trainers);           // ребенок и тренер
+            Person *child = getPersonById(record.child_id, children);               // у которых занятие
 
             ui->relationTable->setRowCount(ui->relationTable->rowCount() + 1);  // создание дополнительного рва
 
@@ -429,8 +414,9 @@ private:
     }
 
 
-    QList<Person> getTrainersFromPeople(QList<Person> people)
+    QList<QList<Person>> splitPeopleByChildrenTrainers(QList<Person> people)
     {
+        QList<Person> children;
         QList<Person> trainers;
 
         for (Person pers : people)
@@ -439,23 +425,17 @@ private:
             {
                 trainers << pers;
             }
-        }
-        return trainers;
-    }
-
-
-    QList<Person> getChildrenFromPeople(QList<Person> people)
-    {
-        QList<Person> children;
-
-        for (Person pers : people)
-        {
-            if (pers.isTrainer == false)
+            else
             {
                 children << pers;
             }
         }
-        return children;
+        QList<QList<Person>> splittedPeople;
+
+        splittedPeople << children;
+        splittedPeople << trainers;
+
+        return splittedPeople;
     }
 
 
@@ -506,7 +486,7 @@ private:
     }
 
 
-    bool isRecordExists(int record_id, QList<Record> schedule)
+    bool isRecordExistsById(int record_id, QList<Record> schedule)
     {
         for (Record record : schedule)
         {
@@ -520,7 +500,7 @@ private:
     }
 
 
-    bool isPersonExists(int pers_id, QList<Person> people)
+    bool isPersonExistsById(int pers_id, QList<Person> people)
     {
         for (Person pers : people)
         {
@@ -534,21 +514,7 @@ private:
     }
 
 
-    bool isScheduleValid(QList<Record> schedule,
-                QList<Person> children, QList<Person> trainers)
-    {
-        for (Record record : schedule)
-        {
-            if (isPersonExists(record.child_id, children) == false
-                    || isPersonExists(record.trainer_id, trainers) == false)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    Person *getPerson(int id, QList<Person> people)
+    Person *getPersonById(int id, QList<Person> people)
     {
         for (Person pers : people)
         {

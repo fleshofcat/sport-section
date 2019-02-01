@@ -35,21 +35,6 @@ public:
 };
 
 
-class Lesson
-{
-public:
-    Lesson(){}
-    Lesson(Person trainer, Person child)
-    {
-        this->trainer = trainer;
-        this->child = child;
-    }
-
-    int id = 0;
-    Person trainer;
-    Person child;
-};
-
 class Record
 {
 public:

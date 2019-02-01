@@ -11,12 +11,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 //    MainTest::runAllTests(argc, argv);
 
-
     SportSection sect;
-
-
-//    MainWindow mw;
-//    mw.show();
 
     return app.exec();
 #else

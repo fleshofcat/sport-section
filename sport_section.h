@@ -7,70 +7,120 @@ class SportSection : public QObject
 {
     Q_OBJECT
 private:
-    MainWindow *mw = new MainWindow;
+//    MainWindow *mw = new MainWindow();
+    MainWindow mw;
     DbManager *db = new DbManager("../record/res/sport_people.db", this);
 
 public:
     explicit SportSection(QObject *parent = nullptr)
         : QObject(parent)
     {
-        mw->show();
-        mw->update(*db->getPeople(), *db->getRecords());
+        mw.show();
+        mw.update(*db->getPeople(), *db->getRecords());
 
-        connect(mw, &MainWindow::addPersonIsRequred,
+        connect(&mw, &MainWindow::addPersonIsRequred,
                 this, &SportSection::addPersonToDb);
 
-        connect(mw, &MainWindow::removePersonIsRequred,
+        connect(&mw, &MainWindow::removePersonIsRequred,
                 this, &SportSection::removePersonFromDb);
 
-        connect(mw, &MainWindow::editPersonIsRequred,
+        connect(&mw, &MainWindow::editPersonIsRequred,
                 this, &SportSection::updatePersonIntoDb);
 
-        connect(mw, &MainWindow::addTrainingRecordIsRequred,
-                this, &SportSection::addTrainingRecordToDb);
+        connect(&mw, &MainWindow::addRecordIsRequred,
+                this, &SportSection::addRecordToDb);
 
-        connect(mw, &MainWindow::removeTrainingRecordIsRequred,
-                this, &SportSection::removeTrainingRecordFromDb);
+        connect(&mw, &MainWindow::removeRecordIsRequred,
+                this, &SportSection::removeRecordFromDb);
 
-        connect(mw, &MainWindow::editTrainingRecordIsRequred,
-                this, &SportSection::updateTrainingRecordIntoDb);
+        connect(&mw, &MainWindow::editRecordIsRequred,
+                this, &SportSection::updateRecordIntoDb);
     }
 
 private slots:
     void addPersonToDb(Person pers)
     {
-        db->addPerson(pers);
-        mw->update(*db->getPeople(), *db->getRecords());
+        if (db->addPerson(pers))
+        {
+            updateMainWindow(*db->getPeople(), *db->getRecords());
+        }
     }
 
     void removePersonFromDb(Person pers)
     {
-        db->removePerson(pers);
-        mw->update(*db->getPeople(), *db->getRecords());
+        if (db->removePerson(pers))
+        {
+            updateMainWindow(*db->getPeople(), *db->getRecords());
+        }
     }
 
     void updatePersonIntoDb(Person pers)
     {
-        db->replacePersonById(pers);
-        mw->update(*db->getPeople(), *db->getRecords());
+        if (db->replacePersonById(pers))
+        {
+            updateMainWindow(*db->getPeople(), *db->getRecords());
+        }
     }
 
-    void addTrainingRecordToDb(Record record)
+    void addRecordToDb(Record record)
     {
-        db->addRecord(record);
-        mw->update(*db->getPeople(), *db->getRecords());
+        if (db->addRecord(record))
+        {
+            updateMainWindow(*db->getPeople(), *db->getRecords());
+        }
     }
 
-    void removeTrainingRecordFromDb(Record record)
+    void removeRecordFromDb(Record record)
     {
-        db->removeRecord(record);
-        mw->update(*db->getPeople(), *db->getRecords());
+        if (db->removeRecord(record))
+        {
+            updateMainWindow(*db->getPeople(), *db->getRecords());
+        }
     }
 
-    void updateTrainingRecordIntoDb(Record record)
+    void updateRecordIntoDb(Record record)
     {
-        db->replaceRecordById(record);
-        mw->update(*db->getPeople(), *db->getRecords());
+        if (db->replaceRecordById(record))
+        {
+            updateMainWindow(*db->getPeople(), *db->getRecords());
+        }
+    }
+
+private:
+    bool updateMainWindow(QList<Person> people, QList<Record> schedule)
+    {
+        if (isUpdateValud(people, schedule))
+        {
+            mw.update(people, schedule);
+            return true;
+        }
+        qDebug() << "SpSec::updateMainWindow(..) : update is not valid";
+        return false;
+    }
+
+    bool isUpdateValud(QList<Person> people, QList<Record> schedule)
+    {
+        for (Record rec : schedule)
+        {
+            if (isPersonExists(rec.child_id, people) == false
+                    || isPersonExists(rec.trainer_id, people) == false)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool isPersonExists(int pers_id, QList<Person> people)
+    {
+        for (Person pers : people)
+        {
+            if (pers.id == pers_id)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 };
 

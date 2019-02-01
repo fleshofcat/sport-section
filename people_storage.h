@@ -3,7 +3,7 @@
 #include <QtSql>
 #include <QList>
 
-#include "person.h"
+#include "common_objects.h"
 
 class PeopleStorage : public QObject
 {
@@ -104,19 +104,19 @@ public:
 
     Person getPerson(int id)
     {
-        QSqlTableModel model; // TODO change to sqlModel
-        model.setTable("people");
-        model.setFilter("id = " + QString::number(id));
-        model.select();
+        QSqlTableModel sqlModel;
+        sqlModel.setTable("people");
+        sqlModel.setFilter("id = " + QString::number(id));
+        sqlModel.select();
 
         Person pers;
 
-        pers.id = model.record(0).value("id").toInt();
-        pers.firstName = model.record(0).value("first_name").toString();
-        pers.lastName = model.record(0).value("last_name").toString();
-        pers.birthday = model.record(0).value("birthday").toString();
-        pers.sportType = model.record(0).value("sport_type").toString();
-        pers.isTrainer = model.record(0).value("is_trainer").toBool();
+        pers.id = sqlModel.record(0).value("id").toInt();
+        pers.firstName = sqlModel.record(0).value("first_name").toString();
+        pers.lastName = sqlModel.record(0).value("last_name").toString();
+        pers.birthday = sqlModel.record(0).value("birthday").toString();
+        pers.sportType = sqlModel.record(0).value("sport_type").toString();
+        pers.isTrainer = sqlModel.record(0).value("is_trainer").toBool();
 
         return pers;
     }

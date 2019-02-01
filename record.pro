@@ -5,7 +5,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 # for work:
 HEADERS += \
-    person.h                        \
     db_manager.h                    \
     people_storage.h                \
     relation_storage.h              \
@@ -17,7 +16,8 @@ HEADERS += \
                                     \
     mainwindow.h \
     tests/test_mainwindow.h \
-    sport_section.h
+    sport_section.h \
+    common_objects.h
 
 SOURCES += \
     main.cpp

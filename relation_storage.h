@@ -2,7 +2,7 @@
 
 #include <QtSql>
 
-#include "person.h"
+#include "common_objects.h"
 
 class RelationStorage : public QObject
 {
