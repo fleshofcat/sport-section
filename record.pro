@@ -12,7 +12,6 @@ HEADERS += \
     tests/test_db_manager.h         \
                                     \
     mainwindow.h \
-    tests/test_mainwindow.h \
     sport_section.h \
     common_objects.h \
     tests/test_schedule_manager.h \

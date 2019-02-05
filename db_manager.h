@@ -70,6 +70,42 @@ public:
     }
 
 
+    // метод возвращает из бд детей в виде спика List
+    QList<Person> *getChildren()
+    {
+        QList<Person> *people = peopleManager->getAllPeople();
+        QList<Person> *children = new QList<Person>;
+
+        for (Person pers : *people)
+        {
+            if (pers.isTrainer == false)
+            {
+                *children << pers;
+            }
+        }
+
+        return children;
+    }
+
+
+    // метод возвращает из бд тренеров в виде спика List
+    QList<Person> *getTrainers()
+    {
+        QList<Person> *people = peopleManager->getAllPeople();
+        QList<Person> *trainers = new QList<Person>;
+
+        for (Person pers : *people)
+        {
+            if (pers.isTrainer == true)
+            {
+                *trainers << pers;
+            }
+        }
+
+        return trainers;
+    }
+
+
     // работа с расписанием
 
     // добавление расписания
@@ -100,7 +136,7 @@ public:
     }
 
     // вернуть все расписания
-    QList<Schedule> *getSchedule()
+    QList<Schedule> *getSchedules()
     {
         return scheduleManager->getAllSchedules();
     }
@@ -141,7 +177,7 @@ private:
     bool isBelongToSomeSchedule(Person pers)
     {
         // взять все расписания из бд
-        QList<Schedule> *schedule = this->getSchedule();
+        QList<Schedule> *schedule = this->getSchedules();
 
         // искать во всех расписаниях ссылки на id этого человека
         for (Schedule sched : *schedule)
@@ -165,7 +201,6 @@ private:
         }
         return false;
     }
-
 
 };
 
