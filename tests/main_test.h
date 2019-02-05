@@ -3,7 +3,7 @@
 #include <QtTest/QtTest>
 
 #include "test_people_storage.h"
-#include "test_relation_storage.h"
+#include "test_schedule_manager.h"
 #include "test_db_manager.h"
 #include "test_mainwindow.h"
 
@@ -16,7 +16,7 @@ public:
     static void runAllTests(int argc, char *argv[])
     {
         QTest::qExec(new TestPeopleStorage, argc, argv);
-        QTest::qExec(new TestRelationStorage, argc, argv);
+        QTest::qExec(new TestScheduleStorage, argc, argv);
         QTest::qExec(new TestDbManager, argc, argv);
         QTest::qExec(new TestMainWindow, argc, argv);
     }

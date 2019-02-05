@@ -50,9 +50,6 @@ private slots:
 
     void test_updateSchedule()
     {
-        // test 1 - test recording
-
-
         // make children
 
         Person oleg("Олег", "Полушин", "хх.хх.1995", "мошенник", false);
@@ -81,13 +78,13 @@ private slots:
 
         // make Schedule
 
-        Record first_training(oleg.id, ivan.id);
+        Schedule first_training(oleg.id, ivan.id);
         first_training.id = 5;
 
-        Record second_training(artem.id, vadim.id);
+        Schedule second_training(artem.id, vadim.id);
         second_training.id = 1;
 
-        QList<Record> schedule;
+        QList<Schedule> schedule;
         schedule << first_training;
         schedule << second_training;
 
@@ -99,10 +96,10 @@ private slots:
         mw.updateSchedule(schedule, children, trainers);
 
 
-        QCOMPARE(mw.ui->relationTable->item(0, 1)->text(), "Иван Вытовтов");
-        QCOMPARE(mw.ui->relationTable->item(0, 2)->text(), "Олег Полушин");
-        QCOMPARE(mw.ui->relationTable->item(1, 1)->text(), "Вадим Сурков");
-        QCOMPARE(mw.ui->relationTable->item(1, 2)->text(), "Артем Оношко");
+        QCOMPARE(mw.ui->scheduleTable->item(0, 1)->text(), "Иван Вытовтов");
+        QCOMPARE(mw.ui->scheduleTable->item(0, 2)->text(), "Олег Полушин");
+        QCOMPARE(mw.ui->scheduleTable->item(1, 1)->text(), "Вадим Сурков");
+        QCOMPARE(mw.ui->scheduleTable->item(1, 2)->text(), "Артем Оношко");
 
 
         // test 2 - it must only update (not add)
@@ -111,17 +108,17 @@ private slots:
         kirya.id = 6;
         children << kirya;
 
-        Record third_training(kirya.id, ivan.id);
+        Schedule third_training(kirya.id, ivan.id);
 
-        QList<Record> schedule_for_update;
+        QList<Schedule> schedule_for_update;
         schedule_for_update << third_training;
 
         // run
         mw.updateSchedule(schedule_for_update, children, trainers);
 
         // compare
-        QCOMPARE(mw.ui->relationTable->item(0, 1)->text(), "Иван Вытовтов");
-        QCOMPARE(mw.ui->relationTable->item(0, 2)->text(), "Кирилл Лукьяновский");
+        QCOMPARE(mw.ui->scheduleTable->item(0, 1)->text(), "Иван Вытовтов");
+        QCOMPARE(mw.ui->scheduleTable->item(0, 2)->text(), "Кирилл Лукьяновский");
     }
 
     void test_update()
@@ -145,10 +142,10 @@ private slots:
         QCOMPARE("сломлен но не отрезан", mw.ui->childrenTable->takeItem(2, 4)->text());
 
         // schedule
-        QCOMPARE(mw.ui->relationTable->item(0, 1)->text(), "Иван Вытовтов");
-        QCOMPARE(mw.ui->relationTable->item(0, 2)->text(), "Олег Полушин");
-        QCOMPARE(mw.ui->relationTable->item(1, 1)->text(), "Вадим Сурков");
-        QCOMPARE(mw.ui->relationTable->item(1, 2)->text(), "Артем Оношко");
+        QCOMPARE(mw.ui->scheduleTable->item(0, 1)->text(), "Иван Вытовтов");
+        QCOMPARE(mw.ui->scheduleTable->item(0, 2)->text(), "Олег Полушин");
+        QCOMPARE(mw.ui->scheduleTable->item(1, 1)->text(), "Вадим Сурков");
+        QCOMPARE(mw.ui->scheduleTable->item(1, 2)->text(), "Артем Оношко");
 
 
         // test 2. It must only update(not add)
@@ -159,7 +156,7 @@ private slots:
         QList<Person> peopleForUpdate;
         peopleForUpdate << kirya;
 
-        QList<Record> scheduleForUpdate;
+        QList<Schedule> scheduleForUpdate;
 
         // run test method
         mw.update(peopleForUpdate, scheduleForUpdate);
@@ -175,7 +172,7 @@ private slots:
         QCOMPARE("что-то поломалось", mw.ui->childrenTable->takeItem(0, 4)->text());
 
         // schedule
-        QCOMPARE(0, mw.ui->relationTable->rowCount());
+        QCOMPARE(0, mw.ui->scheduleTable->rowCount());
     }
 
    // signals and slots tests implemented via the ass
@@ -297,15 +294,15 @@ private:
         return testChildren;
     }
 
-    QList<Record> getTestSchedule()
+    QList<Schedule> getTestSchedule()
     {
-        QList<Record> schedule;
+        QList<Schedule> schedule;
 
-        Record record(2, 5);
-        Record record_2(1, 4);
+        Schedule sched(2, 5);
+        Schedule sched_2(1, 4);
 
-        schedule << record;
-        schedule << record_2;
+        schedule << sched;
+        schedule << sched_2;
 
         return schedule;
     }

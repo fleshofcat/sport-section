@@ -16,7 +16,7 @@ public:
         : QObject(parent)
     {
         mw.show();
-        mw.update(*db->getPeople(), *db->getRecords());
+        mw.update(*db->getPeople(), *db->getSchedule());
 
         connect(&mw, &MainWindow::addPersonIsRequred,
                 this, &SportSection::addPersonToDb);
@@ -27,14 +27,14 @@ public:
         connect(&mw, &MainWindow::editPersonIsRequred,
                 this, &SportSection::updatePersonIntoDb);
 
-        connect(&mw, &MainWindow::addRecordIsRequred,
-                this, &SportSection::addRecordToDb);
+        connect(&mw, &MainWindow::addScheduleRequred,
+                this, &SportSection::addScheduleToDb);
 
-        connect(&mw, &MainWindow::removeRecordIsRequred,
-                this, &SportSection::removeRecordFromDb);
+        connect(&mw, &MainWindow::removeScheduleRequred,
+                this, &SportSection::removeScheduleFromDb);
 
-        connect(&mw, &MainWindow::editRecordIsRequred,
-                this, &SportSection::updateRecordIntoDb);
+        connect(&mw, &MainWindow::editScheduleRequred,
+                this, &SportSection::updateScheduleIntoDb);
     }
 
 private slots:
@@ -42,7 +42,7 @@ private slots:
     {
         if (db->addPerson(pers))
         {
-            updateMainWindow(*db->getPeople(), *db->getRecords());
+            updateMainWindow(*db->getPeople(), *db->getSchedule());
         }
     }
 
@@ -50,7 +50,7 @@ private slots:
     {
         if (db->removePerson(pers))
         {
-            updateMainWindow(*db->getPeople(), *db->getRecords());
+            updateMainWindow(*db->getPeople(), *db->getSchedule());
         }
     }
 
@@ -58,36 +58,36 @@ private slots:
     {
         if (db->replacePersonById(pers))
         {
-            updateMainWindow(*db->getPeople(), *db->getRecords());
+            updateMainWindow(*db->getPeople(), *db->getSchedule());
         }
     }
 
-    void addRecordToDb(Record record)
+    void addScheduleToDb(Schedule sched)
     {
-        if (db->addRecord(record))
+        if (db->addSchedule(sched))
         {
-            updateMainWindow(*db->getPeople(), *db->getRecords());
+            updateMainWindow(*db->getPeople(), *db->getSchedule());
         }
     }
 
-    void removeRecordFromDb(Record record)
+    void removeScheduleFromDb(Schedule sched)
     {
-        if (db->removeRecord(record))
+        if (db->removeSchedule(sched))
         {
-            updateMainWindow(*db->getPeople(), *db->getRecords());
+            updateMainWindow(*db->getPeople(), *db->getSchedule());
         }
     }
 
-    void updateRecordIntoDb(Record record)
+    void updateScheduleIntoDb(Schedule sched)
     {
-        if (db->replaceRecordById(record))
+        if (db->replaceScheduleById(sched))
         {
-            updateMainWindow(*db->getPeople(), *db->getRecords());
+            updateMainWindow(*db->getPeople(), *db->getSchedule());
         }
     }
 
 private:
-    bool updateMainWindow(QList<Person> people, QList<Record> schedule)
+    bool updateMainWindow(QList<Person> people, QList<Schedule> schedule)
     {
         if (isUpdateValud(people, schedule))
         {
@@ -98,12 +98,12 @@ private:
         return false;
     }
 
-    bool isUpdateValud(QList<Person> people, QList<Record> schedule)
+    bool isUpdateValud(QList<Person> people, QList<Schedule> schedule)
     {
-        for (Record rec : schedule)
+        for (Schedule sched : schedule)
         {
-            if (isPersonExists(rec.child_id, people) == false
-                    || isPersonExists(rec.trainer_id, people) == false)
+            if (isPersonExists(sched.child_id, people) == false
+                    || isPersonExists(sched.trainer_id, people) == false)
             {
                 return false;
             }

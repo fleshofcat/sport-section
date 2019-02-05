@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "people_storage.h"
+#include "people_manager.h"
 
 class TestPeopleStorage : public QObject
 {
@@ -19,7 +19,7 @@ private slots:
     void test_addPerson()
     {
         // prepare
-        PeopleStorage people;
+        PeopleManager people;
         Person pers("Артем", "Оношко", "12.01.1998", "лох", false);
 
         // run test method
@@ -43,7 +43,7 @@ private slots:
         // preparing
 
         // create person for delete
-        PeopleStorage people;
+        PeopleManager people;
         Person pers("person", "for", "delete", "in test", false);
 
         people.addPerson(pers);
@@ -72,7 +72,7 @@ private slots:
         // prepare
 
         // add basic person
-        PeopleStorage people;
+        PeopleManager people;
         people.addPerson(Person("record", "for edit", "xx.xx.xxxx", "coach", false));
 
         // make person for update
@@ -107,7 +107,7 @@ private slots:
         // clean and refill the people table
         QSqlQuery query("DELETE FROM people");
 
-        PeopleStorage people;
+        PeopleManager people;
 
         Person insertPers_1("names", "for get", "at all", "xx.xx.xxxx", true);
         people.addPerson(insertPers_1);

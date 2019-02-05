@@ -1,118 +1,112 @@
 #pragma once
 
-#include <QtSql>
+#include <QtSql> // библиотека для работы с бд
 
-#include "people_storage.h"
-#include "relation_storage.h"
+#include "people_manager.h" // файл объекта отвечающего за "людей" в бд
+#include "schedule_manager.h" // файл объекта отвечающего за "расписание" в бд
 
+// класс DbManager/БдМенеджер
 class DbManager : public QObject
 {
-    Q_OBJECT
+    Q_OBJECT    // обязательный макрос для Qt Framework
 
-    PeopleStorage *people;
-    RelationStorage *relations;
+    PeopleManager *peopleManager;       // указатель на объект отвечающий за "людей" в бд
+    ScheduleManager *scheduleManager;   // указатель на объект отвечающий за "расписание" в бд
 public:
-
+    // конструктор, при создании объекта от этого класса выполняется следующий код:
+    // здесь создается и подключается база данных по пути
+    // заданному в db_path
+    // это строковая переменная, значение которой закладывается в объект при его создании
     explicit DbManager(QString db_path, QObject *parent = nullptr)
         : QObject (parent)
     {        
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(db_path);
 
-        if (db.open() == false)
+        if (db.open() == false) // проверка что бд открылась успешно
         {
             qDebug() << "Error: Database connection is failed";
             return;
         }
-        people = new PeopleStorage(this);
-        relations = new RelationStorage(this);
+
+        peopleManager = new PeopleManager(this);    // создание объекта хранения людей
+        scheduleManager = new ScheduleManager(this);// создание объекта хранения расписаний
     }
 
-    // people
+    // методы для взаимодействия с бд
+
+    // работа с людьми
+
+    // метод добавления человека в бд
+    // принимает объект человека и добавляет с помощью менеджера людей
     bool addPerson(Person pers)
     {
-        return people->addPerson(pers);
+        return peopleManager->addPerson(pers);
     }
 
+    // метод удаления человека из бд
+    // принимает объект человека и удаляет с помощью менеджера людей
     bool removePerson(Person pers)
     {
-        if (isBelongToSomeRecord(pers, *this->getRecords()) == false)
+        // проверка что человек не состаит в существующих расписаниях
+        if (isBelongToSomeSchedule(pers))
         {
-            return people->removePerson(pers);
+            return false; // если состоит, вернуть false
         }
-        return false;
+        // если не состоит провести провести удаление
+        return peopleManager->removePerson(pers);
     }
 
+    // метод обновления человека в бд по его id
     bool replacePersonById(Person pers)
     {
-        return people->replacePersonById(pers);
+        return peopleManager->replacePersonById(pers);
     }
 
-    QList<Person> *getChildren()
-    {
-        QList<Person> peopleList = *people->getAllPeople();
-        QList<Person> *children = new QList<Person>;
-
-        for (Person pers : peopleList)
-        {
-            if (pers.isTrainer == false)
-            {
-                *children << pers;
-            }
-        }
-        return children;
-    }
-
-    QList<Person> *getTrainers()
-    {
-        QList<Person> peopleList = *people->getAllPeople();
-        QList<Person> *trainers = new QList<Person>;
-
-        for (Person pers : peopleList)
-        {
-            if (pers.isTrainer == true)
-            {
-                *trainers << pers;
-            }
-        }
-        return trainers;
-    }
-
+    // метод возвращает из бд всех людей в виде спика List
     QList<Person> *getPeople()
     {
-        return people->getAllPeople();
+        return peopleManager->getAllPeople();
     }
 
 
-    // records
-    bool addRecord(Record record)
+    // работа с расписанием
+
+    // добавление расписания
+    bool addSchedule(Schedule sched)
     {
-        if (isRecordValid(record, *this->people->getAllPeople()))
+        if (isScheduleValid(sched))
         {
-            return relations->addRelation(record);
+            return scheduleManager->addSchedule(sched);
         }
         return false;
     }
 
-    bool removeRecord(Record record)
+    // удаление расписаний
+    bool removeSchedule(Schedule sched)
     {
-        return relations->removeRelation(record);
+        return scheduleManager->removeSchedule(sched);
     }
 
-    bool replaceRecordById(Record record)
+    // обновление расписаний в бд по id
+    bool replaceScheduleById(Schedule sched)
     {
-        if (isRecordValid(record, *this->people->getAllPeople()))
+        // проверка расписания на актуальность
+        if (isScheduleValid(sched))
         {
-            return relations->replaceRelationById(record);
+            return scheduleManager->replaceScheduleById(sched);
         }
         return false;
     }
 
-    QList<Record> *getRecords()
+    // вернуть все расписания
+    QList<Schedule> *getSchedule()
     {
-        return relations->getAllRelations();
+        return scheduleManager->getAllSchedules();
     }
 
+    // Деструктор выполняется когда объект уничтожается
+    // закрытие соединения с бд
     ~DbManager()
     {
         {
@@ -122,25 +116,38 @@ public:
         QSqlDatabase::removeDatabase("qt_sql_default_connection");
     }
 
+// методы для внутреннего использования внутри этого класса
 private:
-    bool isPersonExist(int pers_id, QList<Person> people)
+
+    // проверка что человек внутри бд существует    // TODO
+    bool isPersonExist(int pers_id)
     {
-        for (Person pers : people)
+        // взять всех людей из бд
+        QList<Person> *people = this->peopleManager->getAllPeople();
+
+        // попытаться найти человека с заданным id в списке людей из бд
+        for (Person pers : *people)
         {
             if (pers.id == pers_id)
             {
                 return true;
             }
         }
+        // если не нашлось то false
         return false;
     }
 
-    bool isBelongToSomeRecord(Person pers, QList<Record> records)
+    // проверка что человек принадлежит к расписанию
+    bool isBelongToSomeSchedule(Person pers)
     {
-        for (Record record : records)
+        // взять все расписания из бд
+        QList<Schedule> *schedule = this->getSchedule();
+
+        // искать во всех расписаниях ссылки на id этого человека
+        for (Schedule sched : *schedule)
         {
-            if (record.child_id == pers.id
-                    || record.trainer_id == pers.id)
+            if (sched.child_id == pers.id
+                    || sched.trainer_id == pers.id)
             {
                 return true;
             }
@@ -148,10 +155,11 @@ private:
         return false;
     }
 
-    bool isRecordValid(Record record, QList<Person> people)
+    // проверка что все люди на которых ссылается расписание существует
+    bool isScheduleValid(Schedule sched)
     {
-        if (isPersonExist(record.child_id, people)
-                && isPersonExist(record.trainer_id, people))
+        if (isPersonExist(sched.child_id)
+                && isPersonExist(sched.trainer_id))
         {
             return true;
         }

@@ -21,15 +21,15 @@ signals:
     void removePersonIsRequred(Person removedPerson);
     void editPersonIsRequred(Person editedPerson);
 
-    void addRecordIsRequred(Record newRecord);
-    void removeRecordIsRequred(Record removedRecord);
-    void editRecordIsRequred(Record editedRecord);
+    void addScheduleRequred(Schedule newSchedule);
+    void removeScheduleRequred(Schedule removedSchedule);
+    void editScheduleRequred(Schedule editedSchedule);
 
 private:
     Ui::MainWindow *ui;
     QList<Person> children;
     QList<Person> trainers;
-    QList<Record> schedule;
+    QList<Schedule> schedule;
 
 
 public:
@@ -46,13 +46,13 @@ public:
         ui->trainerTable->horizontalHeader()->setVisible(true);
         ui->trainerTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-        ui->relationTable->horizontalHeader()->setVisible(true);
-        ui->relationTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        ui->scheduleTable->horizontalHeader()->setVisible(true);
+        ui->scheduleTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     }
 
 
-    void update(QList<Person> people, QList<Record> schedule)
+    void update(QList<Person> people, QList<Schedule> schedule)
     {
         QList<QList<Person>> splittedPeople = splitPeopleByChildrenTrainers(people);
 
@@ -215,7 +215,7 @@ private slots:
 
 
 
-    void on_addRecordButton_clicked()
+    void on_addScheduleButton_clicked()
     {
         // Ввод ребенка
         int child_id = getIdFromUi("Введите id ребенка");
@@ -243,25 +243,25 @@ private slots:
         }
 
         // Создание записи тренировки
-        Record record(child_id, trainer_id);
-        emit addRecordIsRequred(record);
+        Schedule sched(child_id, trainer_id);
+        emit addScheduleRequred(sched);
     }
 
 
-    void on_removeRecordButton_clicked()
+    void on_removeScheduleButton_clicked()
     {
-        int record_id = getIdFromUi("Введите id удаляемой записи");
+        int sched_id = getIdFromUi("Введите id удаляемой записи");
 
         // проверка на отмену
-        if (record_id <= 0) return;
+        if (sched_id <= 0) return;
 
 
-        if (isRecordExistsById(record_id , this->schedule))
+        if (isScheduleExistsById(sched_id , this->schedule))
         {
-            Record removeRecord;
-            removeRecord.id = record_id;
+            Schedule removeSched;
+            removeSched.id = sched_id;
 
-            emit removeRecordIsRequred(removeRecord);
+            emit removeScheduleRequred(removeSched);
             return;
         }
 
@@ -270,16 +270,16 @@ private slots:
     }
 
 
-    void on_editRecordButton_clicked()
+    void on_editScheduleButton_clicked()
     {
         // получение id изменяемой записи
-        int record_id = getIdFromUi("Введите id изменяемой записи");
+        int sched_id = getIdFromUi("Введите id изменяемой записи");
 
-        if (record_id <= 0) // проверка на отмену
+        if (sched_id <= 0) // проверка на отмену
         {
             return;
         }
-        else if (isRecordExistsById(record_id, this->schedule) == false)
+        else if (isScheduleExistsById(sched_id, this->schedule) == false)
         {
             QMessageBox::warning(this, "Сообщение",
                                  "Такой записи не существует", QMessageBox::Ok);
@@ -321,9 +321,9 @@ private slots:
         }
 
         // редактирование записи тренировки
-        Record editedRecord(child_id, trainer_id);
-        editedRecord.id = record_id;
-        emit editRecordIsRequred(editedRecord);
+        Schedule editedSched(child_id, trainer_id);
+        editedSched.id = sched_id;
+        emit editScheduleRequred(editedSched);
     }
 
 
@@ -387,28 +387,28 @@ private:
     }
 
     // обновление расписания
-    void updateSchedule(QList<Record> schedule,
+    void updateSchedule(QList<Schedule> schedule,
                         QList<Person> children, QList<Person> trainers)
     {
-        ui->relationTable->clearContents(); // удаление старых элементов
-        ui->relationTable->setRowCount(0);  // из таблицы
+        ui->scheduleTable->clearContents(); // удаление старых элементов
+        ui->scheduleTable->setRowCount(0);  // из таблицы
 
 
         // для каждой записи в массиве расписаний выполняются действия
-        for (Record record : schedule)
+        for (Schedule sched : schedule)
         {
-            Person *trainer = getPersonById(record.trainer_id, trainers);           // ребенок и тренер
-            Person *child = getPersonById(record.child_id, children);               // у которых занятие
+            Person *trainer = getPersonById(sched.trainer_id, trainers);           // ребенок и тренер
+            Person *child = getPersonById(sched.child_id, children);               // у которых занятие
 
-            ui->relationTable->setRowCount(ui->relationTable->rowCount() + 1);  // создание дополнительного рва
+            ui->scheduleTable->setRowCount(ui->scheduleTable->rowCount() + 1);  // создание дополнительного рва
 
-            ui->relationTable->setItem(ui->relationTable->rowCount() - 1, 0,    // запись id занятия
-                                       new QTableWidgetItem(QString::number(record.id)));
+            ui->scheduleTable->setItem(ui->scheduleTable->rowCount() - 1, 0,    // запись id занятия
+                                       new QTableWidgetItem(QString::number(sched.id)));
 
-            ui->relationTable->setItem(ui->relationTable->rowCount() - 1, 1,    // запись тренера
+            ui->scheduleTable->setItem(ui->scheduleTable->rowCount() - 1, 1,    // запись тренера
                     new QTableWidgetItem(trainer->firstName + " " + trainer->lastName));
 
-            ui->relationTable->setItem(ui->relationTable->rowCount() - 1, 2,    // запись ребенка
+            ui->scheduleTable->setItem(ui->scheduleTable->rowCount() - 1, 2,    // запись ребенка
                     new QTableWidgetItem(child->firstName + " " + child->lastName));
         }
     }
@@ -439,7 +439,7 @@ private:
     }
 
 
-    Person getPersonDataFromUi()
+    Person getPersonDataFromUi() // TO REDO
     {
         Person retPerson;
 
@@ -486,11 +486,11 @@ private:
     }
 
 
-    bool isRecordExistsById(int record_id, QList<Record> schedule)
+    bool isScheduleExistsById(int sched_id, QList<Schedule> schedule)
     {
-        for (Record record : schedule)
+        for (Schedule sched : schedule)
         {
-            if (record.id == record_id)
+            if (sched.id == sched_id)
             {
                 return true;
             }
@@ -543,8 +543,8 @@ public:
         ui->trainerTable->setMaximumSize(resizeEvent->size());
         ui->trainerTable->resize(resizeEvent->size());
 
-        ui->relationTable->setMaximumSize(resizeEvent->size());
-        ui->relationTable->resize(resizeEvent->size());
+        ui->scheduleTable->setMaximumSize(resizeEvent->size());
+        ui->scheduleTable->resize(resizeEvent->size());
     }
 
     ~MainWindow()

@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
 #if 1 // switch test mode
 
     QApplication app(argc, argv);
-//    MainTest::runAllTests(argc, argv);
 
     SportSection sect;
 

@@ -5,13 +5,13 @@
 
 #include "common_objects.h"
 
-class PeopleStorage : public QObject
+class PeopleManager : public QObject
 {
     Q_OBJECT
     QString tableName = "people";
 
 public:
-    explicit PeopleStorage(QObject *parent = nullptr)
+    explicit PeopleManager(QObject *parent = nullptr)
         : QObject(parent)
     {                   // create people table in db if not exist
             QSqlQuery query("SELECT name FROM sqlite_master"

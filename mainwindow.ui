@@ -57,7 +57,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="usesScrollButtons">
      <bool>true</bool>
@@ -271,11 +271,11 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="relations">
+    <widget class="QWidget" name="scheduleTab">
      <attribute name="title">
       <string>Расписание</string>
      </attribute>
-     <widget class="QTableWidget" name="relationTable">
+     <widget class="QTableWidget" name="scheduleTable">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -321,7 +321,7 @@
        </property>
       </column>
      </widget>
-     <widget class="QPushButton" name="addRecordButton">
+     <widget class="QPushButton" name="addScheduleButton">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -334,7 +334,7 @@
        <string>+</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="editRecordButton">
+     <widget class="QPushButton" name="editScheduleButton">
       <property name="geometry">
        <rect>
         <x>60</x>
@@ -347,7 +347,7 @@
        <string>✒</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="removeRecordButton">
+     <widget class="QPushButton" name="removeScheduleButton">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -384,12 +384,12 @@
   <tabstop>addTrainerButton</tabstop>
   <tabstop>removeTrainerButton</tabstop>
   <tabstop>editTrainerButton</tabstop>
-  <tabstop>addRecordButton</tabstop>
-  <tabstop>editRecordButton</tabstop>
-  <tabstop>removeRecordButton</tabstop>
+  <tabstop>addScheduleButton</tabstop>
+  <tabstop>editScheduleButton</tabstop>
+  <tabstop>removeScheduleButton</tabstop>
   <tabstop>childrenTable</tabstop>
   <tabstop>trainerTable</tabstop>
-  <tabstop>relationTable</tabstop>
+  <tabstop>scheduleTable</tabstop>
  </tabstops>
  <resources/>
  <connections/>
