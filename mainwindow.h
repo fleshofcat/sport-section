@@ -192,8 +192,7 @@ private slots:
         }
         else  // если каких-либо данных не хватает, выводится сообщение об ошибке
         {
-            QMessageBox::warning(this, "Сообщение",
-                "Данные введены не полностью", QMessageBox::Ok);
+            showMessage("Данные введены не полностью");
         }
     }
 
@@ -220,8 +219,7 @@ private slots:
             return;
         }
 
-        QMessageBox::warning(this, "Сообщение",
-            "Такого ребенка не существует", QMessageBox::Ok);
+        showMessage("Такого ребенка не существует");
     }
 
     // обработчик кнопки редактировать ребенка
@@ -251,12 +249,14 @@ private slots:
                 emit editPersonIsRequred(editChild); // запрос на редактирование
                 return;
             }
+            else  // если каких-либо данных не хватает, выводится сообщение об ошибке
+            {
+                showMessage("Данные введены не полностью");
+            }
         }
         else        // если ребенка с заданным id не существует
         {           // показывается предупреждение
-
-            QMessageBox::warning(this, "Сообщение",
-                "Такого ребенка не существует", QMessageBox::Ok);
+            showMessage("Такого ребенка не существует");
         }
     }
 
@@ -278,8 +278,7 @@ private slots:
         }
         else        // если пользователь заполнен не полностью
         {           // выводится предупреждение и действие не происходит
-            QMessageBox::warning(this, "Сообщение",
-                "Данные введены не полностью", QMessageBox::Ok);
+            showMessage("Данные введены не полностью");
         }
     }
 
@@ -307,8 +306,7 @@ private slots:
         }
 
         // если такого человека не существует то вывести предупреждение
-        QMessageBox::warning(this, "Сообщение",
-            "Такого тренера не существует", QMessageBox::Ok);
+        showMessage("Такого тренера не существует");
     }
 
 
@@ -337,12 +335,15 @@ private slots:
                 emit editPersonIsRequred(editTrainer); // запрос
                 return;
             }
+            else  // если каких-либо данных не хватает, выводится сообщение об ошибке
+            {
+                showMessage("Данные введены не полностью");
+            }
         }
         else        // если тренера с заданным id не существует
         {           // показывается предупреждение
 
-            QMessageBox::warning(this, "Сообщение",
-                "Такого тренера не существует", QMessageBox::Ok);
+            showMessage("Такого тренера не существует");
         }
     }
 
@@ -357,8 +358,7 @@ private slots:
 
         if (isChildExists(child_id) == false) // проверка что ребенок существует
         {
-            QMessageBox::warning(this, "Сообщение",
-                                 "Такого ребенка не существует", QMessageBox::Ok);
+            showMessage("Такого ребенка не существует");
             return;
         }
 
@@ -370,8 +370,7 @@ private slots:
 
         if (isTrainerExists(trainer_id) == false) // проверка что тренер существует
         {
-            QMessageBox::warning(this, "Сообщение",
-                                 "Такого тренера не существует", QMessageBox::Ok);
+            showMessage("Такого тренера не существует");
             return;
         }
 
@@ -403,8 +402,7 @@ private slots:
         }
 
         // если расписания нет, то предупреждение
-        QMessageBox::warning(this, "Сообщение",
-            "Такой записи не существует", QMessageBox::Ok);
+        showMessage("Такой записи не существует");
     }
 
 
@@ -421,8 +419,7 @@ private slots:
         else if (isScheduleExistsById(sched_id) == false)
         {
             // если расписания не существует то предупреждение
-            QMessageBox::warning(this, "Сообщение",
-                                 "Такой записи не существует", QMessageBox::Ok);
+            showMessage("Такой записи не существует");
             return;
         }
 
@@ -439,8 +436,7 @@ private slots:
         else if (isChildExists(child_id) == false)
         {
             // если ребенка не существует то предупреждение
-            QMessageBox::warning(this, "Сообщение",
-                                 "Такого ребенка не существует", QMessageBox::Ok);
+            showMessage("Такого ребенка не существует");
             return;
         }
 
@@ -457,8 +453,7 @@ private slots:
         else if (isTrainerExists(trainer_id) == false)
         {
             // если тренера не существует то предупреждение
-            QMessageBox::warning(this, "Сообщение",
-                                 "Такого тренера не существует", QMessageBox::Ok);
+            showMessage("Такого тренера не существует");
             return;
         }
 
@@ -468,6 +463,13 @@ private slots:
         emit editScheduleRequred(editedSched);  // запрос на редактирования в базе
     }
 
+
+    // метод для вывода сообщения пользователю
+    void showMessage(QString message)
+    {
+        QMessageBox::warning(this, "Сообщение",
+                             message, QMessageBox::Ok);
+    }
 
 private:
 
