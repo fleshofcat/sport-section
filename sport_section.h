@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mainwindow.h" // файл графического интерфейса
-#include "db_manager.h" // файл модуля бд
+#include "ui/mainwindow.h" // файл графического интерфейса
+#include "db/db_manager.h" // файл модуля бд
 
 // класс SportSection/СпортивнаяСекция
 //
@@ -31,14 +31,14 @@ public:
 
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
-        connect(&mw, &MainWindow::addPersonIsRequred,
-                this, &SportSection::addPersonToDb);
+        connect(&mw, &MainWindow::savePersonIsRequred,
+                this, &SportSection::savePersonToDb);
 
         connect(&mw, &MainWindow::removePersonIsRequred,
                 this, &SportSection::removePersonFromDb);
 
-        connect(&mw, &MainWindow::editPersonIsRequred,
-                this, &SportSection::updatePersonIntoDb);
+//        connect(&mw, &MainWindow::editPersonIsRequred,
+//                this, &SportSection::updatePersonIntoDb);
 
         connect(&mw, &MainWindow::addScheduleRequred,
                 this, &SportSection::addScheduleToDb);
@@ -52,19 +52,32 @@ public:
 
 private slots:
 
-    // обработчик запроса добавления человека в бд
-    void addPersonToDb(Person pers)
+    // обработчик запроса добавления и обновления человека в бд
+    void savePersonToDb(Person pers)
     {
-        if (db->addPerson(pers)) // попытка добавить человека в бд
+        if (pers.id <= 0)
         {
-            updateMainWindow(); // обновление интерфейса
+            if (db->addPerson(pers)) // попытка добавить человека в бд
+            {
+                updateMainWindow(); // обновление интерфейса
+            }
+        }
+        else
+        {
+            if (db->replacePersonById(pers)) // попытка обновить человека в бд
+            {
+                updateMainWindow();          // обновление интерфейса
+            }
         }
     }
 
 
     // обработчик запроса удаления человека из бд
-    void removePersonFromDb(Person pers)
+    void removePersonFromDb(int id)
     {
+        Person pers;
+        pers.id = id;
+
         if (db->removePerson(pers)) // попытка удалить человека из бд
         {
             updateMainWindow();     // обновление интерфейса
@@ -72,14 +85,6 @@ private slots:
     }
 
 
-    // обработчик запроса обновления человека в бд
-    void updatePersonIntoDb(Person pers)
-    {
-        if (db->replacePersonById(pers)) // попытка обновить человека в бд
-        {
-            updateMainWindow();          // обновление интерфейса
-        }
-    }
 
 
     // обработчик запроса добавления расписания в бд

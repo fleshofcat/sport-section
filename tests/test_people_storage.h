@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "people_manager.h"
+#include "db/people_manager.h"
 
 class TestPeopleStorage : public QObject
 {

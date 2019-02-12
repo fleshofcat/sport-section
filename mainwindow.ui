@@ -57,7 +57,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="usesScrollButtons">
      <bool>true</bool>
@@ -69,7 +69,7 @@
      <bool>false</bool>
     </property>
     <property name="movable">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="tabBarAutoHide">
      <bool>false</bool>
@@ -82,10 +82,13 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>20</y>
+        <y>0</y>
         <width>581</width>
         <height>181</height>
        </rect>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustIgnored</enum>
       </property>
       <property name="showGrid">
        <bool>true</bool>
@@ -130,45 +133,6 @@
         <string>Спорт</string>
        </property>
       </column>
-     </widget>
-     <widget class="QPushButton" name="addChildButton">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>31</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>+</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="removeChildButton">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>0</y>
-        <width>31</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>-</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="editChildButton">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>0</y>
-        <width>31</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>✒</string>
-      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="trainerTab">
@@ -378,9 +342,6 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>tabWidget</tabstop>
-  <tabstop>addChildButton</tabstop>
-  <tabstop>removeChildButton</tabstop>
-  <tabstop>editChildButton</tabstop>
   <tabstop>addTrainerButton</tabstop>
   <tabstop>removeTrainerButton</tabstop>
   <tabstop>editTrainerButton</tabstop>

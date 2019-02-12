@@ -5,18 +5,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 # for work:
 HEADERS += \
-    db_manager.h                    \
+    db/db_manager.h                 \
                                     \                                    \
     tests/main_test.h               \
     tests/test_people_storage.h     \
     tests/test_db_manager.h         \
+    tests/test_schedule_manager.h   \
                                     \
-    mainwindow.h \
-    sport_section.h \
-    common_objects.h \
-    tests/test_schedule_manager.h \
-    schedule_manager.h \
-    people_manager.h
+    sport_section.h                 \
+    db/schedule_manager.h           \
+    db/people_manager.h             \
+                                    \
+    common/common_objects.h         \
+    ui/mainwindow.h                 \
+    ui/personeditor.h \
+    tests/test_scheduleeditor.h
 
 SOURCES += \
     main.cpp

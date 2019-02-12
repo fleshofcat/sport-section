@@ -3,7 +3,7 @@
 #include <QtTest/QtTest>
 #include <QtSql>
 
-#include "schedule_manager.h"
+#include "db/schedule_manager.h"
 
 class TestScheduleStorage : public QObject
 {
