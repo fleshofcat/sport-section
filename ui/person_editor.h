@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QPushButton>
-#include "ui/propertyeditor.h"
+#include "ui/widgets/property_editor.h"
 
 #include "common/common_objects.h"
 
@@ -26,33 +26,39 @@ signals:
 
 public:
     enum class Who {
-        EMPTY,
         CHILD,
         TRAINER
-    } who = Who::EMPTY;
+    };
 
 
     PersonEditor(PersonEditor::Who who, QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        this->who = who;
+        Person pers;
+        pers.isTrainer = (who == Who::TRAINER) ? true : false;
 
-        commonConstructor();
+        commonConstructor(pers);
     }
 
 
     PersonEditor(Person person, QWidget *parent = nullptr)
         : QWidget(parent)
-    {        
-        this->person = new Person(person);
-
-        commonConstructor();
+    {
+        commonConstructor(person);
     }
 
+    PersonEditor(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+
+    }
+
+
 private:
-    void commonConstructor()
-    {        
+    void commonConstructor(Person pers)
+    {
         this->pattern = Person::getPattern();
+        this->person = new Person(pers);
 
         setUpUi();
 
@@ -60,6 +66,7 @@ private:
         connect(removeButton, &QPushButton::clicked, this, &PersonEditor::onRemoveButton);
         connect(exitButton, &QPushButton::clicked, this, &PersonEditor::exitPersonEditor);
     }
+
 
     void setUpUi()
     {
@@ -94,21 +101,7 @@ private:
 
     void onSaveButton()
     {
-        QList<QString> savedList = propertyEditor->getInList();
-
-        if (savedList.count() == pattern.count())
-        {
-            if (person != nullptr)
-            {
-                person->setInList(savedList);
-            }
-            else
-            {
-                person = new Person(savedList);
-
-                person->isTrainer = (who == Who::TRAINER) ? true : false;
-            }
-        }
+        person->setInList(propertyEditor->getInList());
 
         emit savePerson(*person);
         emit exitPersonEditor();

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QWidget>
+#include <QVBoxLayout>
+#include <QPushButton>
 #include <QTableWidget>
 #include <QHeaderView>
 
@@ -9,12 +10,11 @@ class StringTableViewer : public QWidget
 Q_OBJECT
 
     QTableWidget *table = nullptr;
-    QList<QString> pattern;
-    QList<QList<QString>> stringTable;
+    QPushButton *addButton = nullptr;
 
 signals:
-    void createRecordIsRequred(QList<QString> pattern);
-    void editRecordIsRequre(QList<QString> pattern, QList<QString> record);
+    void createRecordIsRequred();
+    void editRecordIsRequred(int row);
 
 public:
     StringTableViewer(QList<QString> pattern,
@@ -22,20 +22,20 @@ public:
                       QWidget *parent = nullptr)
         : QWidget (parent)
     {
-        table = new QTableWidget(this);
-
-        this->pattern = pattern;
-        this->stringTable = stringTable;
-
-        update(pattern, stringTable);
-
-        connect(table, &QTableWidget::cellPressed,
-                this, &StringTableViewer::on_tablePressed);
-
         setUpUi();
+        setUpConnections();
+
+        updateData(pattern, stringTable);
     }
 
-    void update(QList<QString> pattern,
+    StringTableViewer(QWidget *parent = nullptr)
+        : QWidget (parent)
+    {
+        setUpUi();
+        setUpConnections();
+    }
+
+    void updateData(QList<QString> pattern,
                 QList<QList<QString>> stringTable)
     {
         table->clear();
@@ -62,23 +62,30 @@ public:
                                    stringTable.at(r).at(c)));
             }
         }
-
-        table->setSpan(table->rowCount() - 1, 0, 1, table->columnCount());
-
-        table->setItem(table->rowCount() - 1, 0,
-                                   new QTableWidgetItem("+"));
-        table->item(table->rowCount() - 1, 0)->setTextAlignment(Qt::AlignCenter);
     }
 
 private:
+    void setUpConnections()
+    {
+        connect(table, &QTableWidget::cellPressed, this, &StringTableViewer::on_tablePressed);
+        connect(addButton, &QPushButton::pressed, this, &StringTableViewer::createRecordIsRequred);
+    }
+
     void setUpUi()
     {
-        table->horizontalHeader()->setVisible(true);
+        // устанавливается режим показа таблиц
+        // они будет показывать элементы в режиме авторастягивания
+
+        addButton = new QPushButton("+");
+        table = new QTableWidget();
+
+        QVBoxLayout *verticalLayout = new QVBoxLayout;
+        verticalLayout->addWidget(addButton);
+        verticalLayout->addWidget(table);
+
         table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-        table->verticalHeader()->setVisible(false);
-
-        table->resize(size());
+        setLayout(verticalLayout);
         show();
     }
 
@@ -86,14 +93,7 @@ private:
 private slots:
     void on_tablePressed(int row, int)
     {
-        if (table->rowCount() == row + 1)
-        {
-            emit createRecordIsRequred(pattern);
-        }
-        else
-        {
-            emit editRecordIsRequre(pattern, stringTable.at(row));
-        }
+        emit editRecordIsRequred(row);
     }
 };
 

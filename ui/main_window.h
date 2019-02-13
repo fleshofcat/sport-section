@@ -4,20 +4,18 @@
 #include <QInputDialog> // для диалоговых окон с пользователями
 #include <QMessageBox>  // для вывода предупреждений пользователю
 
-#include "ui_mainwindow.h"  // автогенерируемый файл для отображения графики
 #include "common/common_objects.h" // файл с общими объектами (Person, Schedule)
-#include "ui/personeditor.h"
 
-namespace Ui {      // помещение данного класса в пространство имен Ui
-class MainWindow;
-}
+#include "ui/widgets/string_table_viewer.h"
+#include "ui/person_editor.h"
+
 
 // класс MainWindow/ГлавноеОкно является классом-прослойкой
 // между пользователем и программой
 //
 // он показывает пользователю информацию
 // принимает и обрабатывает его запросы
-class MainWindow : public QMainWindow
+class MainWindow : public QWidget
 {
     Q_OBJECT    // обязательный макрос
 
@@ -31,8 +29,14 @@ signals:
     void editScheduleRequred(Schedule editedSchedule);
 
 private:
+    QTabWidget *tabs;
+
+    StringTableViewer *childrenTable;
+    StringTableViewer *trainersTable;
+    StringTableViewer *scheduleTable;
+
     PersonEditor *personEditor = nullptr;
-    Ui::MainWindow *ui;         // объект для прямого взаимодействия с пользователем
+
     QList<Person> children;     // объект для хранения детей
     QList<Person> trainers;     // объект для хранения тренеров
     QList<Schedule> schedule;   // объект для хранения расписаний
@@ -42,29 +46,16 @@ public:
     // код который будет выполняться при создании объекта от этого класса
     // имеет 1 не обязательный системный параметр
     explicit MainWindow(QWidget *parent = nullptr)
-        : QMainWindow(parent)
+        : QWidget(parent)
     {
-        ui = new Ui::MainWindow;    // создание объекта взаимодействия с пользователем
+        setUpUi();
 
-        ui->setupUi(this);      // поднять графический интерфейс
+        connect(childrenTable, &StringTableViewer::createRecordIsRequred, this, &MainWindow::on_createChild);
+        connect(childrenTable, &StringTableViewer::editRecordIsRequred, this, &MainWindow::on_editChild);
 
-        // ниже устанавливается режим показа таблиц
-        // они будет показывать элементы в режиме авторастягивания
+        connect(trainersTable, &StringTableViewer::createRecordIsRequred, this, &MainWindow::on_createTrainer);
+        connect(trainersTable, &StringTableViewer::editRecordIsRequred, this, &MainWindow::on_editTrainer);
 
-        ui->childrenTable->horizontalHeader()->setVisible(true);
-        ui->childrenTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-        ui->trainerTable->horizontalHeader()->setVisible(true);
-        ui->trainerTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-        ui->scheduleTable->horizontalHeader()->setVisible(true);
-        ui->scheduleTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-
-        connect(ui->childrenTable, &QTableWidget::cellPressed, this, &MainWindow::on_childrenTablePressed);
-
-//        connect(this, &MainWindow:, personEditor, &PersonEditor::re);
-        setStatusBar(nullptr);
     }
 
 
@@ -86,72 +77,56 @@ public:
 
 
 private:
+    void setUpUi()
+    {
+        this->resize(764, 378);
+
+        childrenTable = new StringTableViewer;
+        trainersTable = new StringTableViewer;
+        scheduleTable = new StringTableViewer;
+
+        tabs = new QTabWidget(this);
+
+
+        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(tabs->sizePolicy().hasHeightForWidth());
+        tabs->setSizePolicy(sizePolicy);
+
+
+        tabs->addTab(childrenTable, "Спортсмены");
+        tabs->addTab(trainersTable, "Тренера");
+        tabs->addTab(scheduleTable, "Расписания");
+
+    }
+
     // метод для обновления списка детей пользователю
     void updateChildren(QList<Person> children)
     {
-        ui->childrenTable->clear(); // сброс старых
-        ui->childrenTable->setRowCount(0);  // данных перед обнавлением
-        ui->childrenTable->setColumnCount(0);
+        QList<QList<QString>> stringTable;
 
-        ui->childrenTable->setRowCount(children.count() + 1);  // данных перед обнавлением
-        ui->childrenTable->setColumnCount(Person::getPattern().count());
-
-
-        for (int c = 0; c < Person::getPattern().count(); c++)
+        for (Person pers : children)
         {
-            ui->childrenTable->setHorizontalHeaderItem(
-                        c, new QTableWidgetItem(Person::getPattern().at(c)));
+            stringTable << pers.getInList();
         }
 
-
-        for (int r = 0; r < children.count(); r++)
-        {
-            for (int c = 0; c < Person::getPattern().count(); c++)
-            {
-                Person pers = children.at(r);
-
-                ui->childrenTable->setItem(
-                            r, c, new QTableWidgetItem(pers.getInList().at(c)));
-            }
-        }
-
-
-        ui->childrenTable->setSpan(ui->childrenTable->rowCount() - 1, 0, 1, ui->childrenTable->columnCount());
-
-        ui->childrenTable->setItem(ui->childrenTable->rowCount() - 1, 0,
-                                   new QTableWidgetItem("+"));
-        ui->childrenTable->item(ui->childrenTable->rowCount() - 1, 0)->setTextAlignment(Qt::AlignCenter);
+        childrenTable->updateData(Person::getPattern(), stringTable);
     }
 
 
     // метод для обновления списка тренеров пользователю
     void updateTrainers(QList<Person> trainers)
     {
-        ui->trainerTable->clearContents();  // сброс старых
-        ui->trainerTable->setRowCount(0);   // данных перед обнавлением
+        QList<QList<QString>> stringTable;
 
-
-        // индивидуально "распаковать" каждого человка и показать пользователю
         for (Person pers : trainers)
         {
-            ui->trainerTable->setRowCount(ui->trainerTable->rowCount() + 1);
-
-
-            ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 0,
-                                      new QTableWidgetItem(QString::number(pers.id)));
-
-            ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 1,
-                                      new QTableWidgetItem(pers.firstName));
-
-            ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 2,
-                                      new QTableWidgetItem(pers.lastName));
-
-            ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 3,
-                                      new QTableWidgetItem(pers.birthday));
-
-            ui->trainerTable->setItem(ui->trainerTable->rowCount() - 1, 4,
-                                      new QTableWidgetItem(pers.sportType));
+            stringTable << pers.getInList();
         }
+
+        trainersTable->updateData(Person::getPattern(), stringTable);
+
     }
 
 
@@ -159,6 +134,7 @@ private:
     void updateSchedule(QList<Schedule> schedule,
                         QList<Person> children, QList<Person> trainers)
     {
+        /*
         ui->scheduleTable->clearContents(); // сброс старых
         ui->scheduleTable->setRowCount(0);  // данных перед обнавлением
 
@@ -180,24 +156,25 @@ private:
             ui->scheduleTable->setItem(ui->scheduleTable->rowCount() - 1, 2,    // запись ребенка
                     new QTableWidgetItem(child->firstName + " " + child->lastName));
         }
+        */
     }
 
-    void createPerson(PersonEditor::Who who)
+
+
+    void openPersonEditorBy(PersonEditor::Who who)
     {
-        personEditor = new PersonEditor(who, ui->centralWidget);
-        setUpPersioEditorSetting();
+        Person pers;
+        pers.isTrainer = (who == PersonEditor::Who::TRAINER) ? true : false;
+
+        openPersonEditorBy(pers);
     }
 
-    void editPerson(Person pers)
+    void openPersonEditorBy(Person person)
     {
-        personEditor = new PersonEditor(pers, ui->centralWidget);
-        setUpPersioEditorSetting();
-    }
+        personEditor = new PersonEditor(person, this);
 
-    void setUpPersioEditorSetting()
-    {
-        ui->tabWidget->hide();
-        personEditor->resize(ui->centralWidget->size());
+        tabs->hide();
+        personEditor->resize(this->size());
 
         connect(personEditor, &PersonEditor::savePerson, this, &MainWindow::savePersonIsRequred);
         connect(personEditor, &PersonEditor::removePerson, this, &MainWindow::removePersonIsRequred);
@@ -205,33 +182,34 @@ private:
     }
 
 
+
 private slots:
-
-    void on_childrenTablePressed(int row, int)
+    void on_createChild()
     {
-        if (ui->childrenTable->rowCount() == row + 1)
-        {
-            createPerson(PersonEditor::Who::CHILD);
-        }
-        else
-        {
-            editPerson(this->children.at(row));
-        }
-
-        setUpPersioEditorSetting();
-//        ui->childrenTable->hide();
+        openPersonEditorBy(PersonEditor::Who::CHILD);
     }
 
+    void on_editChild(int row)
+    {
+        openPersonEditorBy(children.at(row));
+    }
+
+    void on_createTrainer()
+    {
+        openPersonEditorBy(PersonEditor::Who::TRAINER);
+    }
+
+    void on_editTrainer(int row)
+    {
+        openPersonEditorBy(trainers.at(row));
+    }
 
     void on_exitPersonEditor()
     {
         delete personEditor;
         personEditor = nullptr;
 
-        ui->tabWidget->show();
-
-//        ui->trainerTable->show();
-//        ui->childrenTable->show();
+        tabs->show();
     }
 
 
@@ -439,20 +417,7 @@ public:
         // виджеты, которым нужно реагировать на изменение размера окна
         // устанавливают новый размер окна
 
-        ui->centralWidget->setMaximumSize(resizeEvent->size());
-        ui->centralWidget->resize(resizeEvent->size());
-
-        ui->tabWidget->setMaximumSize(resizeEvent->size());
-        ui->tabWidget->resize(resizeEvent->size());
-
-        ui->childrenTable->setMaximumSize(resizeEvent->size());
-        ui->childrenTable->resize(resizeEvent->size());
-
-        ui->trainerTable->setMaximumSize(resizeEvent->size());
-        ui->trainerTable->resize(resizeEvent->size());
-
-        ui->scheduleTable->setMaximumSize(resizeEvent->size());
-        ui->scheduleTable->resize(resizeEvent->size());
+        tabs->resize(resizeEvent->size());
 
         if (personEditor != nullptr)
         {
@@ -466,7 +431,7 @@ public:
     // т.к. память на него выделялась "вручную"
     ~MainWindow()
     {
-        delete ui;
+//        delete ui;
     }
 
 };

@@ -12,6 +12,8 @@ Q_OBJECT
 
     QList<QLineEdit*> editors;
 
+    QFormLayout *layout = nullptr;
+
 public:
     PropertyEditor(QList<QString> pattern,
                    QList<QString> record = {},
@@ -41,17 +43,38 @@ public:
         return pattern;
     }
 
+    void updateContent(QList<QString> pattern,
+                       QList<QString> record = {})
+    {
+        this->pattern = pattern;
+        this->record = record;
+
+        for (auto editor : editors)
+        {
+            delete editor;
+        }
+
+        if (layout != nullptr)
+        {
+            delete layout;
+        }
+
+        setLayout(nullptr);
+
+        setUpUi();
+    }
+
 private:
     void setUpUi()
     {
-        QFormLayout *editorLayout = new QFormLayout;
+        layout = new QFormLayout;
 
         if (pattern.count() == record.count())
         {
             for (int i = 0; i < pattern.count(); i++)
             {
                 editors << new QLineEdit(record.at(i));
-                editorLayout->addRow(pattern.at(i), editors.last());
+                layout->addRow(pattern.at(i), editors.last());
             }
         }
         else
@@ -59,11 +82,11 @@ private:
             for (QString field : pattern)
             {
                 editors << new QLineEdit();
-                editorLayout->addRow(field, editors.last());
+                layout->addRow(field, editors.last());
             }
         }
 
-        setLayout(editorLayout);
+        setLayout(layout);
         show();
     }
 

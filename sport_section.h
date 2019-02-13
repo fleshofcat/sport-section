@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ui/mainwindow.h" // файл графического интерфейса
+#include "ui/main_window.h" // файл графического интерфейса
 #include "db/db_manager.h" // файл модуля бд
 
 // класс SportSection/СпортивнаяСекция
