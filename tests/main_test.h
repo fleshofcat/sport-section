@@ -5,6 +5,7 @@
 #include "test_people_storage.h"
 #include "test_schedule_manager.h"
 #include "test_db_manager.h"
+#include "test_shortshowwidget.h"
 
 class MainTest : QObject
 {
@@ -14,9 +15,10 @@ public:
 
     static void runAllTests(int argc, char *argv[])
     {
-        QTest::qExec(new TestPeopleStorage, argc, argv);
-        QTest::qExec(new TestScheduleStorage, argc, argv);
-        QTest::qExec(new TestDbManager, argc, argv);
+//        QTest::qExec(new TestPeopleStorage, argc, argv);
+//        QTest::qExec(new TestScheduleStorage, argc, argv);
+//        QTest::qExec(new TestDbManager, argc, argv);
+        QTest::qExec(new TestStringListViewer, argc, argv);
     }
 
 };

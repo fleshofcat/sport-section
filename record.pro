@@ -19,7 +19,9 @@ HEADERS += \
     common/common_objects.h         \
     ui/mainwindow.h                 \
     ui/personeditor.h \
-    tests/test_scheduleeditor.h
+    tests/test_shortshowwidget.h \
+    ui/stringlistviewer.h \
+    ui/propertyeditor.h
 
 SOURCES += \
     main.cpp

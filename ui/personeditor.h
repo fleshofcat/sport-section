@@ -1,9 +1,7 @@
 #pragma once
 
-#include <QWidget>
-#include <QFormLayout>
-#include <QLineEdit>
 #include <QPushButton>
+#include "ui/propertyeditor.h"
 
 #include "common/common_objects.h"
 
@@ -15,7 +13,7 @@ class PersonEditor : public QWidget
     QList<QString> pattern;
     QList<QString> personInList;
 
-    QList<QLineEdit*> editors;
+    PropertyEditor *propertyEditor;
 
     QPushButton *saveButton = new QPushButton("Сохранить");
     QPushButton *removeButton = new QPushButton("удалить");
@@ -65,25 +63,17 @@ private:
 
     void setUpUi()
     {
-        QFormLayout *editorLayout = new QFormLayout;
-
 
         if (person != nullptr)
         {
-            for (int i = 0; i < pattern.count(); i++)
-            {
-                editors << new QLineEdit(person->getInList().at(i));
-                editorLayout->addRow(pattern.at(i), editors.last());
-            }
+            propertyEditor = new PropertyEditor(pattern, person->getInList());
         }
         else
         {
-            for (QString field : pattern)
-            {
-                editors << new QLineEdit();
-                editorLayout->addRow(field, editors.last());
-            }
+            propertyEditor = new PropertyEditor(pattern);
         }
+
+
 
         QHBoxLayout * buttonLayout = new QHBoxLayout;
 
@@ -93,7 +83,7 @@ private:
 
         QVBoxLayout *verticalLayout = new QVBoxLayout;
 
-        verticalLayout->addItem(editorLayout);
+        verticalLayout->addWidget(propertyEditor);
         verticalLayout->addItem(buttonLayout);
 
         setLayout(verticalLayout);
@@ -104,22 +94,20 @@ private:
 
     void onSaveButton()
     {
-        QList<QString> savedList;
+        QList<QString> savedList = propertyEditor->getInList();
 
-        for (QLineEdit *editor : editors)
+        if (savedList.count() == pattern.count())
         {
-            savedList << editor->text();
-        }
+            if (person != nullptr)
+            {
+                person->setInList(savedList);
+            }
+            else
+            {
+                person = new Person(savedList);
 
-        if (person != nullptr)
-        {
-            person->setInList(savedList);
-        }
-        else
-        {
-            person = new Person(savedList);
-
-            person->isTrainer = (who == Who::TRAINER) ? true : false;
+                person->isTrainer = (who == Who::TRAINER) ? true : false;
+            }
         }
 
         emit savePerson(*person);
