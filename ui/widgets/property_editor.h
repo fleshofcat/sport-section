@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QPushButton>
 #include <QFormLayout>
 #include <QLineEdit>
 
@@ -7,12 +8,18 @@ class PropertyEditor : public QWidget
 {
 Q_OBJECT
 
-    QList<QString> pattern;
-    QList<QString> record;
+    QPushButton *saveButton = new QPushButton("Сохранить");
+    QPushButton *removeButton = new QPushButton("удалить");
+    QPushButton *exitButton = new QPushButton("Выйти");
 
     QList<QLineEdit*> editors;
 
-    QFormLayout *layout = nullptr;
+    QVBoxLayout *basicLayout = nullptr;
+
+signals:
+    void saveIsRequred(QList<QString> record);
+    void removeIsRequred();
+    void exitIsRequred();
 
 public:
     PropertyEditor(QList<QString> pattern,
@@ -20,10 +27,12 @@ public:
                    QWidget *parent = nullptr)
         : QWidget (parent)
     {
-        this->pattern = pattern;
-        this->record = record;
+        setUpUi(pattern, record);
 
-        setUpUi();
+        connect(saveButton, &QPushButton::pressed, this, &PropertyEditor::on_saveButton);
+        connect(removeButton, &QPushButton::pressed, this, &PropertyEditor::removeIsRequred);
+        connect(exitButton, &QPushButton::pressed, this, &PropertyEditor::exitIsRequred);
+
     }
 
     QList<QString> getInList()
@@ -38,43 +47,37 @@ public:
         return savedList;
     }
 
-    QList<QString> getPattern()
-    {
-        return pattern;
-    }
-
     void updateContent(QList<QString> pattern,
                        QList<QString> record = {})
     {
-        this->pattern = pattern;
-        this->record = record;
-
-        for (auto editor : editors)
+        for (QLineEdit *editor : editors)
         {
             delete editor;
-        }
+        } editors.clear();
 
-        if (layout != nullptr)
+        if (basicLayout != nullptr)
         {
-            delete layout;
+            delete basicLayout;
+            basicLayout = nullptr;
         }
 
-        setLayout(nullptr);
+//        setLayout(nullptr);
 
-        setUpUi();
+        setUpUi(pattern, record);
     }
 
 private:
-    void setUpUi()
+    void setUpUi(QList<QString> pattern,
+                 QList<QString> record = {})
     {
-        layout = new QFormLayout;
+        QFormLayout *formLayout = new QFormLayout;
 
         if (pattern.count() == record.count())
         {
             for (int i = 0; i < pattern.count(); i++)
             {
                 editors << new QLineEdit(record.at(i));
-                layout->addRow(pattern.at(i), editors.last());
+                formLayout->addRow(pattern.at(i), editors.last());
             }
         }
         else
@@ -82,16 +85,29 @@ private:
             for (QString field : pattern)
             {
                 editors << new QLineEdit();
-                layout->addRow(field, editors.last());
+                formLayout->addRow(field, editors.last());
             }
         }
 
-        setLayout(layout);
+        QHBoxLayout *buttonLayout = new QHBoxLayout;
+        buttonLayout->addWidget(saveButton);
+        buttonLayout->addWidget(removeButton);
+        buttonLayout->addWidget(exitButton);
+
+        basicLayout = new QVBoxLayout;
+        basicLayout->addItem(formLayout);
+        basicLayout->addItem(buttonLayout);
+
+        setLayout(basicLayout);
         show();
     }
 
-
 private slots:
+    void on_saveButton()
+    {
+        emit saveIsRequred(getInList());
+    }
+
 };
 
 

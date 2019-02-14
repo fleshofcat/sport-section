@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QPushButton>
 #include "ui/widgets/property_editor.h"
 
 #include "common/common_objects.h"
@@ -11,13 +10,8 @@ class PersonEditor : public QWidget
 
     Person *person = nullptr;
     QList<QString> pattern;
-    QList<QString> personInList;
 
     PropertyEditor *propertyEditor;
-
-    QPushButton *saveButton = new QPushButton("Сохранить");
-    QPushButton *removeButton = new QPushButton("удалить");
-    QPushButton *exitButton = new QPushButton("Выйти");
 
 signals:
     void savePerson(Person person);
@@ -34,10 +28,10 @@ public:
     PersonEditor(PersonEditor::Who who, QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        Person pers;
-        pers.isTrainer = (who == Who::TRAINER) ? true : false;
+        Person person;
+        person.isTrainer = (who == Who::TRAINER) ? true : false;
 
-        commonConstructor(pers);
+        commonConstructor(person);
     }
 
 
@@ -48,10 +42,7 @@ public:
     }
 
     PersonEditor(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {
-
-    }
+        : QWidget(parent) { }
 
 
 private:
@@ -62,15 +53,20 @@ private:
 
         setUpUi();
 
-        connect(saveButton, &QPushButton::clicked, this, &PersonEditor::onSaveButton);
-        connect(removeButton, &QPushButton::clicked, this, &PersonEditor::onRemoveButton);
-        connect(exitButton, &QPushButton::clicked, this, &PersonEditor::exitPersonEditor);
+        connect(propertyEditor, &PropertyEditor::saveIsRequred,
+                this, &PersonEditor::onSaveButton);
+
+        connect(propertyEditor, &PropertyEditor::removeIsRequred,
+                this, &PersonEditor::onRemoveButton);
+
+        connect(propertyEditor, &PropertyEditor::exitIsRequred,
+                this, &PersonEditor::exitPersonEditor);
+
     }
 
 
     void setUpUi()
     {
-
         if (person != nullptr)
         {
             propertyEditor = new PropertyEditor(pattern, person->getInList());
@@ -81,27 +77,19 @@ private:
         }
 
 
+        QVBoxLayout *basicLayout = new QVBoxLayout;
 
-        QHBoxLayout * buttonLayout = new QHBoxLayout;
+        basicLayout->addWidget(propertyEditor);
 
-        buttonLayout->addWidget(saveButton);
-        buttonLayout->addWidget(removeButton);
-        buttonLayout->addWidget(exitButton);
-
-        QVBoxLayout *verticalLayout = new QVBoxLayout;
-
-        verticalLayout->addWidget(propertyEditor);
-        verticalLayout->addItem(buttonLayout);
-
-        setLayout(verticalLayout);
+        setLayout(basicLayout);
 
         show();
     }
 
 
-    void onSaveButton()
+    void onSaveButton(QList<QString> personInList)
     {
-        person->setInList(propertyEditor->getInList());
+        person->setInList(personInList);
 
         emit savePerson(*person);
         emit exitPersonEditor();

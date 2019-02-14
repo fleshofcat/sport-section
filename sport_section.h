@@ -28,7 +28,6 @@ public:
         updateMainWindow();
 
 
-
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
         connect(&mw, &MainWindow::savePersonIsRequred,
@@ -36,18 +35,6 @@ public:
 
         connect(&mw, &MainWindow::removePersonIsRequred,
                 this, &SportSection::removePersonFromDb);
-
-//        connect(&mw, &MainWindow::editPersonIsRequred,
-//                this, &SportSection::updatePersonIntoDb);
-
-        connect(&mw, &MainWindow::addScheduleRequred,
-                this, &SportSection::addScheduleToDb);
-
-        connect(&mw, &MainWindow::removeScheduleRequred,
-                this, &SportSection::removeScheduleFromDb);
-
-        connect(&mw, &MainWindow::editScheduleRequred,
-                this, &SportSection::updateScheduleIntoDb);
     }
 
 private slots:

@@ -19,11 +19,12 @@ HEADERS += \
                                     \
     common/common_objects.h         \
                                     \
-    ui/widgets/string_table_viewer.h \
     ui/widgets/property_editor.h \
     ui/main_window.h \
     ui/person_editor.h \
-    ui/schedule_editor.h
+    ui/widgets/record_viewer.h \
+    ui/widgets/records_widget.h \
+    ui/people_tab.h
 
 SOURCES += \
     main.cpp

@@ -93,9 +93,31 @@ public:
                 && (child_id > 0);
     }
 
+    void setProperty(QList<QString> property)
+    {
+        groupName = property.at(0);
+        sportType = property.at(1);
+    }
+
+    QList<QString> getProperty()
+    {
+        return {groupName, sportType};
+    }
+
+    QList<QString> getPattern()
+    {
+        return {"Группа", "Спорт"};
+    }
+
     int id = 0;         // присваивается в бд
-    int trainer_id = 0; // id тренера
-    int child_id = 0;   // id ребенка
+    QString groupName;
+    QString sportType;
+
+    int trainer_id = 0;
+    int child_id = 0;
+
+    QList<int> trainers_id;
+    QList<int> children_id;
 
 };
 

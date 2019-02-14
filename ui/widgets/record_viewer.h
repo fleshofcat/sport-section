@@ -5,19 +5,21 @@
 #include <QTableWidget>
 #include <QHeaderView>
 
-class StringTableViewer : public QWidget
+class RecordsViewer : public QWidget
 {
 Q_OBJECT
 
     QTableWidget *table = nullptr;
     QPushButton *addButton = nullptr;
 
+    QList<QString> pattern;
+
 signals:
-    void createRecordIsRequred();
+    void createRecordIsRequred(QList<QString> pattern);
     void editRecordIsRequred(int row);
 
 public:
-    StringTableViewer(QList<QString> pattern,
+    RecordsViewer(QList<QString> pattern,
                       QList<QList<QString>> stringTable,
                       QWidget *parent = nullptr)
         : QWidget (parent)
@@ -28,7 +30,7 @@ public:
         updateData(pattern, stringTable);
     }
 
-    StringTableViewer(QWidget *parent = nullptr)
+    RecordsViewer(QWidget *parent = nullptr)
         : QWidget (parent)
     {
         setUpUi();
@@ -38,6 +40,8 @@ public:
     void updateData(QList<QString> pattern,
                 QList<QList<QString>> stringTable)
     {
+        this->pattern = pattern;
+
         table->clear();
 
         table->setRowCount(0);
@@ -67,8 +71,8 @@ public:
 private:
     void setUpConnections()
     {
-        connect(table, &QTableWidget::cellPressed, this, &StringTableViewer::on_tablePressed);
-        connect(addButton, &QPushButton::pressed, this, &StringTableViewer::createRecordIsRequred);
+        connect(table, &QTableWidget::cellPressed, this, &RecordsViewer::on_tablePressed);
+        connect(addButton, &QPushButton::pressed, this, &RecordsViewer::on_createButton);
     }
 
     void setUpUi()
@@ -94,6 +98,11 @@ private slots:
     void on_tablePressed(int row, int)
     {
         emit editRecordIsRequred(row);
+    }
+
+    void on_createButton()
+    {
+        emit createRecordIsRequred(this->pattern);
     }
 };
 

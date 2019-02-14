@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "ui/widgets/string_table_viewer.h"
+#include "ui/widgets/record_viewer.h"
 
 class TestStringListViewer : public QObject
 {
