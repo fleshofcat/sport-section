@@ -35,7 +35,7 @@ private:
 
     QList<Person> children;     // объект для хранения детей
     QList<Person> trainers;     // объект для хранения тренеров
-    QList<Schedule> schedule;   // объект для хранения расписаний
+    QList<Group> schedule;   // объект для хранения расписаний
 
 
 public:
@@ -57,7 +57,7 @@ public:
 
     // метод с помощью которого данные от бд
     // будут загружаться в данный класс и отображаться пользователю
-    void update(QList<Person> children, QList<Person> trainers, QList<Schedule> schedule)
+    void updateUi(QList<Person> children, QList<Person> trainers, QList<Group> schedule)
     {
         // данные из последнего апдейта будут храниться
         // в локальных переменных этого класса
@@ -106,7 +106,7 @@ private:
     bool isScheduleExistsById(int sched_id)
     {
         // обычная прогонка по списку расписаний и сверка что они существуют
-        for (Schedule sched : this->schedule)
+        for (Group sched : this->schedule)
         {
             if (sched.id == sched_id)
             {

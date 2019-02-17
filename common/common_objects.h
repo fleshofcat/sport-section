@@ -72,18 +72,18 @@ public:
 
 // класс Schedule/расписание
 // хранение данных о графике тренировок тренеров и детей
-class Schedule
+class Group
 {
 public:
     // констуктор мгновенного создания полного объекта
-    Schedule(int child_id, int trainer_id)
+    Group(int child_id, int trainer_id)
     {
         this->child_id = child_id;
         this->trainer_id = trainer_id;
     }
 
     // конструктор создания пустого объекта
-    Schedule() {}
+    Group() {}
 
     // проверка что объект
     // достаточно заполнен для добавления в бд

@@ -16,9 +16,9 @@ public:
     static void runAllTests(int argc, char *argv[])
     {
 //        QTest::qExec(new TestPeopleStorage, argc, argv);
-//        QTest::qExec(new TestScheduleStorage, argc, argv);
+        QTest::qExec(new TestGroupStorage, argc, argv);
 //        QTest::qExec(new TestDbManager, argc, argv);
-        QTest::qExec(new TestStringListViewer, argc, argv);
+//        QTest::qExec(new TestStringListViewer, argc, argv);
     }
 
 };

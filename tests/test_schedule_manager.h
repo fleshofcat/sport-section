@@ -5,7 +5,7 @@
 
 #include "db/schedule_manager.h"
 
-class TestScheduleStorage : public QObject
+class TestGroupStorage : public QObject
 {
     Q_OBJECT
 
@@ -17,11 +17,11 @@ private slots:
         QVERIFY(db.open());
     }
 
-    void test_addSchedule()
+    void test_addGroup()
     {
         // prepare
-        ScheduleManager schedules;
-        Schedule sched(1, 2); // schedule don't care about validation
+        GroupManager schedules;
+        Group sched(1, 2); // schedule don't care about validation
 
         // run test method
         QVERIFY(schedules.addSchedule(sched));
@@ -37,13 +37,13 @@ private slots:
         QCOMPARE(sched.child_id, query.value("child_id").toInt());
     }
 
-    void test_removeSchedule()
+    void test_removeGroup()
     {
         // preparing
 
         // create schedule for delete
-        ScheduleManager schedules;
-        Schedule sched(1, 2);
+        GroupManager schedules;
+        Group sched(1, 2);
 
         schedules.addSchedule(sched);
 
@@ -68,16 +68,16 @@ private slots:
         QVERIFY(sched.id != query.value(0).toInt());
     }
 
-    void test_replaceScheduleById()
+    void test_replaceGroupById()
     {
         // prepare
 
         // add basic schedule
-        ScheduleManager schedules;
-        schedules.addSchedule(Schedule(1, 2));
+        GroupManager schedules;
+        schedules.addSchedule(Group(1, 2));
 
         // make schedule for update
-        Schedule sched(3, 4);
+        Group sched(3, 4);
 
         // get new schedule id
         QSqlQuery query("SELECT max(id) FROM " + tableName);
@@ -98,26 +98,26 @@ private slots:
         QCOMPARE(sched.child_id, query.value("child_id").toInt());
     }
 
-    void test_getAllSchedule()
+    void test_getAllGroups()
     {
         // prepare
 
         // clean and refill the schedule table
         QSqlQuery query("DELETE FROM " + tableName);
 
-        ScheduleManager schedules;
+        GroupManager schedules;
 
-        Schedule insertSched_1(1, 2);
+        Group insertSched_1(1, 2);
         schedules.addSchedule(insertSched_1);
 
-        Schedule insertSched_2(3, 4);
+        Group insertSched_2(3, 4);
         schedules.addSchedule(insertSched_2);
 
         // run test method
-        QList<Schedule> *scheduleList = schedules.getAllSchedules();
+        QList<Group> *scheduleList = schedules.getAllSchedules();
 
-        QVERIFY(compareSchedule(insertSched_1, scheduleList->at(0)));
-        QVERIFY(compareSchedule(insertSched_2, scheduleList->at(1)));
+        QVERIFY(compareGroups(insertSched_1, scheduleList->at(0)));
+        QVERIFY(compareGroups(insertSched_2, scheduleList->at(1)));
     }
 
     void cleanupTestCase()
@@ -133,7 +133,7 @@ private slots:
 private:
     QString tableName = "relations";
 
-    bool compareSchedule(Schedule sched_1, Schedule sched_2)
+    bool compareGroups(Group sched_1, Group sched_2)
     {
         return     (sched_1.trainer_id == sched_2.trainer_id)
                 && (sched_1.child_id == sched_2.child_id);

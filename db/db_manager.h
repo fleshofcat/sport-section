@@ -11,7 +11,7 @@ class DbManager : public QObject
     Q_OBJECT    // обязательный макрос для Qt Framework
 
     PeopleManager *peopleManager;       // указатель на объект отвечающий за "людей" в бд
-    ScheduleManager *scheduleManager;   // указатель на объект отвечающий за "расписание" в бд
+    GroupManager *groupManager;   // указатель на объект отвечающий за "расписание" в бд
 public:
     // конструктор, при создании объекта от этого класса выполняется следующий код:
     // здесь создается и подключается база данных по пути
@@ -30,7 +30,7 @@ public:
         }
 
         peopleManager = new PeopleManager(this);    // создание объекта хранения людей
-        scheduleManager = new ScheduleManager(this);// создание объекта хранения расписаний
+        groupManager = new GroupManager(this);// создание объекта хранения расписаний
     }
 
     // методы для взаимодействия с бд
@@ -109,36 +109,36 @@ public:
     // работа с расписанием
 
     // добавление расписания
-    bool addSchedule(Schedule sched)
+    bool addSchedule(Group sched)
     {
         if (isScheduleValid(sched))
         {
-            return scheduleManager->addSchedule(sched);
+            return groupManager->addSchedule(sched);
         }
         return false;
     }
 
     // удаление расписаний
-    bool removeSchedule(Schedule sched)
+    bool removeSchedule(Group sched)
     {
-        return scheduleManager->removeSchedule(sched);
+        return groupManager->removeSchedule(sched);
     }
 
     // обновление расписаний в бд по id
-    bool replaceScheduleById(Schedule sched)
+    bool replaceScheduleById(Group sched)
     {
         // проверка расписания на актуальность
         if (isScheduleValid(sched))
         {
-            return scheduleManager->replaceScheduleById(sched);
+            return groupManager->replaceScheduleById(sched);
         }
         return false;
     }
 
     // вернуть все расписания
-    QList<Schedule> *getSchedules()
+    QList<Group> *getSchedules()
     {
-        return scheduleManager->getAllSchedules();
+        return groupManager->getAllSchedules();
     }
 
     // Деструктор выполняется когда объект уничтожается
@@ -177,10 +177,10 @@ private:
     bool isBelongToSomeSchedule(Person pers)
     {
         // взять все расписания из бд
-        QList<Schedule> *schedule = this->getSchedules();
+        QList<Group> *schedule = this->getSchedules();
 
         // искать во всех расписаниях ссылки на id этого человека
-        for (Schedule sched : *schedule)
+        for (Group sched : *schedule)
         {
             if (sched.child_id == pers.id
                     || sched.trainer_id == pers.id)
@@ -192,7 +192,7 @@ private:
     }
 
     // проверка что все люди на которых ссылается расписание существует
-    bool isScheduleValid(Schedule sched)
+    bool isScheduleValid(Group sched)
     {
         if (isPersonExist(sched.child_id)
                 && isPersonExist(sched.trainer_id))

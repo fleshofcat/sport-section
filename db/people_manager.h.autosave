@@ -53,12 +53,6 @@ public:
         "        (first_name, last_name, birthday, sport_type, is_trainer)      "
         " VALUES (:first_name, :last_name, :birthday, :sport_type, :is_trainer) ");
 
-//        query.bindValue(":first_name", person.firstName);
-//        query.bindValue(":last_name", person.lastName);
-//        query.bindValue(":birthday", person.birthday);
-//        query.bindValue(":sport_type", person.sportType);
-//        query.bindValue(":is_trainer", person.isTrainer);
-
         for (int i = 0;  i < person.getInList().count(); i++)
         {
             query.bindValue(i, person.getInList().at(i));

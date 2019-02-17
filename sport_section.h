@@ -75,7 +75,7 @@ private slots:
 
 
     // обработчик запроса добавления расписания в бд
-    void addScheduleToDb(Schedule sched)
+    void addScheduleToDb(Group sched)
     {
         if (db->addSchedule(sched)) // попытка добавить расписание в бд
         {
@@ -85,7 +85,7 @@ private slots:
 
 
     // обработчик запроса удаления расписания из бд
-    void removeScheduleFromDb(Schedule sched)
+    void removeScheduleFromDb(Group sched)
     {
         if (db->removeSchedule(sched))  // попытка удаления расписания из бд
         {
@@ -95,7 +95,7 @@ private slots:
 
 
     // обработчик запроса обновления расписания в бд
-    void updateScheduleIntoDb(Schedule sched)
+    void updateScheduleIntoDb(Group sched)
     {
         if (db->replaceScheduleById(sched)) // попытка обновить расписание в бд
         {
@@ -106,49 +106,11 @@ private slots:
 private:
 
     // обновление главного окна пользовательского интерфейса
-    bool updateMainWindow()
+    void updateMainWindow()
     {
-        QList<Person> *children = db->getChildren();     // извлчение из бд
-        QList<Person> *trainers = db->getTrainers();     // списка детей,
-        QList<Schedule> *schedules = db->getSchedules(); // тренеров и расписаний
-
-
-        if (isUpdateValud(children, trainers, schedules))   // если все данные актуальны
-        {
-            mw.update(*children, *trainers, *schedules);    // обновление пользовательского интерфейса
-            return true;                                    // этими данными
-        }
-        qDebug() << "SpSec::updateMainWindow(..) : update is not valid";
-        return false;                                       // если данные не актуальны, возврат false
-    }
-
-
-    // проверка данных на актуальность
-    bool isUpdateValud(QList<Person> *children, QList<Person> *trainers, QList<Schedule> *schedule)
-    {
-        for (Schedule sched : *schedule)                                   // для каждого расписания проверить
-        {                                                                  // что все его ссылки актуальны
-            if (isPersonExists(sched.child_id, *children) == false
-                    || isPersonExists(sched.trainer_id, *trainers) == false)
-            {
-                return false;                                              // если это так, вернуть true
-            }
-        }
-        return true;                                                       // иначе false
-    }
-
-
-    // проверка что человек существует
-    bool isPersonExists(int pers_id, QList<Person> people)
-    {
-        for (Person pers : people)  // сравнение проверяемого id
-        {                           // и всех id в списке
-            if (pers.id == pers_id)
-            {
-                return true;        // если нашлось совпадение вернуть true
-            }
-        }
-        return false;               // иначе false
+        mw.updateUi(*db->getChildren(),   // обновление пользовательского интерфейса
+                    *db->getTrainers(),   // данными из бд
+                    *db->getSchedules());
     }
 
 };
