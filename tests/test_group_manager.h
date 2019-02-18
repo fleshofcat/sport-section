@@ -19,8 +19,7 @@ private slots:
 
     void test_saveGroup()
     {
-        // prepare
-        GroupManager groups;
+//        GroupManager groups("");
         Group group({"Alfa", "плавание"});
 
 

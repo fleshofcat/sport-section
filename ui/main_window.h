@@ -4,8 +4,6 @@
 #include <QInputDialog> // для диалоговых окон с пользователями
 #include <QMessageBox>  // для вывода предупреждений пользователю
 
-#include "ui/person_editor.h"
-
 #include "ui/people_tab.h"
 
 
