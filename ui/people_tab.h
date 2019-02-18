@@ -12,7 +12,7 @@ class PeopleTab : public QWidget
 
 signals:
     void savePerson(Person person);
-    void removePerson(int id);
+    void removePerson(int id, bool isTrainer);
 
 public:
     enum class Who {
@@ -40,7 +40,7 @@ public:
     }
 
 
-    void updateContent(QList<Person> people)
+    void updateContent(Person pattern, QList<Person> people)
     {
         this->people = people;
 
@@ -52,7 +52,7 @@ public:
             stringTable << pers.getInList();
         }
 
-        peopleTable->updateData(Person::getPattern(), stringTable);
+        peopleTable->updateData(pattern.getInList(), stringTable);
     }
 
 private:
@@ -89,7 +89,7 @@ private slots:
     void on_removePerson(int row)
     {
         Person pers = this->people.at(row);
-        emit removePerson(pers.id);
+        emit removePerson(pers.id, pers.isTrainer);
     }
 
 public:

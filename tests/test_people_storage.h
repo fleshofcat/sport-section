@@ -8,7 +8,7 @@ class TestPeopleStorage : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase()
+/*    void initTestCase()
     {
         // prepare tests to manual check
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -16,14 +16,14 @@ private slots:
         QVERIFY(db.open());
     }
 
-    void test_addPerson()
+    void test_savePerson_add()
     {
         // prepare
-        PeopleManager people;
+        PeopleManager people("people");
         Person pers("Артем", "Оношко", "12.01.1998", "лох", false);
 
         // run test method
-        QVERIFY(people.addPerson(pers));
+        QVERIFY(people.savePerson(pers));
 
         // get examine data
         QSqlQuery query;
@@ -43,10 +43,10 @@ private slots:
         // preparing
 
         // create person for delete
-        PeopleManager people;
+        PeopleManager people("people");
         Person pers("person", "for", "delete", "in test", false);
 
-        people.addPerson(pers);
+        people.savePerson(pers);
 
         // get last id before removing
         QSqlQuery query("SELECT max(id) FROM people");
@@ -67,13 +67,13 @@ private slots:
         QVERIFY(pers.id != query.value(0).toInt());
     }
 
-    void test_replacePersonById()
+    void test_savePerson_update()
     {
         // prepare
 
         // add basic person
-        PeopleManager people;
-        people.addPerson(Person("record", "for edit", "xx.xx.xxxx", "coach", false));
+        PeopleManager people("people");
+        people.savePerson(Person("record", "for edit", "xx.xx.xxxx", "coach", false));
 
         // make person for update
         Person pers("edited", "record", "00.00.0000", "coach", true);
@@ -84,7 +84,7 @@ private slots:
         pers.id = query.value(0).toInt();
 
         // run test method
-        people.replacePersonById(pers);
+        people.savePerson(pers);
 
         // get examine data
         query.prepare("SELECT * FROM people WHERE id = (:id)");
@@ -107,13 +107,13 @@ private slots:
         // clean and refill the people table
         QSqlQuery query("DELETE FROM people");
 
-        PeopleManager people;
+        PeopleManager people("people");
 
         Person insertPers_1("names", "for get", "at all", "xx.xx.xxxx", true);
-        people.addPerson(insertPers_1);
+        people.savePerson(insertPers_1);
 
         Person insertPers_2("Артем", "Оношко", "лох", "xx.xx.xxxx", false);
-        people.addPerson(insertPers_2);
+        people.savePerson(insertPers_2);
 
         // run test method
         QList<Person> *peopleList = people.getAllPeople();
@@ -141,6 +141,8 @@ private:
                 && (pers_1.sportType == pers_2.sportType)
                 && (pers_1.isTrainer == pers_2.isTrainer);
     }
+
+    */
 };
 
 

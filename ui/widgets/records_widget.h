@@ -62,13 +62,13 @@ private:
 
 
         connect(propertyEditor, &PropertyEditor::saveIsRequred,
-                this, &RecordsWidget::on_propertyEditorSave);
+                this, &RecordsWidget::on_propertySave_button);
 
         connect(propertyEditor, &PropertyEditor::removeIsRequred,
-                this, &RecordsWidget::on_propertyEditorRemove);
+                this, &RecordsWidget::on_propertyRemove_button);
 
         connect(propertyEditor, &PropertyEditor::exitIsRequred,
-                this, &RecordsWidget::on_propertyEditorExit);
+                this, &RecordsWidget::on_propertyExit_button);
 
     }
 
@@ -110,9 +110,9 @@ private slots:
 
 
 
-    void on_propertyEditorSave(QList<QString> record)
+    void on_propertySave_button(QList<QString> record)
     {
-        if (this->chosen_row >= 0)
+        if (this->chosen_row >= 0 && this->chosen_row < stringTable.count())
         {
             emit saveRecordIsRequred(this->chosen_row, record);
         }
@@ -121,17 +121,24 @@ private slots:
             emit createRecordIsRequred(propertyEditor->getInList());
         }
 
-        on_propertyEditorExit();
+        on_propertyExit_button();
     }
 
-    void on_propertyEditorRemove()
+    void on_propertyRemove_button()
     {
-        emit removeRecordIsRequred(this->chosen_row);
-        on_propertyEditorExit();
+        if (this->chosen_row >= 0
+                && this->chosen_row < stringTable.count())
+        {
+            emit removeRecordIsRequred(this->chosen_row);
+        }
+
+        on_propertyExit_button();
     }
 
-    void on_propertyEditorExit()
+    void on_propertyExit_button()
     {
+        this->chosen_row = -1;
+
         propertyEditor->updateContent({});
 
         propertyEditor->hide();

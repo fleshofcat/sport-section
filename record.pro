@@ -10,11 +10,9 @@ HEADERS += \
     tests/main_test.h               \
     tests/test_people_storage.h     \
     tests/test_db_manager.h         \
-    tests/test_schedule_manager.h   \
     tests/test_shortshowwidget.h    \
                                     \
     db/db_manager.h                 \
-    db/schedule_manager.h           \
     db/people_manager.h             \
                                     \
     ui/widgets/property_editor.h    \
@@ -22,7 +20,9 @@ HEADERS += \
     ui/person_editor.h              \
     ui/widgets/record_viewer.h      \
     ui/widgets/records_widget.h     \
-    ui/people_tab.h
+    ui/people_tab.h \
+    db/group_manager.h \
+    tests/test_group_manager.h
 
 SOURCES += \
     main.cpp

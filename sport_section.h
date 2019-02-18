@@ -42,78 +42,56 @@ private slots:
     // обработчик запроса добавления и обновления человека в бд
     void savePersonToDb(Person pers)
     {
-        if (pers.id <= 0)
+        if (db->savePerson(pers)) // попытка добавить человека в бд
         {
-            if (db->addPerson(pers)) // попытка добавить человека в бд
-            {
-                updateMainWindow(); // обновление интерфейса
-            }
-        }
-        else
-        {
-            if (db->replacePersonById(pers)) // попытка обновить человека в бд
-            {
-                updateMainWindow();          // обновление интерфейса
-            }
+            updateMainWindow(); // обновление интерфейса
         }
     }
 
 
     // обработчик запроса удаления человека из бд
-    void removePersonFromDb(int id)
+    void removePersonFromDb(int id, bool isTrainer)
     {
-        Person pers;
-        pers.id = id;
-
-        if (db->removePerson(pers)) // попытка удалить человека из бд
+        if (db->removePerson(id, isTrainer)) // попытка удалить человека из бд
         {
             updateMainWindow();     // обновление интерфейса
         }
     }
 
-
-
-
-    // обработчик запроса добавления расписания в бд
-    void addScheduleToDb(Group sched)
-    {
-        if (db->addSchedule(sched)) // попытка добавить расписание в бд
-        {
-            updateMainWindow();     // обновление интерфейса
-        }
-    }
-
-
-    // обработчик запроса удаления расписания из бд
-    void removeScheduleFromDb(Group sched)
-    {
-        if (db->removeSchedule(sched))  // попытка удаления расписания из бд
-        {
-            updateMainWindow();         // // обновление интерфейса
-        }
-    }
-
-
-    // обработчик запроса обновления расписания в бд
-    void updateScheduleIntoDb(Group sched)
-    {
-        if (db->replaceScheduleById(sched)) // попытка обновить расписание в бд
-        {
-            updateMainWindow();             // обновление интерфейса
-        }
-    }
 
 private:
 
     // обновление главного окна пользовательского интерфейса
     void updateMainWindow()
     {
-        mw.updateUi(*db->getChildren(),   // обновление пользовательского интерфейса
-                    *db->getTrainers(),   // данными из бд
-                    *db->getSchedules());
+        mw.updateContent(db->getPersonPattern(),
+                         *db->getChildren(),
+                         *db->getTrainers());
+
+//        auto children = *db->getChildren();
+//        auto trainers = *db->getTrainers();
+
+//        mw.updateContent(db->getPersonPattern(),
+//                         children,
+//                         trainers);
     }
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

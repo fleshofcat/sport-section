@@ -3,14 +3,15 @@
 #include <QtSql> // библиотека для работы с бд
 
 #include "people_manager.h" // файл объекта отвечающего за "людей" в бд
-#include "schedule_manager.h" // файл объекта отвечающего за "расписание" в бд
+#include "group_manager.h" // файл объекта отвечающего за "расписание" в бд
 
 // класс DbManager/БдМенеджер
 class DbManager : public QObject
 {
     Q_OBJECT    // обязательный макрос для Qt Framework
 
-    PeopleManager *peopleManager;       // указатель на объект отвечающий за "людей" в бд
+    PeopleManager *sportsmenManager;
+    PeopleManager *trainersManager;
     GroupManager *groupManager;   // указатель на объект отвечающий за "расписание" в бд
 public:
     // конструктор, при создании объекта от этого класса выполняется следующий код:
@@ -29,8 +30,9 @@ public:
             return;
         }
 
-        peopleManager = new PeopleManager(this);    // создание объекта хранения людей
-        groupManager = new GroupManager(this);// создание объекта хранения расписаний
+        sportsmenManager = new PeopleManager("sportsmen", this);
+        trainersManager =  new PeopleManager("trainers", this);
+//        groupManager = new GroupManager(this);// создание объекта хранения расписаний
     }
 
     // методы для взаимодействия с бд
@@ -39,110 +41,55 @@ public:
 
     // метод добавления человека в бд
     // принимает объект человека и добавляет с помощью менеджера людей
-    bool addPerson(Person pers)
+
+    bool savePerson(Person pers)
     {
-        return peopleManager->addPerson(pers);
+        if (pers.isTrainer)
+        {
+            return trainersManager->savePerson(pers);
+        }
+        else
+        {
+            return sportsmenManager->savePerson(pers);
+        }
+
     }
 
     // метод удаления человека из бд
     // принимает объект человека и удаляет с помощью менеджера людей
-    bool removePerson(Person pers)
+    bool removePerson(int id, bool isTrainer)
     {
-        // проверка что человек не состаит в существующих расписаниях
-        if (isBelongToSomeSchedule(pers))
+        if (isTrainer)
         {
-            return false; // если состоит, вернуть false
+            return trainersManager->removePerson(id);
         }
-        // если не состоит провести провести удаление
-        return peopleManager->removePerson(pers);
+        else
+        {
+            return sportsmenManager->removePerson(id);
+        }
     }
 
-    // метод обновления человека в бд по его id
-    bool replacePersonById(Person pers)
+    Person getPersonPattern()
     {
-        return peopleManager->replacePersonById(pers);
+        return Person(Person::getPattern());
     }
 
     // метод возвращает из бд всех людей в виде спика List
-    QList<Person> *getPeople()
-    {
-        return peopleManager->getAllPeople();
-    }
-
 
     // метод возвращает из бд детей в виде спика List
     QList<Person> *getChildren()
     {
-        QList<Person> *people = peopleManager->getAllPeople();
-        QList<Person> *children = new QList<Person>;
-
-        for (Person pers : *people)
-        {
-            if (pers.isTrainer == false)
-            {
-                *children << pers;
-            }
-        }
-
-        return children;
+        return sportsmenManager->getPeople();
     }
 
 
     // метод возвращает из бд тренеров в виде спика List
     QList<Person> *getTrainers()
     {
-        QList<Person> *people = peopleManager->getAllPeople();
-        QList<Person> *trainers = new QList<Person>;
-
-        for (Person pers : *people)
-        {
-            if (pers.isTrainer == true)
-            {
-                *trainers << pers;
-            }
-        }
-
-        return trainers;
+        return trainersManager->getPeople();
     }
 
 
-    // работа с расписанием
-
-    // добавление расписания
-    bool addSchedule(Group sched)
-    {
-        if (isScheduleValid(sched))
-        {
-            return groupManager->addSchedule(sched);
-        }
-        return false;
-    }
-
-    // удаление расписаний
-    bool removeSchedule(Group sched)
-    {
-        return groupManager->removeSchedule(sched);
-    }
-
-    // обновление расписаний в бд по id
-    bool replaceScheduleById(Group sched)
-    {
-        // проверка расписания на актуальность
-        if (isScheduleValid(sched))
-        {
-            return groupManager->replaceScheduleById(sched);
-        }
-        return false;
-    }
-
-    // вернуть все расписания
-    QList<Group> *getSchedules()
-    {
-        return groupManager->getAllSchedules();
-    }
-
-    // Деструктор выполняется когда объект уничтожается
-    // закрытие соединения с бд
     ~DbManager()
     {
         {
@@ -150,56 +97,6 @@ public:
             db.close();
         }
         QSqlDatabase::removeDatabase("qt_sql_default_connection");
-    }
-
-// методы для внутреннего использования внутри этого класса
-private:
-
-    // проверка что человек внутри бд существует    // TODO
-    bool isPersonExist(int pers_id)
-    {
-        // взять всех людей из бд
-        QList<Person> *people = this->peopleManager->getAllPeople();
-
-        // попытаться найти человека с заданным id в списке людей из бд
-        for (Person pers : *people)
-        {
-            if (pers.id == pers_id)
-            {
-                return true;
-            }
-        }
-        // если не нашлось то false
-        return false;
-    }
-
-    // проверка что человек принадлежит к расписанию
-    bool isBelongToSomeSchedule(Person pers)
-    {
-        // взять все расписания из бд
-        QList<Group> *schedule = this->getSchedules();
-
-        // искать во всех расписаниях ссылки на id этого человека
-        for (Group sched : *schedule)
-        {
-            if (sched.child_id == pers.id
-                    || sched.trainer_id == pers.id)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // проверка что все люди на которых ссылается расписание существует
-    bool isScheduleValid(Group sched)
-    {
-        if (isPersonExist(sched.child_id)
-                && isPersonExist(sched.trainer_id))
-        {
-            return true;
-        }
-        return false;
     }
 
 };

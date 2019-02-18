@@ -2,12 +2,12 @@
 
 #include <QtSql> // для работы с бд
 
-#include "common_objects.h" // общие объекты (Person/Schedule)
+#include "common/common_objects.h" // общие объекты (Person/Schedule)
 
 // класс ScheduleManager/МенеджерРасписаний
 //
 // отвечает за хранение расписаний в бд
-class ScheduleManager : public QObject
+class GroupManager : public QObject
 {
     Q_OBJECT // обязательный макрос
     QString tableName = "relations"; // имя таблицы этого модуля
@@ -16,7 +16,7 @@ public:
     // конструктор
     // если при создании этого объекта в бд нет нужной ему таблицы
     // он сам создаст ее
-    explicit ScheduleManager(QObject *parent = nullptr)
+    explicit GroupManager(QObject *parent = nullptr)
         : QObject(parent)
     {               // create relation table in db if not exist // TODO
         QSqlQuery query("SELECT name FROM sqlite_master"
@@ -35,8 +35,9 @@ public:
     }
 
 
+    /*
     // метод добавления расписания
-    bool addSchedule(Schedule sched)
+    bool addGroup(Group sched)
     {
         // проверка что расписание полное
         if (sched.isFull() == false)
@@ -44,12 +45,12 @@ public:
 
         // запись расписания sql запросом
         QSqlQuery query;
-        query.prepare("INSERT INTO " + tableName +
-                      "         (trainer_id, child_id)"
-                      " VALUES  (:trainer_id, :child_id)");
+//        query.prepare("INSERT INTO " + tableName +
+//                      "         (trainer_id, child_id)"
+//                      " VALUES  (:trainer_id, :child_id)");
 
-        query.bindValue(":trainer_id", sched.trainer_id);
-        query.bindValue(":child_id", sched.child_id);
+//        query.bindValue(":trainer_id", sched.trainer_id);
+//        query.bindValue(":child_id", sched.child_id);
 
         bool ret = query.exec();
 
@@ -59,9 +60,8 @@ public:
         return ret; // возвращение успеха/не успеха операции
     }
 
-
     // метод удаления расписания
-    bool removeSchedule(Schedule sched)
+    bool removeSchedule(Group sched)
     {
         // sql запрос удаления расписания
         QSqlQuery query;
@@ -79,7 +79,7 @@ public:
 
 
     // метод обновления расписания в бд по id
-    bool replaceScheduleById(Schedule sched)
+    bool replaceScheduleById(Group sched)
     {
         // sql запрос на обновление
         QSqlQuery query;
@@ -103,20 +103,20 @@ public:
 
 
     // метод получения всех расписаний их бд
-    QList<Schedule> *getAllSchedules()
+    QList<Group> *getAllSchedules()
     {
         // выполнение sql запроса
         QSqlQuery query;
         query.prepare("SELECT * FROM " + tableName);
 
-        QList<Schedule> *scheduleList = new QList<Schedule>;
+        QList<Group> *scheduleList = new QList<Group>;
 
         if (query.exec())        // если запрос прошел успешно
         {
             while (query.next()) // упаковать расписания в список
             {
 
-                Schedule *sched = new Schedule();
+                Group *sched = new Group();
 
                 sched->id = query.value("id").toInt();
                 sched->trainer_id = query.value("trainer_id").toInt();
@@ -131,6 +131,7 @@ public:
 
         return nullptr;  // если запрос прошел не учпешно, вернуть нулевой указатель
     }
+    */
 };
 
 

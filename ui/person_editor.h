@@ -25,20 +25,20 @@ public:
     };
 
 
-    PersonEditor(PersonEditor::Who who, QWidget *parent = nullptr)
+    PersonEditor(Person pattern, PersonEditor::Who who, QWidget *parent = nullptr)
         : QWidget(parent)
     {
         Person person;
         person.isTrainer = (who == Who::TRAINER) ? true : false;
 
-        commonConstructor(person);
+        commonConstructor(pattern, person);
     }
 
 
-    PersonEditor(Person person, QWidget *parent = nullptr)
+    PersonEditor(Person pattern, Person person, QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        commonConstructor(person);
+        commonConstructor(pattern, person);
     }
 
     PersonEditor(QWidget *parent = nullptr)
@@ -46,9 +46,9 @@ public:
 
 
 private:
-    void commonConstructor(Person pers)
+    void commonConstructor(Person pattern, Person pers)
     {
-        this->pattern = Person::getPattern();
+        this->pattern = pattern.getInList();
         this->person = new Person(pers);
 
         setUpUi();
