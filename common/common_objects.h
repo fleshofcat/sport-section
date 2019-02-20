@@ -96,8 +96,8 @@ public:
     QString groupName;
     QString sportType;
 
-    QList<int> trainers_id;
-    QList<int> children_id;
+    QList<int> trainers_ids;
+    QList<int> sportsmen_ids;
 
 };
 

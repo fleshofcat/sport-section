@@ -21,7 +21,8 @@ HEADERS += \
     ui/widgets/records_widget.h     \
     ui/people_tab.h \
     db/group_manager.h \
-    tests/test_group_manager.h
+    tests/test_group_manager.h \
+    db/group_people_relations.h
 
 SOURCES += \
     main.cpp

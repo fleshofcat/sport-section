@@ -17,17 +17,13 @@ private slots:
         QVERIFY(db.open());
     }
 
-    void test_saveGroup()
+    void addGroup()
     {
-//        GroupManager groups("");
-        Group group({"Alfa", "плавание"});
+        GroupManager groups("groups", "trainers", "sportsmen");
 
 
-
-        // compare
-//        QCOMPARE(sched.trainer_id, query.value("trainer_id").toInt());
-//        QCOMPARE(sched.child_id, query.value("child_id").toInt());
     }
+
     /*
 
     void test_removeGroup()

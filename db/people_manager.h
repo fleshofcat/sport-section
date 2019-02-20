@@ -106,7 +106,10 @@ private:
             query.addBindValue(field);
         }
 
-        return query.exec();
+        bool ok = query.exec();
+        QString err = query.lastError().text();
+        auto dd = err;
+        return ok;
     }
 
 
@@ -141,19 +144,20 @@ private:
         QSqlQuery query("SELECT name FROM sqlite_master"
                             " WHERE name='" + tableName + "'");
 
-        query.next();
-        if (query.value(0).toString() != tableName)
+        if (query.next() == false)
         {
-            query.exec( "CREATE TABLE IF NOT EXISTS " + tableName + " (      " +
-                        " id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,     "
-                        " first_name TEXT NOT NULL,                          "
-                        " second_name TEXT                                   "
-                        " last_name TEXT NOT NULL,                           "
-                        " birthday TEXT NOT NULL,                            "
-                        " sport_type TEXT NOT NULL                           ");
+            query.exec( "CREATE TABLE IF NOT EXISTS " + tableName + " (    \n" +
+                        " id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,     \n"
+                        " first_name TEXT NOT NULL,                        \n"
+                        " second_name TEXT,                                \n"
+                        " last_name TEXT NOT NULL,                         \n"
+                        " birthday TEXT NOT NULL,                          \n"
+                        " sport_type TEXT NOT NULL                         \n"
+                        " )                                                \n");
 
             // вывод отладочной информации что таблица в бд была создана
-            qDebug() << "Creating " + tableName + " table inside database";
+            if (query.lastError().isValid() == false)
+                qDebug() << "Creating " + tableName + " table inside database";
         }
     }
 };

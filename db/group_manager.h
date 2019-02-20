@@ -2,7 +2,8 @@
 
 #include <QtSql> // для работы с бд
 
-#include "common/common_objects.h" // общие объекты (Person/Schedule)
+#include "common/common_objects.h"
+#include "db/group_people_relations.h"
 
 // класс ScheduleManager/МенеджерРасписаний
 //
@@ -10,92 +11,129 @@
 class GroupManager : public QObject
 {
     Q_OBJECT
-    QString tableName;
+
+    friend class TestGroupStorage;
+
+    QString groupTable;
+
+    GroupPeopleRelations *trainersRefs;
+    GroupPeopleRelations *sportsmenRefs;
 
 public:
     // конструктор
     // если при создании этого объекта в бд нет нужной ему таблицы
     // он сам создаст ее
-    explicit GroupManager(
-            QString tableName,
-            QObject *parent = nullptr)
+    explicit GroupManager(QString groupTableName,
+                          QString trainerTableName,
+                          QString sportsmanTableName,
+                          QObject *parent = nullptr)
         : QObject(parent)
     {
-        this->tableName = tableName;
+        this->groupTable = groupTableName;
+        touchGroupTable(groupTableName);
 
-        touchGroupTable(tableName);
+        trainersRefs = new GroupPeopleRelations(
+                    groupTableName, trainerTableName);
+
+        sportsmenRefs = new GroupPeopleRelations(
+                    groupTableName, sportsmanTableName);
     }
 
+private:
     bool addGroup(Group group)
-    {
-        QSqlQuery query("SELECT MAX(id) FROM " + tableName);
-        if (query.next())
+    {       
+        int maxGroupId = getMaxIdFromTable(groupTable);
+
+
+        if (maxGroupId >= 0)
         {
-            group.id = query.record().value(0).toInt() + 1;
+            group.id = maxGroupId + 1;
+
+            QSqlQuery query;
+            query.prepare("INSERT INTO " + groupTable +
+                          "         (id, group_name, sport_type)    "
+                          " VALUES  (:id, :group_name, :sport_type) ");
+
+            query.addBindValue(group.id);
+            bindValueList(query, group.getProperty());
+
+            if (query.exec())
+            {
+                if (trainersRefs->addLinks(group.id, group.trainers_ids))
+                {
+                    if (sportsmenRefs->addLinks(group.id, group.sportsmen_ids))
+                    {
+                        return true;
+
+                    } else
+                        qWarning() << "group sportsmen refs was not added";
+                } else
+                    qWarning() << "group trainers refs was not added";
+            } else
+                qWarning() << query.lastError().text();
+        } else
+            qWarning() << "GroupManager::addGroup failed to get maxGroupId";
+
+        return false;
+    }
+
+
+//    bool updateGroup(Group group)
+//    {
+
+//    }
+
+
+    void touchGroupTable(QString groupTable)
+    {
+        QSqlQuery query("SELECT name FROM sqlite_master"
+                        " WHERE name='" + groupTable + "'");
+
+        if (query.next() == false)
+        {
+            query.exec("CREATE TABLE IF NOT EXISTS " + groupTable + " ( \n" +
+                       " id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,   \n"
+                       " group_name TEXT NOT NULL,                      \n"
+                       " sport_type TEXT NOT NULL                       \n"
+                       ")                                                 ");
+
+            if (query.lastError().isValid() == false)
+                qDebug() << "Creating " + groupTable + " table inside database";
         }
+    }
 
 
-        query.prepare("INSERT INTO " + tableName +
-                      "         (id, group_name, sport_type)    "
-                      " VALUES  (:id, :group_name, :sport_type) ");
+    static int getMaxIdFromTable(QString table) // возвращает -1 при неудаче
+    {
+        QSqlQuery query("SELECT MAX(id) FROM " + table);
 
-        query.addBindValue(group.id);
-        for (QString field : group.getProperty())
+        if (query.lastError().isValid() == false)
+        {
+            if (query.next())
+            {
+                return query.record().value(0).toInt();
+            }
+        }
+        else
+        {
+            qWarning() << query.lastError().text();
+        }
+        return -1;
+    }
+
+    void bindValueList(QSqlQuery &query, QList<QString> list) // TODO test it
+    {
+        for (QString field : list)
         {
             query.addBindValue(field);
         }
-
-        if (query.exec() == false)
-        {
-            qDebug() << query.lastError().text();
-            return false;
-        }
-
-
-
-        for (int trainer_id : group.trainers_id)
-        {
-            query.prepare("INSERT INTO groups_trainers      "
-                          "     (group_id, trainer_id)      "
-                          " VALUES (:group_id, :trainer_id) ");
-
-            query.addBindValue(group.id);
-            query.addBindValue(trainer_id);
-
-            if (query.exec() == false)
-            {
-                qDebug() << query.lastError().text();
-                return false;
-            }
-        }
-
-        for (int sportsman_id : group.children_id)
-        {
-            query.prepare("INSERT INTO groups_sportsmen         "
-                          "     (group_id, trainer_id)          "
-                          " VALUES (:group_id, :sportsman_id)   ");
-
-            query.addBindValue(group.id);
-            query.addBindValue(sportsman_id);
-
-            if (query.exec() == false)
-            {
-                qDebug() << query.lastError().text();
-                return false;
-            }
-
-        }
-
-        return true;
     }
 
-
-    void setRelationToTrainer()
-    {
-
-    }
+};
 
 
+
+    // TODO to analysis
     /*
     // метод добавления расписания
     bool addGroup(Group sched)
@@ -193,26 +231,6 @@ public:
         return nullptr;  // если запрос прошел не учпешно, вернуть нулевой указатель
     }
     */
-
-    void touchGroupTable(QString tableName)
-    {
-        QSqlQuery query("SELECT name FROM sqlite_master"
-                        " WHERE name='" + tableName + "'");
-
-        query.next();
-        if (query.value(0).toString() != tableName)
-        {
-            query.exec("CREATE TABLE IF NOT EXISTS " + tableName + " (  " +
-                       " id INTEGER PRIMARY KEY AUTOINCREMENT, UNIQUE   "
-                       " group_name TEXT NOT NULL,                      "
-                       " sport_type TEXT NOT NULL)                      ");
-
-            qDebug() << "Creating " + tableName + " table inside database";
-        }
-    }
-};
-
-
 
 
 
