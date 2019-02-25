@@ -4,10 +4,15 @@
 #include <QtSql>
 
 #include "db/group_manager.h"
+#include "db/people_manager.h"
 
 class TestGroupStorage : public QObject
 {
     Q_OBJECT
+
+    QString groups = "groups";
+    QString trainers = "trainers";
+    QString sportsmen = "sportsmen";
 
 private slots:
     void initTestCase()
@@ -15,120 +20,134 @@ private slots:
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName("../record/tests/test_res/sport_people.db");
         QVERIFY(db.open());
+
+        // set db to defined state before tests
+//        setDbToKnownState();
     }
 
-    void addGroup()
+
+    void test_addGroup()
     {
-        GroupManager groups("groups", "trainers", "sportsmen");
+        setDefaultValuesToDb();
 
+        GroupManager grs(groups, trainers, sportsmen);
 
+        Group gr(Group({"testGroupName", "testSportType"}));
+        gr.trainers_ids << 1;
+        gr.sportsmen_ids << 1;
+
+        QVERIFY(grs.addGroup(gr));
     }
 
-    /*
+
+    void test_updateGroup()
+    {
+        setDefaultValuesToDb();
+
+        GroupManager grs(groups, trainers, sportsmen);
+
+        Group gr(Group({"testGroupName", "testSportType"}));
+        gr.trainers_ids << 1;
+        gr.sportsmen_ids << 1;
+
+        gr.id = grs.getMaxIdFromTable(groups);
+        QVERIFY(gr.id > 0);
+
+        QVERIFY(grs.updateGroup(gr));
+    }
 
     void test_removeGroup()
     {
-        // preparing
+        setDefaultValuesToDb();
+        GroupManager grs(groups, trainers, sportsmen);
 
-        // create schedule for delete
-        GroupManager schedules;
-        Group sched(1, 2);
+        int group_id = grs.getMaxIdFromTable(groups);
+        QVERIFY(group_id > 0);
 
-        schedules.addSchedule(sched);
+        QVERIFY(grs.removeGroup(group_id));
 
-        // get id
-        QSqlQuery query("SELECT max(id) FROM " + tableName);
-        query.next();
-
-        int last_id = query.value(0).toInt();
-        qDebug() << "max id = " << last_id;
-
-        sched.id = last_id;
-
-        // examine
-
-        // removeSchedule() is deleting by sched.id
-        QVERIFY(schedules.removeSchedule(sched));
-
-        query.exec("SELECT max(id) FROM " + tableName);
-        query.next();
-
-        // compare sched.id with last id
-        QVERIFY(sched.id != query.value(0).toInt());
+        QCOMPARE(grs.getMaxIdFromTable(groups), 1);
     }
 
-    void test_replaceGroupById()
+
+    void test_getGroups()
     {
-        // prepare
+        setDefaultValuesToDb();
 
-        // add basic schedule
-        GroupManager schedules;
-        schedules.addSchedule(Group(1, 2));
+        GroupManager grs(groups, trainers, sportsmen);
 
-        // make schedule for update
-        Group sched(3, 4);
+        auto groups = grs.getGroups();
 
-        // get new schedule id
-        QSqlQuery query("SELECT max(id) FROM " + tableName);
-        query.next();
-        sched.id = query.value(0).toInt();
+        Group swimming = groups->at(0);
+        Group froad = groups->at(1);
 
-        // run test method
-        schedules.replaceScheduleById(sched);
-
-        // get examine data
-        query.prepare("SELECT * FROM " + tableName + " WHERE id = (:id)");
-        query.bindValue(":id", sched.id);
-        query.exec();
-        query.next();
-
-        // compare
-        QCOMPARE(sched.trainer_id, query.value("trainer_id").toInt());
-        QCOMPARE(sched.child_id, query.value("child_id").toInt());
-    }
-
-    void test_getAllGroups()
-    {
-        // prepare
-
-        // clean and refill the schedule table
-        QSqlQuery query("DELETE FROM " + tableName);
-
-        GroupManager schedules;
-
-        Group insertSched_1(1, 2);
-        schedules.addSchedule(insertSched_1);
-
-        Group insertSched_2(3, 4);
-        schedules.addSchedule(insertSched_2);
-
-        // run test method
-        QList<Group> *scheduleList = schedules.getAllSchedules();
-
-        QVERIFY(compareGroups(insertSched_1, scheduleList->at(0)));
-        QVERIFY(compareGroups(insertSched_2, scheduleList->at(1)));
-    }
-
-    void cleanupTestCase()
-    {
-        {
-            QSqlQuery query("DELETE FROM " + tableName);
-            QSqlDatabase db = QSqlDatabase::database("qt_sql_default_connection");
-            db.close();
-        }
-        QSqlDatabase::removeDatabase("qt_sql_default_connection");
+        QCOMPARE(groups->count(), 2);
+        QCOMPARE(swimming.id, 1);
+        QCOMPARE(froad.getInList().at(1), "мошенник");
     }
 
 private:
-    QString tableName = "relations";
-
-    bool compareGroups(Group sched_1, Group sched_2)
+   void setDefaultValuesToDb()
     {
-        return     (sched_1.trainer_id == sched_2.trainer_id)
-                && (sched_1.child_id == sched_2.child_id);
+       // delete order is important
+       dropDbState();
+
+       PeopleManager sportsmenManager(sportsmen);
+
+       sportsmenManager.savePerson(
+                   Person({"Артем", "Эдуардович", "Оношко", "12.01.1998", "плавание"}));
+
+       sportsmenManager.savePerson(
+                   Person({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"}));
+
+       PeopleManager trainersManager(trainers);
+       trainersManager.savePerson(
+                   Person({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"}));
+
+
+       GroupManager grs(groups, trainers, sportsmen);
+
+       Group gr(Group::getPattern());
+       gr.trainers_ids << 1;
+       gr.sportsmen_ids << 1;
+       grs.addGroup(gr);
+
+       Group gr_2({"Группа мошеннег", "мошенник"});
+       gr_2.trainers_ids << 1;
+       gr_2.sportsmen_ids << 2;
+       grs.addGroup(gr_2);
+
     }
-*/
+
+   void dropDbState()
+   {
+       QSqlQuery query;
+       query.exec("DROP TABLE IF EXISTS " + groups + "_" + sportsmen);
+       query.exec("DROP TABLE IF EXISTS " + groups + "_" + trainers);
+       query.exec("DROP TABLE IF EXISTS " + groups);
+       query.exec("DROP TABLE IF EXISTS " + sportsmen);
+       query.exec("DROP TABLE IF EXISTS " + trainers);
+   }
+
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

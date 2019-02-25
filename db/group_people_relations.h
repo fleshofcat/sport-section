@@ -23,6 +23,59 @@ public:
     }
 
 
+    bool updateLinks(int group_id, QList<int> people_ids)
+    {
+        if (removeGroupLinks(group_id))
+        {
+            return addLinks(group_id, people_ids);
+        }
+        return false;
+    }
+
+    bool removeGroupLinks(int group_id)
+    {
+        QSqlQuery query;
+        query.prepare("DELETE FROM " + groupPeopleTable +
+                      " WHERE group_id = (:group_id)");
+
+        query.addBindValue(group_id);
+
+        if (query.exec())
+            return true;
+        else
+            qWarning() << "group links in " + groupPeopleTable +
+                          " table was not removed. "
+                       << query.lastError().text();
+
+        return false;
+    }
+
+    QList<int> *getLinks(int group_id)
+    {
+        QSqlQuery query;
+        query.prepare("SELECT person_id FROM " + groupPeopleTable +
+                      " WHERE group_id = (:id)");
+        query.addBindValue(group_id);
+
+        if (query.exec())
+        {
+            QList<int> *people_ids = new QList<int>;
+
+            while (query.next())
+            {
+                *people_ids << query.record().value(0).toInt();
+            }
+
+            return  people_ids;
+        }
+        else
+            qWarning() << query.lastError().text();
+
+        return nullptr;
+    }
+
+
+private:
     bool addLinks(int group_id, QList<int> people_ids)
     {
         for (int pers_id : people_ids)
@@ -44,7 +97,6 @@ public:
         return true;
     }
 
-private:
     void constructor(QString groupTable,
                      QString peopleTable,
                      QString groupPeopleTable)
@@ -70,7 +122,7 @@ private:
                            " person_id INTEGER NOT NULL,                                \n"
                            " FOREIGN KEY (group_id) REFERENCES " + groupTable + "(id)   \n"
                            " FOREIGN KEY (person_id) REFERENCES " + peopleTable + "(id) \n"
-                           ")                                                           ");
+                           ")                                                           \n");
 
                 if (query.lastError().isValid() == false)
                     qDebug() << "Creating " + table + " table inside database";

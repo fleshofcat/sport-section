@@ -2,6 +2,7 @@
 
 #include "tests/main_test.h" // тесты
 #include "sport_section.h"   // главный класс программы (SportSection)
+#include "ui/widgets/record_chooser.h"
 
 // точка входа программы
 int main(int argc, char *argv[])
@@ -16,9 +17,12 @@ int main(int argc, char *argv[])
 #else
     QApplication app(argc, argv);
 
-    MainTest::runAllTests(argc, argv);
-    return 0;
-//    return app.exec();
+    TestEditorsBox tst;
+    tst.manualTesting();
+
+//    MainTest::runAllTests(argc, argv);
+//    return 0;
+    return app.exec();
 #endif
 }
 

@@ -5,6 +5,7 @@
 #include <QMessageBox>  // для вывода предупреждений пользователю
 
 #include "ui/people_tab.h"
+#include "ui/groups_tab.h"
 
 
 // класс MainWindow/ГлавноеОкно является классом-прослойкой
@@ -17,18 +18,22 @@ class MainWindow : public QWidget
     Q_OBJECT    // обязательный макрос
 
 signals:
-    void savePersonIsRequred(Person savedPerson);       // сигналы, испускаемые
-    void removePersonIsRequred(int id, bool isTrainer); // этим объектом обрабатывают
+    void savePerson(Person savedPerson);       // сигналы, испускаемые
+    void removePersonIs(int id, bool isTrainer); // этим объектом обрабатывают
+    void saveGroup(Group group);
+    void removeGroup(int id);
 
 private:
     QTabWidget *tabs;
 
-    PeopleTab *childrenTable = nullptr;
-    PeopleTab *trainersTable = nullptr;
+    PeopleTab *childrenTab = nullptr;
+    PeopleTab *trainersTab = nullptr;
+    GroupsTab *groupTab = nullptr;
+
 
     QList<Person> children;     // объект для хранения детей
     QList<Person> trainers;     // объект для хранения тренеров
-
+    QList<Group> groups;
 
 public:
     // код который будет выполняться при создании объекта от этого класса
@@ -38,44 +43,41 @@ public:
     {
         setUpUi();
 
-        connect(childrenTable, &PeopleTab::savePerson, this, &MainWindow::savePersonIsRequred);
-        connect(childrenTable, &PeopleTab::removePerson, this, &MainWindow::removePersonIsRequred);
+        connect(childrenTab, &PeopleTab::savePerson, this, &MainWindow::savePerson);
+        connect(childrenTab, &PeopleTab::removePerson, this, &MainWindow::removePersonIs);
 
-        connect(trainersTable, &PeopleTab::savePerson, this, &MainWindow::savePersonIsRequred);
-        connect(trainersTable, &PeopleTab::removePerson, this, &MainWindow::removePersonIsRequred);
+        connect(trainersTab, &PeopleTab::savePerson, this, &MainWindow::savePerson);
+        connect(trainersTab, &PeopleTab::removePerson, this, &MainWindow::removePersonIs);
 
+        connect(groupTab, &GroupsTab::saveGroup, this, &MainWindow::saveGroup);
+        connect(groupTab, &GroupsTab::removeGroup, this, &MainWindow::removeGroup);
     }
 
 
     // метод с помощью которого данные от бд
     // будут загружаться в данный класс и отображаться пользователю
-    void updateContent(Person personPattern, QList<Person> children, QList<Person> trainers)
-    {
-        updateChildren(personPattern, children);
-        updateTrainers(personPattern, trainers);
-    }
-
-    void updateChildren(Person personPattern, QList<Person> children)
-    {
+    void updateContent(QList<Person> children,
+                       QList<Person> trainers,
+                       QList<Group> groups)
+    {   
         this->children = children;
-
-        childrenTable->updateContent(personPattern, children);
-    }
-
-    void updateTrainers(Person personPattern, QList<Person> trainers)
-    {
         this->trainers = trainers;
+        this->groups = groups;
 
-        trainersTable->updateContent(personPattern, trainers);
+        childrenTab->updateContent(children);
+        trainersTab->updateContent(trainers);
+        groupTab->updateContent(children, trainers, groups);
     }
+
 
 private:
     void setUpUi()
     {
-        this->resize(764, 378);
+        this->resize(800, 400);
 
-        childrenTable = new PeopleTab(PeopleTab::Who::CHILDREN);
-        trainersTable = new PeopleTab(PeopleTab::Who::TRAINERS);
+        childrenTab = new PeopleTab(Person::Who::CHILDREN);
+        trainersTab = new PeopleTab(Person::Who::TRAINERS);
+        groupTab = new GroupsTab;
 
         tabs = new QTabWidget(this);
 
@@ -87,8 +89,9 @@ private:
         tabs->setSizePolicy(sizePolicy);
 
 
-        tabs->addTab(childrenTable, "Спортсмены");
-        tabs->addTab(trainersTable, "Тренера");
+        tabs->addTab(childrenTab, "Спортсмены");
+        tabs->addTab(trainersTab, "Тренера");
+        tabs->addTab(groupTab, "Группы");
     }
 
 

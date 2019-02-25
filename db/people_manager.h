@@ -77,11 +77,11 @@ public:
                     persInList << sqlModel.record(r).value(c + 1).toString();
                 }
 
-                Person *pers = new Person(persInList);
+                Person pers(persInList);
 
-                pers->id = sqlModel.record(r).value("id").toInt();
+                pers.id = sqlModel.record(r).value("id").toInt();
 
-                *people << *pers;
+                *people << pers;
             }
             return people;
         }

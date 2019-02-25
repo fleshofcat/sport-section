@@ -16,27 +16,104 @@ class GroupManager : public QObject
 
     QString groupTable;
 
-    GroupPeopleRelations *trainersRefs;
-    GroupPeopleRelations *sportsmenRefs;
+    GroupPeopleRelations *refsToTrainers;
+    GroupPeopleRelations *refsToSportsmen;
 
 public:
     // конструктор
     // если при создании этого объекта в бд нет нужной ему таблицы
     // он сам создаст ее
-    explicit GroupManager(QString groupTableName,
-                          QString trainerTableName,
-                          QString sportsmanTableName,
+    explicit GroupManager(QString groupTable,
+                          QString trainerTable,
+                          QString sportsmanTable,
                           QObject *parent = nullptr)
         : QObject(parent)
     {
-        this->groupTable = groupTableName;
-        touchGroupTable(groupTableName);
+        this->groupTable = groupTable;
+        touchGroupTable(groupTable);
 
-        trainersRefs = new GroupPeopleRelations(
-                    groupTableName, trainerTableName);
+        refsToTrainers = new GroupPeopleRelations(
+                    groupTable, trainerTable);
 
-        sportsmenRefs = new GroupPeopleRelations(
-                    groupTableName, sportsmanTableName);
+        refsToSportsmen = new GroupPeopleRelations(
+                    groupTable, sportsmanTable);
+    }
+
+    bool saveGroup(Group group)
+    {
+        if (group.id < 1)
+        {
+            return addGroup(group);
+        }
+        else
+        {
+            return updateGroup(group);
+        }
+    }
+
+    bool removeGroup(int group_id)
+    {
+        if (refsToTrainers->removeGroupLinks(group_id))
+        {
+            if (refsToSportsmen->removeGroupLinks(group_id))
+            {
+                QSqlQuery query;
+                query.prepare("DELETE FROM " + groupTable + " WHERE id = (:id)");
+                query.addBindValue(group_id);
+
+                if (query.exec())
+                {
+                    return true;
+                }
+                else
+                {
+                    qWarning() << "group was not removed. "
+                               << query.lastError().text();
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    QList<Group> *getGroups()
+    {
+        QSqlQuery query("SELECT * FROM " + groupTable);
+
+        if (query.lastError().isValid() == false)
+        {
+            QList<Group> *groups = new QList<Group>;
+
+            while (query.next())
+            {
+                QList<QString> groupInList;
+
+                for (int i = 0; i < Group::getPattern().count(); i++)
+                {
+                    groupInList << query.record().value(i + 1).toString();
+                }
+
+                Group group(groupInList);
+                group.id = query.record().value("id").toInt();
+
+                auto trainersRefs = refsToTrainers->getLinks(group.id);
+                auto sportsmenRefs = refsToSportsmen->getLinks(group.id);
+
+                if (trainersRefs != nullptr &&
+                        sportsmenRefs != nullptr)
+                {
+                    group.trainers_ids = *trainersRefs;
+                    group.sportsmen_ids = *sportsmenRefs;
+                    *groups << group;
+                }
+            }
+            return groups;
+
+        } else
+            qWarning() << query.lastError().text();
+
+        return nullptr;
     }
 
 private:
@@ -55,20 +132,17 @@ private:
                           " VALUES  (:id, :group_name, :sport_type) ");
 
             query.addBindValue(group.id);
-            bindValueList(query, group.getProperty());
+            bindValueList(query, group.getInList());
 
             if (query.exec())
             {
-                if (trainersRefs->addLinks(group.id, group.trainers_ids))
+                if (refsToTrainers->updateLinks(group.id, group.trainers_ids))
                 {
-                    if (sportsmenRefs->addLinks(group.id, group.sportsmen_ids))
+                    if (refsToSportsmen->updateLinks(group.id, group.sportsmen_ids))
                     {
                         return true;
-
-                    } else
-                        qWarning() << "group sportsmen refs was not added";
-                } else
-                    qWarning() << "group trainers refs was not added";
+                    }
+                }
             } else
                 qWarning() << query.lastError().text();
         } else
@@ -78,10 +152,34 @@ private:
     }
 
 
-//    bool updateGroup(Group group)
-//    {
+    bool updateGroup(Group group)
+    {
+        QSqlQuery query;
+        query.prepare(" UPDATE " + groupTable + " SET   \n" +
+                      "     group_name = (:group_name), \n"
+                      "     sport_type = (:sport_type)  \n"
+                      " WHERE id = (:id)                \n");
 
-//    }
+
+        query.bindValue(":id", group.id);
+        bindValueList(query, group.getInList());
+
+        if (query.exec())
+        {
+            if (refsToTrainers->updateLinks(group.id, group.trainers_ids))
+            {
+                if (refsToSportsmen->updateLinks(group.id, group.sportsmen_ids))
+                {
+                    return true;
+                }
+            }
+        } else
+            qWarning() << "group was not updated in "
+                          + groupTable + " table. "
+                       << query.lastError().text();
+
+        return false;
+    }
 
 
     void touchGroupTable(QString groupTable)
@@ -130,107 +228,6 @@ private:
     }
 
 };
-
-
-
-    // TODO to analysis
-    /*
-    // метод добавления расписания
-    bool addGroup(Group sched)
-    {
-        // проверка что расписание полное
-        if (sched.isFull() == false)
-            return false;
-
-        // запись расписания sql запросом
-        QSqlQuery query;
-//        query.prepare("INSERT INTO " + tableName +
-//                      "         (trainer_id, child_id)"
-//                      " VALUES  (:trainer_id, :child_id)");
-
-//        query.bindValue(":trainer_id", sched.trainer_id);
-//        query.bindValue(":child_id", sched.child_id);
-
-        bool ret = query.exec();
-
-        if (!ret)
-            qDebug() << "query.exec() in addSchedule failed";
-
-        return ret; // возвращение успеха/не успеха операции
-    }
-
-    // метод удаления расписания
-    bool removeSchedule(Group sched)
-    {
-        // sql запрос удаления расписания
-        QSqlQuery query;
-
-        query.prepare("DELETE FROM " + tableName + " WHERE id = (:id)");
-        query.bindValue(":id", sched.id);
-
-        bool ret = query.exec();
-
-        if (!ret)
-            qDebug() << "query.exec() in removeSchedule failed";
-
-        return ret; // успешность операции
-    }
-
-
-    // метод обновления расписания в бд по id
-    bool replaceScheduleById(Group sched)
-    {
-        // sql запрос на обновление
-        QSqlQuery query;
-        query.prepare(" UPDATE " + tableName + " SET    "
-                      "     trainer_id = (:trainer_id), "
-                      "     child_id = (:child_id)      "
-                      " WHERE id = (:id)                ");
-
-
-        query.bindValue(":id", sched.id);
-        query.bindValue(":trainer_id", sched.trainer_id);
-        query.bindValue(":child_id", sched.child_id);
-
-        bool ret = query.exec();
-
-        if (!ret)
-            qDebug() << "query.exec() in replaceScheduleById failed";
-
-        return ret; // успех операции
-    }
-
-
-    // метод получения всех расписаний их бд
-    QList<Group> *getAllSchedules()
-    {
-        // выполнение sql запроса
-        QSqlQuery query;
-        query.prepare("SELECT * FROM " + tableName);
-
-        QList<Group> *scheduleList = new QList<Group>;
-
-        if (query.exec())        // если запрос прошел успешно
-        {
-            while (query.next()) // упаковать расписания в список
-            {
-
-                Group *sched = new Group();
-
-                sched->id = query.value("id").toInt();
-                sched->trainer_id = query.value("trainer_id").toInt();
-                sched->child_id = query.value("child_id").toInt();
-
-                *scheduleList << *sched;
-            }
-            return scheduleList;  // вернуть полученный список
-        }
-
-        qDebug() << "query.exec() in getAllSchedules failed";
-
-        return nullptr;  // если запрос прошел не учпешно, вернуть нулевой указатель
-    }
-    */
 
 
 

@@ -2,20 +2,20 @@
 
 #include <QVBoxLayout>
 #include <QPushButton>
-#include <QTableWidget>
-#include <QHeaderView>
+
+#include "ui/widgets/string_table_widget.h"
 
 class RecordsViewer : public QWidget
 {
 Q_OBJECT
 
-    QTableWidget *table = nullptr;
+    StringTableWidget *table = nullptr;
     QPushButton *addButton = nullptr;
 
     QList<QString> pattern;
 
 signals:
-    void createRecordIsRequred(QList<QString> pattern);
+    void createRecordIsRequred();
     void editRecordIsRequred(int row);
 
 public:
@@ -42,30 +42,8 @@ public:
     {
         this->pattern = pattern;
 
-        table->clear();
-
-        table->setRowCount(0);
-        table->setColumnCount(0);
-
-        table->setRowCount(stringTable.count());
-        table->setColumnCount(pattern.count());
-
-
-        for (int c = 0; c < pattern.count(); c++)
-        {
-            table->setHorizontalHeaderItem(
-                        c, new QTableWidgetItem(pattern.at(c)));
-        }
-
-
-        for (int r = 0; r < stringTable.count(); r++)
-        {
-            for (int c = 0; c < pattern.count(); c++)
-            {
-                table->setItem(r, c, new QTableWidgetItem(
-                                   stringTable.at(r).at(c)));
-            }
-        }
+        table->updateContent(stringTable);
+        table->setHHeader(pattern);
     }
 
 private:
@@ -77,20 +55,14 @@ private:
 
     void setUpUi()
     {
-        // устанавливается режим показа таблиц
-        // они будет показывать элементы в режиме авторастягивания
-
         addButton = new QPushButton("+");
-        table = new QTableWidget();
+        table = new StringTableWidget();
 
         QVBoxLayout *verticalLayout = new QVBoxLayout;
         verticalLayout->addWidget(addButton);
         verticalLayout->addWidget(table);
 
-        table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
         setLayout(verticalLayout);
-        show();
     }
 
 
@@ -102,7 +74,7 @@ private slots:
 
     void on_createButton()
     {
-        emit createRecordIsRequred(this->pattern);
+        emit createRecordIsRequred();
     }
 };
 

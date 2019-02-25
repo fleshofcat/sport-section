@@ -7,6 +7,12 @@
 class Person
 {
 public:
+    enum class Who {
+        EMPTY,
+        CHILDREN,
+        TRAINERS
+    };
+
     Person(QList<QString> personData)
     {
         setInList(personData);
@@ -48,6 +54,18 @@ public:
         return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт"};
     }
 
+    static QList<QList<QString>>
+    personListToStringTable(QList<Person> people)
+    {
+        QList<QList<QString>> stringTable;
+        for (Person pers : people)
+        {
+            stringTable << pers.getInList();
+        }
+
+        return stringTable;
+    }
+
     // данные самого человека
 
     int id = 0;             // id в конечном итоге должна устанавливать сама бд
@@ -69,26 +87,41 @@ public:
     // констуктор мгновенного создания полного объекта
     Group(QList<QString> property)
     {
-        setProperty(property);
+        setInList(property);
     }
 
     // конструктор создания пустого объекта
     Group() {}
 
-    void setProperty(QList<QString> property)
+    void setInList(QList<QString> property)
     {
-        groupName = property.at(0);
-        sportType = property.at(1);
+        if (property.count() == Group::getPattern().count())
+        {
+            groupName = property.at(0);
+            sportType = property.at(1);
+        }
     }
 
-    QList<QString> getProperty()
+    QList<QString> getInList()
     {
         return {groupName, sportType};
     }
 
-    QList<QString> getPattern()
+    static QList<QString> getPattern()
     {
         return {"Группа", "Спорт"};
+    }
+
+    static QList<QList<QString>>
+    groupListToStringTable(QList<Group> groups)
+    {
+        QList<QList<QString>> stringTable;
+        for (Group group : groups)
+        {
+            stringTable << group.getInList();
+        }
+
+        return stringTable;
     }
 
     int id = 0;         // присваивается в бд

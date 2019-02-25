@@ -13,6 +13,15 @@ private slots:
     // setting down in destructor
     void test_creationDbManager()
     {
+        if (QSqlDatabase::database().isValid()) // drop db if exist
+        {
+            {
+                QSqlDatabase db = QSqlDatabase::database("qt_sql_default_connection");
+                db.close();
+            }
+            QSqlDatabase::removeDatabase("qt_sql_default_connection");
+        }
+
         // check that connection is not
         QCOMPARE(QSqlDatabase::database().isValid(), false);
 

@@ -10,9 +10,14 @@ class DbManager : public QObject
 {
     Q_OBJECT    // обязательный макрос для Qt Framework
 
+    QString groupsTable = "groups";
+    QString trainersTable = "trainers";
+    QString sportsmenTable = "sportsmen";
+
     PeopleManager *sportsmenManager;
     PeopleManager *trainersManager;
-    GroupManager *groupManager;   // указатель на объект отвечающий за "расписание" в бд
+    GroupManager *groupManager;
+
 public:
     // конструктор, при создании объекта от этого класса выполняется следующий код:
     // здесь создается и подключается база данных по пути
@@ -30,9 +35,9 @@ public:
             return;
         }
 
-        sportsmenManager = new PeopleManager("sportsmen", this);
-        trainersManager =  new PeopleManager("trainers", this);
-//        groupManager = new GroupManager(this);// создание объекта хранения расписаний
+        sportsmenManager = new PeopleManager(sportsmenTable, this);
+        trainersManager =  new PeopleManager(trainersTable, this);
+        groupManager = new GroupManager(groupsTable, trainersTable, sportsmenTable, this);
     }
 
     // методы для взаимодействия с бд
@@ -69,24 +74,47 @@ public:
         }
     }
 
-    Person getPersonPattern()
-    {
-        return Person(Person::getPattern());
-    }
-
-    // метод возвращает из бд всех людей в виде спика List
-
     // метод возвращает из бд детей в виде спика List
-    QList<Person> *getChildren()
+    QList<Person> *getSportsmen()
     {
-        return sportsmenManager->getPeople();
+        QList<Person> *sportsmen = sportsmenManager->getPeople();
+
+        for (int i = 0; i < sportsmen->count(); i++)
+        {
+            sportsmen[0][i].isTrainer = false;
+        }
+
+        return sportsmen;
     }
 
 
     // метод возвращает из бд тренеров в виде спика List
     QList<Person> *getTrainers()
     {
-        return trainersManager->getPeople();
+        QList<Person> *trainers = trainersManager->getPeople();
+
+        for (int i = 0; i < trainers->count(); i++)
+        {
+            trainers[0][i].isTrainer = true;
+        }
+
+        return trainers;
+    }
+
+
+    bool saveGroup(Group group)
+    {
+        return groupManager->saveGroup(group);
+    }
+
+    bool removeGroup(int id)
+    {
+        return groupManager->removeGroup(id);
+    }
+
+    QList<Group> *getGroups()
+    {
+        return groupManager->getGroups();
     }
 
 

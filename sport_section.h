@@ -30,11 +30,19 @@ public:
 
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
-        connect(&mw, &MainWindow::savePersonIsRequred,
+        connect(&mw, &MainWindow::savePerson,
                 this, &SportSection::savePersonToDb);
 
-        connect(&mw, &MainWindow::removePersonIsRequred,
+        connect(&mw, &MainWindow::removePersonIs,
                 this, &SportSection::removePersonFromDb);
+
+
+
+        connect(&mw, &MainWindow::saveGroup,
+                this, &SportSection::saveGroupToDb);
+
+        connect(&mw, &MainWindow::removeGroup,
+                this, &SportSection::removeGroupFromDb);
     }
 
 private slots:
@@ -58,22 +66,38 @@ private slots:
         }
     }
 
+    // обработчик запроса добавления и обновления человека в бд
+    void saveGroupToDb(Group group)
+    {
+        if (db->saveGroup(group)) // попытка добавить человека в бд
+        {
+            updateMainWindow(); // обновление интерфейса
+        }
+    }
+
+
+    // обработчик запроса удаления человека из бд
+    void removeGroupFromDb(int id)
+    {
+        if (db->removeGroup(id)) // попытка удалить человека из бд
+        {
+            updateMainWindow();     // обновление интерфейса
+        }
+    }
+
 
 private:
 
     // обновление главного окна пользовательского интерфейса
     void updateMainWindow()
     {
-        mw.updateContent(db->getPersonPattern(),
-                         *db->getChildren(),
-                         *db->getTrainers());
+        auto sportsmen = *db->getSportsmen();
+        auto trainers = *db->getTrainers();
+        auto groups = *db->getGroups();
 
-//        auto children = *db->getChildren();
-//        auto trainers = *db->getTrainers();
-
-//        mw.updateContent(db->getPersonPattern(),
-//                         children,
-//                         trainers);
+        mw.updateContent(sportsmen,
+                         trainers,
+                         groups);
     }
 
 };

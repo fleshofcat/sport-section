@@ -4,6 +4,7 @@
 #include <QFormLayout>
 #include <QLineEdit>
 
+
 class PropertyEditor : public QWidget
 {
 Q_OBJECT
@@ -22,12 +23,10 @@ signals:
     void exitIsRequred();
 
 public:
-    PropertyEditor(QList<QString> pattern,
-                   QList<QString> record = {},
-                   QWidget *parent = nullptr)
+    PropertyEditor(QWidget *parent = nullptr)
         : QWidget (parent)
     {
-        setUpUi(pattern, record);
+        updateUi({}, {});
 
         connect(saveButton, &QPushButton::pressed, this, &PropertyEditor::on_saveButton);
         connect(removeButton, &QPushButton::pressed, this, &PropertyEditor::removeIsRequred);
@@ -61,13 +60,11 @@ public:
             basicLayout = nullptr;
         }
 
-//        setLayout(nullptr);
-
-        setUpUi(pattern, record);
+        updateUi(pattern, record);
     }
 
 private:
-    void setUpUi(QList<QString> pattern,
+    void updateUi(QList<QString> pattern,
                  QList<QString> record = {})
     {
         QFormLayout *formLayout = new QFormLayout;
@@ -109,8 +106,6 @@ private slots:
     }
 
 };
-
-
 
 
 
