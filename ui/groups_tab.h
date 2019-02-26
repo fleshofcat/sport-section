@@ -1,9 +1,8 @@
 #pragma once
 
-#include "common/common_objects.h"
-#include "ui/people_tab.h"
-#include "ui/widgets/editors_box.h"
-#include "ui/widgets/group_editor.h"
+#include <QStackedWidget>
+
+#include "ui/group_editor.h"
 
 class GroupsTab : public QWidget
 {
@@ -14,7 +13,7 @@ class GroupsTab : public QWidget
     QList<Group> groups;
 
     QStackedWidget *widgetStack = nullptr;
-    RecordsViewer *recordsViewer = nullptr;
+    RecordsWidget *recordsViewer = nullptr;
     GroupEditor *groupEditor = nullptr;
 
 signals:
@@ -50,7 +49,7 @@ public:
 private:
     void setUpUi()
     {
-        recordsViewer = new RecordsViewer(this);
+        recordsViewer = new RecordsWidget(this);
         groupEditor = new GroupEditor(this);
 
         widgetStack = new QStackedWidget(this);
@@ -59,10 +58,10 @@ private:
         widgetStack->addWidget(groupEditor);
 
 
-        connect(recordsViewer, &RecordsViewer::createRecordIsRequred,
+        connect(recordsViewer, &RecordsWidget::createRecordIsRequred,
                 this, &GroupsTab::on_createRecord);
 
-        connect(recordsViewer, &RecordsViewer::editRecordIsRequred,
+        connect(recordsViewer, &RecordsWidget::editRecordIsRequred,
                 this, &GroupsTab::on_editRecord);
 
 

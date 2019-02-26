@@ -4,10 +4,8 @@
 #include <QStackedWidget>
 
 #include "common/common_objects.h"
-#include "ui/widgets/string_list_editor.h"
-#include "ui/widgets/record_viewer.h"
-
-//#include "ui/widgets/records_widget.h"
+#include "ui/widgets/record_editor.h"
+#include "ui/widgets/records_widget.h"
 
 class PeopleTab : public QWidget
 {
@@ -18,13 +16,13 @@ class PeopleTab : public QWidget
     int chosen_row = -1;
 
     QStackedWidget *widgetStack = nullptr;
-    RecordsViewer *recordsViewer = nullptr;
-    StringListEditor *propertyEditor = nullptr;
+    RecordsWidget *recordsViewer = nullptr;
+    RecordEditor *propertyEditor = nullptr;
 
 
 signals:
     void savePerson(Person person);
-    void removePerson(int id, bool isTrainer);
+    void removePerson(int id, Person::Who who);
 
 public:
     Person::Who who = Person::Who::EMPTY;
@@ -51,8 +49,8 @@ public:
 private:
     void setUpUi()
     {
-        recordsViewer = new RecordsViewer(this);
-        propertyEditor = new StringListEditor(this);
+        recordsViewer = new RecordsWidget(this);
+        propertyEditor = new RecordEditor(this);
 
         widgetStack = new QStackedWidget(this);
 
@@ -60,21 +58,21 @@ private:
         widgetStack->addWidget(propertyEditor);
 
 
-        connect(recordsViewer, &RecordsViewer::createRecordIsRequred,
+        connect(recordsViewer, &RecordsWidget::createRecordIsRequred,
                 this, &PeopleTab::on_createRecord);
 
-        connect(recordsViewer, &RecordsViewer::editRecordIsRequred,
+        connect(recordsViewer, &RecordsWidget::editRecordIsRequred,
                 this, &PeopleTab::on_editRecord);
 
 
 
-        connect(propertyEditor, &StringListEditor::saveIsRequred,
+        connect(propertyEditor, &RecordEditor::saveIsRequred,
                 this, &PeopleTab::on_save);
 
-        connect(propertyEditor, &StringListEditor::removeIsRequred,
+        connect(propertyEditor, &RecordEditor::removeIsRequred,
                 this, &PeopleTab::on_remove);
 
-        connect(propertyEditor, &StringListEditor::exitIsRequred,
+        connect(propertyEditor, &RecordEditor::exitIsRequred,
                 this, &PeopleTab::on_editorExit);
     }
 
@@ -111,10 +109,7 @@ private slots:
         else
         {
             Person pers(record);
-            pers.isTrainer =
-                    (this->who == Person::Who::TRAINER)
-                    ? true
-                    : false;
+            pers.who = this->who;
 
             emit savePerson(pers);
         }
@@ -127,7 +122,7 @@ private slots:
         if (chosen_row >= 0)
         {
             Person pers = this->people.at(chosen_row);
-            emit removePerson(pers.id, pers.isTrainer);
+            emit removePerson(pers.id, pers.who);
         }
 
         on_editorExit();

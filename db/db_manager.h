@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QtSql> // библиотека для работы с бд
-
 #include "people_manager.h" // файл объекта отвечающего за "людей" в бд
 #include "group_manager.h" // файл объекта отвечающего за "расписание" в бд
 
@@ -49,29 +47,30 @@ public:
 
     bool savePerson(Person pers)
     {
-        if (pers.isTrainer)
+        if (pers.who == Person::Who::TRAINER)
         {
             return trainersManager->savePerson(pers);
         }
-        else
+        else if (pers.who == Person::Who::SPORTSMAN)
         {
             return sportsmenManager->savePerson(pers);
         }
-
+        return false;
     }
 
     // метод удаления человека из бд
     // принимает объект человека и удаляет с помощью менеджера людей
-    bool removePerson(int id, bool isTrainer)
+    bool removePerson(int id, Person::Who who)
     {
-        if (isTrainer)
+        if (who == Person::Who::TRAINER)
         {
             return trainersManager->removePerson(id);
         }
-        else
+        else if (who == Person::Who::SPORTSMAN)
         {
             return sportsmenManager->removePerson(id);
         }
+        return false;
     }
 
     // метод возвращает из бд детей в виде спика List
@@ -81,7 +80,7 @@ public:
 
         for (int i = 0; i < sportsmen->count(); i++)
         {
-            sportsmen[0][i].isTrainer = false;
+            sportsmen[0][i].who = Person::Who::SPORTSMAN;
         }
 
         return sportsmen;
@@ -95,7 +94,7 @@ public:
 
         for (int i = 0; i < trainers->count(); i++)
         {
-            trainers[0][i].isTrainer = true;
+            trainers[0][i].who = Person::Who::TRAINER;
         }
 
         return trainers;

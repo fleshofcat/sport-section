@@ -21,21 +21,16 @@ public:
     explicit SportSection(QObject *parent = nullptr)
         : QObject(parent)
     {
-
         QString path = QDir("../record/res/").exists() ?
                     "../record/res/sport_people.db"
                   : "sport_people.db";
 
         db = new DbManager(path, this);
 
-
-
         mw.show(); // активация пользовательского интерфейса
-
 
         // обновление объекта пользовательского интерфейса данными из бд
         updateMainWindow();
-
 
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
@@ -67,9 +62,9 @@ private slots:
 
 
     // обработчик запроса удаления человека из бд
-    void removePersonFromDb(int id, bool isTrainer)
+    void removePersonFromDb(int id, Person::Who who)
     {
-        if (db->removePerson(id, isTrainer)) // попытка удалить человека из бд
+        if (db->removePerson(id, who)) // попытка удалить человека из бд
         {
             updateMainWindow();     // обновление интерфейса
         }

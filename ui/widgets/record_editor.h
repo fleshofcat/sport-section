@@ -4,7 +4,7 @@
 
 #include "ui/widgets/editors_box.h"
 
-class StringListEditor : public EditorsBox
+class RecordEditor : public EditorsBox
 {
     Q_OBJECT
 
@@ -18,27 +18,24 @@ signals:
     void exitIsRequred();
 
 public:
-    StringListEditor(QWidget *parent = nullptr)
-        : StringListEditor({}, {}, parent) {}
+    RecordEditor(QWidget *parent = nullptr)
+        : RecordEditor({}, {}, parent) {}
 
-    StringListEditor(QList<QString> pattern,
+    RecordEditor(QList<QString> pattern,
                      QList<QString> record = {},
                      QWidget *parent = nullptr)
               : EditorsBox(pattern, record, parent)
     {
         setUpUi();
 
-//        connect(this, &EditorsBox::enterPressed,
-//                saveButton, &QPushButton::pressed);
-
         connect(saveButton, &QPushButton::pressed,
-                this, &StringListEditor::on_saveButton);
+                this, &RecordEditor::on_saveButton);
 
         connect(removeButton, &QPushButton::pressed,
-                this, &StringListEditor::removeIsRequred);
+                this, &RecordEditor::removeIsRequred);
 
         connect(exitButton, &QPushButton::pressed,
-                this, &StringListEditor::exitIsRequred);
+                this, &RecordEditor::exitIsRequred);
     }
 
 private:

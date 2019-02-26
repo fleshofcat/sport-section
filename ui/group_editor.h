@@ -6,8 +6,7 @@
 
 #include "common/common_objects.h"
 #include "ui/widgets/editors_box.h"
-#include "ui/widgets/string_list_editor.h"
-#include "ui/widgets/record_viewer.h"
+#include "ui/widgets/records_widget.h"
 #include "ui/widgets/record_chooser.h"
 
 class GroupEditor : public QWidget
@@ -24,8 +23,8 @@ class GroupEditor : public QWidget
 
     EditorsBox *editorsBox;
 
-    RecordsViewer *trainersViewer;
-    RecordsViewer *sportsmenViewer;
+    RecordsWidget *trainersViewer;
+    RecordsWidget *sportsmenViewer;
 
 signals:
     void saveIsRequred(Group group);
@@ -58,16 +57,16 @@ public:
 
 
 
-        connect(sportsmenViewer, &RecordsViewer::createRecordIsRequred,
+        connect(sportsmenViewer, &RecordsWidget::createRecordIsRequred,
                 this, &GroupEditor::on_addSportsmen);
 
-        connect(sportsmenViewer, &RecordsViewer::editRecordIsRequred,
+        connect(sportsmenViewer, &RecordsWidget::editRecordIsRequred,
                 this, &GroupEditor::on_removeSportsmen);
 
-        connect(trainersViewer, &RecordsViewer::createRecordIsRequred,
+        connect(trainersViewer, &RecordsWidget::createRecordIsRequred,
                 this, &GroupEditor::on_addTrainer);
 
-        connect(trainersViewer, &RecordsViewer::editRecordIsRequred,
+        connect(trainersViewer, &RecordsWidget::editRecordIsRequred,
                 this, &GroupEditor::on_removeTrainer);
 
         updateContent(trainers, sportsmen, group);
@@ -104,8 +103,8 @@ private:
         editorsBox = new EditorsBox(Group::getPattern(), group.getInList(), this);
 
 
-        trainersViewer = new RecordsViewer;
-        sportsmenViewer = new RecordsViewer;
+        trainersViewer = new RecordsWidget;
+        sportsmenViewer = new RecordsWidget;
 
 
         QVBoxLayout *trainersViewerLayout = new QVBoxLayout;
@@ -136,7 +135,7 @@ private:
         setLayout(basicLayout);
     }
 
-    void updateViewer(RecordsViewer *peopleViewer,
+    void updateViewer(RecordsWidget *peopleViewer,
                       QList<Person> people, QList<int> ids)
     {
         QList<QList<QString>> strindTable;

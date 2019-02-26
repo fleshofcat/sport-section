@@ -1,4 +1,4 @@
-QT += core gui widgets sql testlib
+QT += sql testlib widgets
 CONFIG += c++11 testcase
 
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -10,24 +10,24 @@ HEADERS += \
     tests/main_test.h               \
     tests/test_people_storage.h     \
     tests/test_db_manager.h         \
+    tests/test_group_manager.h      \
+    tests/test_group_editor.h       \
+    tests/test_editors_box.h        \
                                     \
     db/db_manager.h                 \
     db/people_manager.h             \
+    db/group_manager.h              \
+    db/group_people_relations.h     \
                                     \
     ui/main_window.h                \
-    ui/widgets/record_viewer.h      \
-    ui/people_tab.h \
-    db/group_manager.h \
-    tests/test_group_manager.h \
-    db/group_people_relations.h \
-    ui/groups_tab.h \
-    ui/widgets/group_editor.h \
-    ui/widgets/record_chooser.h \
-    ui/widgets/string_table_widget.h \
-    tests/test_group_editor.h \
-    ui/widgets/editors_box.h \
-    tests/test_editors_box.h \
-    ui/widgets/string_list_editor.h
+    ui/people_tab.h                 \
+    ui/groups_tab.h                 \
+    ui/group_editor.h               \
+    ui/widgets/record_chooser.h     \
+    ui/widgets/editors_box.h        \
+    ui/widgets/records_widget.h     \
+    ui/widgets/record_editor.h      \
+    ui/widgets/records_viewer.h
 
 SOURCES += \
     main.cpp

@@ -11,7 +11,7 @@ public:
         EMPTY,
         SPORTSMAN,
         TRAINER
-    };
+    } who = Who::EMPTY;
 
     Person(QList<QString> personData)
     {
@@ -69,7 +69,6 @@ public:
     // данные самого человека
 
     int id = 0;             // id в конечном итоге должна устанавливать сама бд
-    bool isTrainer = false; // является ли человек тренером (по умолчанию нет)
 
     QString firstName;      // имя
     QString secondName;     // Отчество

@@ -3,18 +3,18 @@
 #include <QHeaderView>
 #include <QTableWidget>
 
-class StringTableWidget : public QTableWidget
+class RecordsViewer : public QTableWidget
 {
     Q_OBJECT
 
 public:
-    StringTableWidget(QWidget *parent = nullptr)
+    RecordsViewer(QWidget *parent = nullptr)
         : QTableWidget(parent)
     {
         setUpUi();
     }
 
-    StringTableWidget(QList<QList<QString>> &table, QWidget *parent = nullptr)
+    RecordsViewer(QList<QList<QString>> &table, QWidget *parent = nullptr)
         : QTableWidget(parent)
     {
         setUpUi();

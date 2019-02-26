@@ -1,9 +1,5 @@
 #pragma once
 
-#include <QResizeEvent> // для корректной обработки изменения размера окна приложения
-#include <QInputDialog> // для диалоговых окон с пользователями
-#include <QMessageBox>  // для вывода предупреждений пользователю
-
 #include "ui/people_tab.h"
 #include "ui/groups_tab.h"
 
@@ -19,21 +15,16 @@ class MainWindow : public QWidget
 
 signals:
     void savePerson(Person savedPerson);       // сигналы, испускаемые
-    void removePersonIs(int id, bool isTrainer); // этим объектом обрабатывают
+    void removePersonIs(int id, Person::Who who); // этим объектом обрабатывают
     void saveGroup(Group group);
     void removeGroup(int id);
 
 private:
     QTabWidget *tabs;
 
-    PeopleTab *sportsmenTab = nullptr;
-    PeopleTab *trainersTab = nullptr;
-    GroupsTab *groupTab = nullptr;
-
-
-    QList<Person> sportsmen;     // объект для хранения детей
-    QList<Person> trainers;     // объект для хранения тренеров
-    QList<Group> groups;
+    PeopleTab *sportsmenTab;
+    PeopleTab *trainersTab;
+    GroupsTab *groupTab;
 
 public:
     // код который будет выполняться при создании объекта от этого класса
@@ -59,11 +50,7 @@ public:
     void updateContent(QList<Person> sportsmen,
                        QList<Person> trainers,
                        QList<Group> groups)
-    {   
-        this->sportsmen = sportsmen;
-        this->trainers = trainers;
-        this->groups = groups;
-
+    {
         sportsmenTab->updateContent(sportsmen);
         trainersTab->updateContent(trainers);
         groupTab->updateContent(sportsmen, trainers, groups);
@@ -94,54 +81,9 @@ private:
         tabs->addTab(groupTab, "Группы");
     }
 
-
-private:
-    // метод для вывода сообщения пользователю
-    void showMessage(QString message)
-    {
-        QMessageBox::warning(this, "Сообщение",
-                             message, QMessageBox::Ok);
-    }
-
-    // Проверка что человек существует
-    bool isPersonExist(int id, QList<Person> people)
-    {
-        // поиск в списке тренеров
-        for (Person pers : people)
-        {
-            if (pers.id == id)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // взять человека из списка
-    Person *getPersonFromList(int id, QList<Person> people)
-    {
-        // человек по id ищется в списке
-        // если он есть он возвращается
-        for (Person pers : people)
-        {
-            if (pers.id == id)
-            {
-                return new Person(pers);
-            }
-        }
-
-        // если его там нет возвращается пустой указатель
-        return nullptr;
-    }
-
-
 public:
-    // обработчик события изменения размера окна
     void resizeEvent(QResizeEvent *resizeEvent)
     {
-        // виджеты, которым нужно реагировать на изменение размера окна
-        // устанавливают новый размер окна
         tabs->resize(resizeEvent->size());
     }
 };

@@ -3,14 +3,14 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 
-#include "ui/widgets/string_table_widget.h"
+#include "ui/widgets/records_viewer.h"
 
-class RecordsViewer : public QWidget
+class RecordsWidget : public QWidget
 {
 Q_OBJECT
 
-    StringTableWidget *table = nullptr;
-    QPushButton *addButton = nullptr;
+    RecordsViewer *table;
+    QPushButton *addButton;
 
     QList<QString> pattern;
 
@@ -19,7 +19,7 @@ signals:
     void editRecordIsRequred(int row);
 
 public:
-    RecordsViewer(QList<QString> pattern,
+    RecordsWidget(QList<QString> pattern,
                       QList<QList<QString>> stringTable,
                       QWidget *parent = nullptr)
         : QWidget (parent)
@@ -30,7 +30,7 @@ public:
         updateData(pattern, stringTable);
     }
 
-    RecordsViewer(QWidget *parent = nullptr)
+    RecordsWidget(QWidget *parent = nullptr)
         : QWidget (parent)
     {
         setUpUi();
@@ -49,14 +49,14 @@ public:
 private:
     void setUpConnections()
     {
-        connect(table, &QTableWidget::cellPressed, this, &RecordsViewer::on_tablePressed);
-        connect(addButton, &QPushButton::pressed, this, &RecordsViewer::on_createButton);
+        connect(table, &QTableWidget::cellPressed, this, &RecordsWidget::on_tablePressed);
+        connect(addButton, &QPushButton::pressed, this, &RecordsWidget::on_createButton);
     }
 
     void setUpUi()
     {
         addButton = new QPushButton("+");
-        table = new StringTableWidget();
+        table = new RecordsViewer();
 
         QVBoxLayout *verticalLayout = new QVBoxLayout;
         verticalLayout->addWidget(addButton);

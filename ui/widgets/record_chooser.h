@@ -2,17 +2,15 @@
 
 #include <QDialog>
 #include <QPushButton>
-#include <QTableWidget>
 #include <QHBoxLayout>
-#include <QHeaderView>
 
-#include "ui/widgets/string_table_widget.h"
+#include "ui/widgets/records_viewer.h"
 
 class RecordChooser : public QDialog
 {
     Q_OBJECT
 
-    StringTableWidget *table;
+    RecordsViewer *table;
     QPushButton *rejectButton = new QPushButton("Отмена");
     int *result;
 
@@ -46,7 +44,7 @@ public:
 private:
     void setUpUi(QList<QList<QString>> stringTable)
     {
-        table = new StringTableWidget(stringTable, this);
+        table = new RecordsViewer(stringTable, this);
 
         QVBoxLayout *layout = new QVBoxLayout;
         layout->addWidget(table);
