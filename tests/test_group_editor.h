@@ -12,7 +12,7 @@ public:
     void manualTest()
     {
 //        initTestCase();
-        DbManager *db = new DbManager("../record/res/sport_people.db", this);
+//        DbManager *db = new DbManager("../record/res/sport_people.db", this);
 
         auto groupsTab = new GroupsTab;
         groupsTab->show();

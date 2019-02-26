@@ -39,6 +39,12 @@ public:
         recordsViewer->updateData(
                     Group::getPattern(),
                     Group::groupListToStringTable(groups));
+
+        if (widgetStack->currentIndex() == 1)
+        {
+            groupEditor->updateWhenRunning(trainers, sportsmen);
+        }
+
     }
 
 private:
@@ -92,14 +98,14 @@ private slots:
 
     void on_saveGroup(Group group)
     {
-        emit saveGroup(group);
         groupEditorExit();
+        emit saveGroup(group);
     }
 
     void on_removeGroup(int id)
     {
-        emit removeGroup(id);
         groupEditorExit();
+        emit removeGroup(id);
     }
 
     void groupEditorExit()

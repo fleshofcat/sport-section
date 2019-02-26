@@ -3,15 +3,18 @@
 #include <QFormLayout>
 #include <QLineEdit>
 
-#include "ui/widgets/property_editor.h"
-#include "ui/widgets/record_viewer.h"
-
 class EditorsBox : public QWidget
 {
     Q_OBJECT
 
     QList<QLineEdit*> editors;
-    QFormLayout *formLayout;
+
+//signals:
+//    void enterPressed();
+
+protected:
+    QWidget *basicWidget;
+    QVBoxLayout *basicLayout;
 
 public:
     EditorsBox(QWidget *parent = nullptr)
@@ -22,6 +25,13 @@ public:
                QWidget *parent = nullptr)
         : QWidget (parent)
     {
+        basicWidget = new QWidget(this);
+        basicLayout = new QVBoxLayout();
+        basicLayout->addWidget(basicWidget);
+        setLayout(basicLayout);
+
+
+
         updateContent(pattern, record);
     }
 
@@ -31,14 +41,17 @@ public:
         stringListEqualizing(pattern, records);
         dropState();
 
-        formLayout = new QFormLayout;
+        QFormLayout *formLayout = new QFormLayout;
         while (pattern.count())
         {
             editors << new QLineEdit(records.takeFirst());
             formLayout->addRow(pattern.takeFirst(), editors.last());
+
+//            connect(editors.last(), &QLineEdit::returnPressed,
+//                    this, &EditorsBox::enterPressed);
         }
 
-        setLayout(formLayout);
+        basicWidget->setLayout(formLayout);
     }
 
     QList<QString> getInList()
@@ -56,7 +69,7 @@ public:
 protected:
     void dropState()
     {
-        qDeleteAll(this->children());
+        qDeleteAll(basicWidget->children());
         editors.clear();
     }
 
@@ -73,10 +86,6 @@ private:
         }
     }
 };
-
-
-
-
 
 
 

@@ -2,9 +2,11 @@
 
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
 
 #include "common/common_objects.h"
-#include "ui/widgets/property_editor.h"
+#include "ui/widgets/editors_box.h"
+#include "ui/widgets/string_list_editor.h"
 #include "ui/widgets/record_viewer.h"
 #include "ui/widgets/record_chooser.h"
 
@@ -16,7 +18,11 @@ class GroupEditor : public QWidget
     QList<Person> trainers;
     Group group;
 
-    PropertyEditor *propertyEditor;
+    QPushButton *saveButton = new QPushButton("Сохранить");
+    QPushButton *removeButton = new QPushButton("Удалить");
+    QPushButton *exitButton = new QPushButton("Выйти");
+
+    EditorsBox *editorsBox;
 
     RecordsViewer *trainersViewer;
     RecordsViewer *sportsmenViewer;
@@ -28,11 +34,7 @@ signals:
 
 public:
     GroupEditor(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {
-        setUpUi();
-        updateContent({}, {}, Group());
-    }
+        : GroupEditor({}, {}, Group(), parent) { }
 
     GroupEditor(QList<Person> trainers,
                 QList<Person> sportsmen,
@@ -41,64 +43,16 @@ public:
         : QWidget(parent)
     {
         setUpUi();
-        updateContent(trainers, sportsmen, group);
-    }
-
-    void updateContent(QList<Person> trainers,
-                       QList<Person> sportsmen,
-                       Group group)
-    {
-        this->group = group;
-        this->trainers = trainers;
-        this->sportsmen = sportsmen;
-
-        propertyEditor->updateContent(Group::getPattern(), group.getInList());
+        editorsBox->updateContent(Group::getPattern(), group.getInList());
 
 
-        updateViewer(trainersViewer, trainers, group.trainers_ids);
-        updateViewer(sportsmenViewer, sportsmen, group.sportsmen_ids);
-    }
-
-    void dropContent()
-    {
-        updateContent(QList<Person>(), QList<Person>(), Group());
-    }
-
-private:
-    void setUpUi()
-    {
-        propertyEditor = new PropertyEditor;
-
-        trainersViewer = new RecordsViewer;
-        sportsmenViewer = new RecordsViewer;
-
-        QVBoxLayout *trainersViewerLayout = new QVBoxLayout;
-        trainersViewerLayout->addWidget(new QLabel("Тренеры"));
-        trainersViewerLayout->addWidget(trainersViewer);
-
-        QVBoxLayout *sportsmenViewerLayout = new QVBoxLayout;
-        sportsmenViewerLayout->addWidget(new QLabel("Спортсмены"));
-        sportsmenViewerLayout->addWidget(sportsmenViewer);
-
-
-        QHBoxLayout *peopleViewerLayout = new QHBoxLayout;
-        peopleViewerLayout->addItem(trainersViewerLayout);
-        peopleViewerLayout->addItem(sportsmenViewerLayout);
-
-        QVBoxLayout *basicLayout = new QVBoxLayout;
-        basicLayout->addWidget(propertyEditor);
-        basicLayout->addItem(peopleViewerLayout);
-
-        setLayout(basicLayout);
-
-
-        connect(propertyEditor, &PropertyEditor::saveIsRequred,
+        connect(saveButton, &QPushButton::pressed,
                 this, &GroupEditor::on_saveGroup);
 
-        connect(propertyEditor, &PropertyEditor::removeIsRequred,
+        connect(removeButton, &QPushButton::pressed,
                 this, &GroupEditor::on_removeGroup);
 
-        connect(propertyEditor, &PropertyEditor::exitIsRequred,
+        connect(exitButton, &QPushButton::pressed,
                 this, &GroupEditor::exitIsRequred);
 
 
@@ -115,6 +69,71 @@ private:
 
         connect(trainersViewer, &RecordsViewer::editRecordIsRequred,
                 this, &GroupEditor::on_removeTrainer);
+
+        updateContent(trainers, sportsmen, group);
+    }
+
+    void updateContent(QList<Person> trainers,
+                       QList<Person> sportsmen,
+                       Group group)
+    {
+        this->group = group;
+
+        editorsBox->updateContent(Group::getPattern(), group.getInList());
+        updateWhenRunning(trainers, sportsmen);
+    }
+
+    void updateWhenRunning(QList<Person> trainers,
+                           QList<Person> sportsmen)
+    {
+        this->trainers = trainers;
+        this->sportsmen = sportsmen;
+
+        updateViewer(trainersViewer, trainers, group.trainers_ids);
+        updateViewer(sportsmenViewer, sportsmen, group.sportsmen_ids);
+    }
+
+    void dropContent()
+    {
+        updateContent(QList<Person>(), QList<Person>(), Group());
+    }
+
+private:
+    void setUpUi()
+    {
+        editorsBox = new EditorsBox(Group::getPattern(), group.getInList(), this);
+
+
+        trainersViewer = new RecordsViewer;
+        sportsmenViewer = new RecordsViewer;
+
+
+        QVBoxLayout *trainersViewerLayout = new QVBoxLayout;
+        trainersViewerLayout->addWidget(new QLabel("Тренеры"));
+        trainersViewerLayout->addWidget(trainersViewer);
+
+        QVBoxLayout *sportsmenViewerLayout = new QVBoxLayout;
+        sportsmenViewerLayout->addWidget(new QLabel("Спортсмены"));
+        sportsmenViewerLayout->addWidget(sportsmenViewer);
+
+
+        QHBoxLayout *peopleViewerLayout = new QHBoxLayout;
+        peopleViewerLayout->addItem(trainersViewerLayout);
+        peopleViewerLayout->addItem(sportsmenViewerLayout);
+
+
+        QHBoxLayout *buttonLayout = new QHBoxLayout;
+        buttonLayout->addWidget(saveButton);
+        buttonLayout->addWidget(removeButton);
+        buttonLayout->addWidget(exitButton);
+
+
+        QVBoxLayout *basicLayout = new QVBoxLayout;
+        basicLayout->addWidget(editorsBox);
+        basicLayout->addLayout(peopleViewerLayout);
+        basicLayout->addItem(buttonLayout);
+
+        setLayout(basicLayout);
     }
 
     void updateViewer(RecordsViewer *peopleViewer,
@@ -139,7 +158,7 @@ private slots:
     void on_addSportsmen()
     {
         int row = RecordChooser::getChoosedRow(
-                    peopleToStringTable(sportsmen), this);
+                    Person::personListToStringTable(sportsmen), this);
 
         if (row >= 0)
         {
@@ -150,7 +169,7 @@ private slots:
                 group.sportsmen_ids << id;
             }
 
-            updateContent(trainers, sportsmen, group);
+            updateWhenRunning(trainers, sportsmen);
         }
     }
 
@@ -158,8 +177,7 @@ private slots:
     {
         int result = QMessageBox::question(
                     this, "",
-                    "Удалить спортсмена?",
-                    QMessageBox::Yes, QMessageBox::No);
+                    "Удалить спортсмена?");
 
         if (result == QMessageBox::Yes)
         {
@@ -168,7 +186,7 @@ private slots:
                 int id = sportsmen.at(row).id;
                 group.sportsmen_ids.removeAll(id);
 
-                updateContent(trainers, sportsmen, group);
+                updateWhenRunning(trainers, sportsmen);
             }
         }
     }
@@ -176,7 +194,7 @@ private slots:
     void on_addTrainer()
     {
         int row = RecordChooser::getChoosedRow(
-                    peopleToStringTable(trainers), this);
+                    Person::personListToStringTable(trainers), this);
 
         if (row >= 0)
         {
@@ -187,7 +205,7 @@ private slots:
                 group.trainers_ids << id;
             }
 
-            updateContent(trainers, sportsmen, group);
+            updateWhenRunning(trainers, sportsmen);
         }
     }
 
@@ -195,8 +213,7 @@ private slots:
     {
         int result = QMessageBox::question(
                     this, "",
-                    "Удалить тренера?",
-                    QMessageBox::Yes, QMessageBox::No);
+                    "Удалить тренера?");
 
         if (result == QMessageBox::Yes)
         {
@@ -205,14 +222,16 @@ private slots:
                 int id = trainers.at(row).id;
                 group.trainers_ids.removeAll(id);
 
-                updateContent(trainers, sportsmen, group);
+                updateWhenRunning(trainers, sportsmen);
             }
         }
     }
 
 
-    void on_saveGroup(QList<QString> groupInList)
+    void on_saveGroup()
     {
+        auto groupInList = editorsBox->getInList();
+
         group.setInList(groupInList);
 
         emit saveIsRequred(group);
@@ -222,19 +241,6 @@ private slots:
     {
         emit removeIsRequred(this->group.id);
     }
-
-private:
-    QList<QList<QString>> peopleToStringTable(QList<Person> people)
-    {
-        QList<QList<QString>> peopleTable;
-        for (Person pers : people)
-        {
-            peopleTable << pers.getInList();
-        }
-
-        return peopleTable;
-    }
-
 };
 
 

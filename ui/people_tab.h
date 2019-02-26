@@ -4,7 +4,7 @@
 #include <QStackedWidget>
 
 #include "common/common_objects.h"
-#include "ui/widgets/property_editor.h"
+#include "ui/widgets/string_list_editor.h"
 #include "ui/widgets/record_viewer.h"
 
 //#include "ui/widgets/records_widget.h"
@@ -19,7 +19,7 @@ class PeopleTab : public QWidget
 
     QStackedWidget *widgetStack = nullptr;
     RecordsViewer *recordsViewer = nullptr;
-    PropertyEditor *propertyEditor = nullptr;
+    StringListEditor *propertyEditor = nullptr;
 
 
 signals:
@@ -52,7 +52,7 @@ private:
     void setUpUi()
     {
         recordsViewer = new RecordsViewer(this);
-        propertyEditor = new PropertyEditor(this);
+        propertyEditor = new StringListEditor(this);
 
         widgetStack = new QStackedWidget(this);
 
@@ -68,13 +68,13 @@ private:
 
 
 
-        connect(propertyEditor, &PropertyEditor::saveIsRequred,
+        connect(propertyEditor, &StringListEditor::saveIsRequred,
                 this, &PeopleTab::on_save);
 
-        connect(propertyEditor, &PropertyEditor::removeIsRequred,
+        connect(propertyEditor, &StringListEditor::removeIsRequred,
                 this, &PeopleTab::on_remove);
 
-        connect(propertyEditor, &PropertyEditor::exitIsRequred,
+        connect(propertyEditor, &StringListEditor::exitIsRequred,
                 this, &PeopleTab::on_editorExit);
     }
 

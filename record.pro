@@ -14,7 +14,6 @@ HEADERS += \
     db/db_manager.h                 \
     db/people_manager.h             \
                                     \
-    ui/widgets/property_editor.h    \
     ui/main_window.h                \
     ui/widgets/record_viewer.h      \
     ui/people_tab.h \
@@ -27,7 +26,8 @@ HEADERS += \
     ui/widgets/string_table_widget.h \
     tests/test_group_editor.h \
     ui/widgets/editors_box.h \
-    tests/test_editors_box.h
+    tests/test_editors_box.h \
+    ui/widgets/string_list_editor.h
 
 SOURCES += \
     main.cpp
