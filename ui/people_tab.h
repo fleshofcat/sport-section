@@ -112,7 +112,7 @@ private slots:
         {
             Person pers(record);
             pers.isTrainer =
-                    (this->who == Person::Who::TRAINERS)
+                    (this->who == Person::Who::TRAINER)
                     ? true
                     : false;
 

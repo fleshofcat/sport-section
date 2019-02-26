@@ -9,8 +9,8 @@ class Person
 public:
     enum class Who {
         EMPTY,
-        CHILDREN,
-        TRAINERS
+        SPORTSMAN,
+        TRAINER
     };
 
     Person(QList<QString> personData)

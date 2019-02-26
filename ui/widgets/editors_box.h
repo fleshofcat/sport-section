@@ -9,9 +9,6 @@ class EditorsBox : public QWidget
 
     QList<QLineEdit*> editors;
 
-//signals:
-//    void enterPressed();
-
 protected:
     QWidget *basicWidget;
     QVBoxLayout *basicLayout;
@@ -31,7 +28,6 @@ public:
         setLayout(basicLayout);
 
 
-
         updateContent(pattern, record);
     }
 
@@ -46,9 +42,6 @@ public:
         {
             editors << new QLineEdit(records.takeFirst());
             formLayout->addRow(pattern.takeFirst(), editors.last());
-
-//            connect(editors.last(), &QLineEdit::returnPressed,
-//                    this, &EditorsBox::enterPressed);
         }
 
         basicWidget->setLayout(formLayout);

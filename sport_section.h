@@ -14,13 +14,22 @@ private:
     MainWindow mw; // пользовательский интерфейс
 
     // создание модуля бд
-    DbManager *db = new DbManager("../record/res/sport_people.db", this);
+    DbManager *db;
 
 public:
     // конструктор, выполняющийся при создании объекта
     explicit SportSection(QObject *parent = nullptr)
         : QObject(parent)
     {
+
+        QString path = QDir("../record/res/").exists() ?
+                    "../record/res/sport_people.db"
+                  : "sport_people.db";
+
+        db = new DbManager(path, this);
+
+
+
         mw.show(); // активация пользовательского интерфейса
 
 

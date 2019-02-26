@@ -26,12 +26,12 @@ signals:
 private:
     QTabWidget *tabs;
 
-    PeopleTab *childrenTab = nullptr;
+    PeopleTab *sportsmenTab = nullptr;
     PeopleTab *trainersTab = nullptr;
     GroupsTab *groupTab = nullptr;
 
 
-    QList<Person> children;     // объект для хранения детей
+    QList<Person> sportsmen;     // объект для хранения детей
     QList<Person> trainers;     // объект для хранения тренеров
     QList<Group> groups;
 
@@ -43,8 +43,8 @@ public:
     {
         setUpUi();
 
-        connect(childrenTab, &PeopleTab::savePerson, this, &MainWindow::savePerson);
-        connect(childrenTab, &PeopleTab::removePerson, this, &MainWindow::removePersonIs);
+        connect(sportsmenTab, &PeopleTab::savePerson, this, &MainWindow::savePerson);
+        connect(sportsmenTab, &PeopleTab::removePerson, this, &MainWindow::removePersonIs);
 
         connect(trainersTab, &PeopleTab::savePerson, this, &MainWindow::savePerson);
         connect(trainersTab, &PeopleTab::removePerson, this, &MainWindow::removePersonIs);
@@ -56,17 +56,17 @@ public:
 
     // метод с помощью которого данные от бд
     // будут загружаться в данный класс и отображаться пользователю
-    void updateContent(QList<Person> children,
+    void updateContent(QList<Person> sportsmen,
                        QList<Person> trainers,
                        QList<Group> groups)
     {   
-        this->children = children;
+        this->sportsmen = sportsmen;
         this->trainers = trainers;
         this->groups = groups;
 
-        childrenTab->updateContent(children);
+        sportsmenTab->updateContent(sportsmen);
         trainersTab->updateContent(trainers);
-        groupTab->updateContent(children, trainers, groups);
+        groupTab->updateContent(sportsmen, trainers, groups);
     }
 
 
@@ -75,8 +75,8 @@ private:
     {
         this->resize(800, 400);
 
-        childrenTab = new PeopleTab(Person::Who::CHILDREN);
-        trainersTab = new PeopleTab(Person::Who::TRAINERS);
+        sportsmenTab = new PeopleTab(Person::Who::SPORTSMAN);
+        trainersTab = new PeopleTab(Person::Who::TRAINER);
         groupTab = new GroupsTab;
 
         tabs = new QTabWidget(this);
@@ -89,7 +89,7 @@ private:
         tabs->setSizePolicy(sizePolicy);
 
 
-        tabs->addTab(childrenTab, "Спортсмены");
+        tabs->addTab(sportsmenTab, "Спортсмены");
         tabs->addTab(trainersTab, "Тренера");
         tabs->addTab(groupTab, "Группы");
     }
