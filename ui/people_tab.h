@@ -19,17 +19,12 @@ class PeopleTab : public QWidget
 
 signals:
     void savePerson(Person person);
-    void removePerson(int id, Person::Who who);
+    void removePerson(int id);
 
 public:
-    Person::Who who = Person::Who::EMPTY;
-
-
-    PeopleTab(Person::Who who, QWidget *parent = nullptr)
+    PeopleTab(QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        this->who = who;
-
         setUpUi();
     }
 
@@ -91,14 +86,13 @@ private slots:
 
     void on_savePerson(Person person)
     {
-        person.who = who;
         emit savePerson(person);
         on_editorExit();
     }
 
     void on_removePerson(int id)
     {
-        emit removePerson(id, who);
+        emit removePerson(id);
         on_editorExit();
     }
 

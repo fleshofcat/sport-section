@@ -31,26 +31,29 @@ public:
 
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
-        connect(&mw, &MainWindow::savePerson,
-                this, &SportSection::savePersonToDb);
+        connect(&mw, &MainWindow::saveSportsmen, this, &SportSection::on_saveSportsman);
+        connect(&mw, &MainWindow::removeSportsmen, this, &SportSection::on_removeSportsman);
 
-        connect(&mw, &MainWindow::removePersonIs,
-                this, &SportSection::removePersonFromDb);
+        connect(&mw, &MainWindow::saveTrainer, this, &SportSection::on_saveTrainer);
+        connect(&mw, &MainWindow::removeTrainer, this, &SportSection::on_removeTrainer);
 
-
-
-        connect(&mw, &MainWindow::saveGroup,
-                this, &SportSection::saveGroupToDb);
-
-        connect(&mw, &MainWindow::removeGroup,
-                this, &SportSection::removeGroupFromDb);
+        connect(&mw, &MainWindow::saveGroup, this, &SportSection::on_saveGroup);
+        connect(&mw, &MainWindow::removeGroup, this, &SportSection::on_removeGroup);
     }
 
 private slots:
     // обработчик запроса добавления и обновления человека в бд
-    void savePersonToDb(Person pers)
+    void on_saveSportsman(Person pers)
     {
-        if (db.savePerson(pers)) // попытка добавить человека в бд
+        if (db.saveSportsman(pers)) // попытка добавить человека в бд
+        {
+            updateMainWindow(); // обновление интерфейса
+        }
+    }
+
+    void on_saveTrainer(Person pers)
+    {
+        if (db.saveTrainer(pers)) // попытка добавить человека в бд
         {
             updateMainWindow(); // обновление интерфейса
         }
@@ -58,16 +61,24 @@ private slots:
 
 
     // обработчик запроса удаления человека из бд
-    void removePersonFromDb(int id, Person::Who who)
+    void on_removeSportsman(int id)
     {
-        if (db.removePerson(id, who)) // попытка удалить человека из бд
+        if (db.removeSportsman(id)) // попытка удалить человека из бд
+        {
+            updateMainWindow();     // обновление интерфейса
+        }
+    }
+
+    void on_removeTrainer(int id)
+    {
+        if (db.removeTrainer(id)) // попытка удалить человека из бд
         {
             updateMainWindow();     // обновление интерфейса
         }
     }
 
     // обработчик запроса добавления и обновления человека в бд
-    void saveGroupToDb(Group group)
+    void on_saveGroup(Group group)
     {
         if (db.saveGroup(group)) // попытка добавить человека в бд
         {
@@ -77,7 +88,7 @@ private slots:
 
 
     // обработчик запроса удаления человека из бд
-    void removeGroupFromDb(int id)
+    void on_removeGroup(int id)
     {
         if (db.removeGroup(id)) // попытка удалить человека из бд
         {

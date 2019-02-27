@@ -53,19 +53,7 @@ public:
 
     bool savePerson(Person pers)
     {
-        if (pers.isFull())
-        {
-            if (pers.id <= 0)
-            {
-                return addPerson(pers);
-            }
-            else
-            {
-                return updatePerson(pers);
-            }
-        }
-
-        return false;
+        return pers.id <= 0 ? addPerson(pers) : updatePerson(pers);
     }
 
 

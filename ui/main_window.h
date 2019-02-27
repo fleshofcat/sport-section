@@ -14,8 +14,12 @@ class MainWindow : public QWidget
     Q_OBJECT    // обязательный макрос
 
 signals:
-    void savePerson(Person savedPerson);       // сигналы, испускаемые
-    void removePersonIs(int id, Person::Who who); // этим объектом обрабатывают
+    void saveSportsmen(Person pers);
+    void removeSportsmen(int id);
+
+    void saveTrainer(Person pers);
+    void removeTrainer(int id);
+
     void saveGroup(Group group);
     void removeGroup(int id);
 
@@ -34,11 +38,11 @@ public:
     {
         setUpUi();
 
-        connect(sportsmenTab, &PeopleTab::savePerson, this, &MainWindow::savePerson);
-        connect(sportsmenTab, &PeopleTab::removePerson, this, &MainWindow::removePersonIs);
+        connect(sportsmenTab, &PeopleTab::savePerson, this, &MainWindow::saveSportsmen);
+        connect(sportsmenTab, &PeopleTab::removePerson, this, &MainWindow::removeSportsmen);
 
-        connect(trainersTab, &PeopleTab::savePerson, this, &MainWindow::savePerson);
-        connect(trainersTab, &PeopleTab::removePerson, this, &MainWindow::removePersonIs);
+        connect(trainersTab, &PeopleTab::savePerson, this, &MainWindow::saveTrainer);
+        connect(trainersTab, &PeopleTab::removePerson, this, &MainWindow::removeTrainer);
 
         connect(groupTab, &GroupsTab::saveGroup, this, &MainWindow::saveGroup);
         connect(groupTab, &GroupsTab::removeGroup, this, &MainWindow::removeGroup);
@@ -62,8 +66,8 @@ private:
     {
         this->resize(800, 400);
 
-        sportsmenTab = new PeopleTab(Person::Who::SPORTSMAN);
-        trainersTab = new PeopleTab(Person::Who::TRAINER);
+        sportsmenTab = new PeopleTab;
+        trainersTab = new PeopleTab;
         groupTab = new GroupsTab;
 
         tabs = new QTabWidget(this);

@@ -51,64 +51,39 @@ public:
 
     // методы для взаимодействия с бд
 
-    // работа с людьми
-
-    // метод добавления человека в бд
-    // принимает объект человека и добавляет с помощью менеджера людей
-
-    bool savePerson(Person pers)
+    bool saveSportsman(Person sportsman)
     {
-        if (pers.who == Person::Who::TRAINER)
-        {
-            return trainersManager.savePerson(pers);
-        }
-        else if (pers.who == Person::Who::SPORTSMAN)
-        {
-            return sportsmenManager.savePerson(pers);
-        }
-        return false;
+        return sportsmenManager.savePerson(sportsman);
     }
 
-    // метод удаления человека из бд
-    // принимает объект человека и удаляет с помощью менеджера людей
-    bool removePerson(int id, Person::Who who)
+
+    bool saveTrainer(Person trainer)
     {
-        if (who == Person::Who::TRAINER)
-        {
-            return trainersManager.removePerson(id);
-        }
-        else if (who == Person::Who::SPORTSMAN)
-        {
-            return sportsmenManager.removePerson(id);
-        }
-        return false;
+        return trainersManager.savePerson(trainer);
     }
 
-    // метод возвращает из бд детей в виде спика List
+
+    bool removeSportsman(int id)
+    {
+        return sportsmenManager.removePerson(id);
+    }
+
+
+    bool removeTrainer(int id)
+    {
+        return trainersManager.removePerson(id);
+    }
+
+
     QList<Person> getSportsmen()
     {
-        QList<Person> sportsmen = sportsmenManager.getPeople();
-
-        for (int i = 0; i < sportsmen.count(); i++)
-        {
-            sportsmen[i].who = Person::Who::SPORTSMAN;
-        }
-
-        return sportsmen;
+        return sportsmenManager.getPeople();
     }
 
 
-    // метод возвращает из бд тренеров в виде спика List
     QList<Person> getTrainers()
     {
-        QList<Person> trainers = trainersManager.getPeople();
-
-        for (int i = 0; i < trainers.count(); i++)
-        {
-            trainers[i].who = Person::Who::TRAINER;
-        }
-
-        return trainers;
+        return trainersManager.getPeople();
     }
 
 
@@ -117,10 +92,12 @@ public:
         return groupManager.saveGroup(group);
     }
 
+
     bool removeGroup(int id)
     {
         return groupManager.removeGroup(id);
     }
+
 
     QList<Group> getGroups()
     {

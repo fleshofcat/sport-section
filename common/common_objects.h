@@ -7,12 +7,6 @@
 class Person
 {
 public:
-    enum class Who {
-        EMPTY,
-        SPORTSMAN,
-        TRAINER
-    } who = Who::EMPTY;
-
     Person(QList<QString> personData)
     {
         setInList(personData);
@@ -27,8 +21,6 @@ public:
                 && !lastName.isEmpty()
                 && !sportType.isEmpty()
                 && !birthday.isEmpty();
-
-
     }
 
     void setInList(QList<QString> personData)
