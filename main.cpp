@@ -17,12 +17,13 @@ int main(int argc, char *argv[])
 #else
     QApplication app(argc, argv);
 
-    TestEditorsBox tst;
-    tst.manualTesting();
+//    TestGroupEditor tst;
+//    tst.manualTest();
+//    return app.exec();
 
-//    MainTest::runAllTests(argc, argv);
-//    return 0;
-    return app.exec();
+    MainTest::runAllTests(argc, argv);
+    return 0;
+
 #endif
 }
 

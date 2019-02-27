@@ -56,7 +56,7 @@ private:
     void setUpUi()
     {
         addButton = new QPushButton("+");
-        table = new RecordsViewer();
+        table = new RecordsViewer(this);
 
         QVBoxLayout *verticalLayout = new QVBoxLayout;
         verticalLayout->addWidget(addButton);

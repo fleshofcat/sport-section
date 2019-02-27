@@ -10,20 +10,44 @@
 // и правильную работу с ними
 class PeopleManager : public QObject
 {
-    Q_OBJECT // обязательный макрос
+    Q_OBJECT
 
     QString tableName;
 
 public:
-    // конструктор - код, исполняющийся при создании объекта
-    explicit PeopleManager(
-            QString tableName,
-            QObject *parent = nullptr)
-        : QObject(parent)
-    {                   // создание таблицы "people" внутри бд, если ее там нет
-        this->tableName = tableName;
+    PeopleManager(QObject *parent = nullptr)
+        : QObject(parent) {}
 
-        touchTableName(tableName);
+    PeopleManager(QString tableName,
+                  QObject *parent = nullptr)
+        : QObject(parent)
+    {
+        touchManager(tableName);
+    }
+
+
+    void touchManager(QString table)
+    {
+        this->tableName = table;
+
+        QSqlQuery query("SELECT name FROM sqlite_master"
+                            " WHERE name='" + table + "'");
+
+        if (query.next() == false)
+        {
+            query.exec( "CREATE TABLE IF NOT EXISTS " + table + " (        \n" +
+                        " id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,     \n"
+                        " first_name TEXT NOT NULL,                        \n"
+                        " second_name TEXT,                                \n"
+                        " last_name TEXT NOT NULL,                         \n"
+                        " birthday TEXT NOT NULL,                          \n"
+                        " sport_type TEXT NOT NULL                         \n"
+                        " )                                                \n");
+
+            // вывод отладочной информации что таблица в бд была создана
+            if (query.lastError().isValid() == false)
+                qDebug() << "Creating " + table + " table inside database";
+        }
     }
 
 
@@ -59,15 +83,15 @@ public:
     }
 
 
-    QList<Person> *getPeople()
+    QList<Person> getPeople()
     {
         QSqlTableModel sqlModel;
         sqlModel.setTable(tableName);
 
+        QList<Person> people;
+
         if (sqlModel.select())
         {
-            QList<Person> *people = new QList<Person>;
-
             for (int r = 0; r < sqlModel.rowCount(); r++)
             {
                 QList<QString> persInList;
@@ -81,13 +105,13 @@ public:
 
                 pers.id = sqlModel.record(r).value("id").toInt();
 
-                *people << pers;
+                people << pers;
             }
-            return people;
         }
+        else
+            qWarning() << "error in PeopleManager::getAllPeople - " + sqlModel.lastError().text();
 
-        qDebug() << "error in PeopleManager::getAllPeople - " + sqlModel.lastError().text();
-        return nullptr;
+        return people;
     }
 
 private:
@@ -136,29 +160,6 @@ private:
         }
 
         return query.exec(); // возвращается результат операции
-    }
-
-
-    void touchTableName(QString tableName)
-    {
-        QSqlQuery query("SELECT name FROM sqlite_master"
-                            " WHERE name='" + tableName + "'");
-
-        if (query.next() == false)
-        {
-            query.exec( "CREATE TABLE IF NOT EXISTS " + tableName + " (    \n" +
-                        " id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,     \n"
-                        " first_name TEXT NOT NULL,                        \n"
-                        " second_name TEXT,                                \n"
-                        " last_name TEXT NOT NULL,                         \n"
-                        " birthday TEXT NOT NULL,                          \n"
-                        " sport_type TEXT NOT NULL                         \n"
-                        " )                                                \n");
-
-            // вывод отладочной информации что таблица в бд была создана
-            if (query.lastError().isValid() == false)
-                qDebug() << "Creating " + tableName + " table inside database";
-        }
     }
 };
 

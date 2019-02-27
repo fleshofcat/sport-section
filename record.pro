@@ -3,17 +3,17 @@ CONFIG += c++11 testcase
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
-HEADERS += \
+HEADERS +=                          \
     sport_section.h                 \
     common/common_objects.h         \
                                     \
-    tests/main_test.h               \
-    tests/test_people_storage.h     \
-    tests/test_db_manager.h         \
-    tests/test_group_manager.h      \
-    tests/test_group_editor.h       \
-    tests/test_editors_box.h        \
-                                    \
+    tests/main_test.h                   \
+    tests/test_db/test_people_storage.h \
+    tests/test_db/test_db_manager.h     \
+    tests/test_db/test_group_manager.h  \
+    tests/test_group_editor.h           \
+    tests/test_editors_box.h            \
+                                        \
     db/db_manager.h                 \
     db/people_manager.h             \
     db/group_manager.h              \
@@ -26,8 +26,8 @@ HEADERS += \
     ui/widgets/record_chooser.h     \
     ui/widgets/editors_box.h        \
     ui/widgets/records_widget.h     \
-    ui/widgets/record_editor.h      \
-    ui/widgets/records_viewer.h
+    ui/widgets/records_viewer.h \
+    ui/person_editor.h
 
 SOURCES += \
     main.cpp

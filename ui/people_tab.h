@@ -4,21 +4,18 @@
 #include <QStackedWidget>
 
 #include "common/common_objects.h"
-#include "ui/widgets/record_editor.h"
+#include "ui/person_editor.h"
 #include "ui/widgets/records_widget.h"
 
 class PeopleTab : public QWidget
 {
     Q_OBJECT
 
-    QList<Person> people;
+    QList<Person> people;// = nullptr;
 
-    int chosen_row = -1;
-
-    QStackedWidget *widgetStack = nullptr;
-    RecordsWidget *recordsViewer = nullptr;
-    RecordEditor *propertyEditor = nullptr;
-
+    QStackedWidget *widgetStack;
+    RecordsWidget *recordsViewer;
+    PersonEditor *personEditor;
 
 signals:
     void savePerson(Person person);
@@ -49,13 +46,13 @@ public:
 private:
     void setUpUi()
     {
-        recordsViewer = new RecordsWidget(this);
-        propertyEditor = new RecordEditor(this);
+        recordsViewer = new RecordsWidget;
+        personEditor = new PersonEditor;
 
         widgetStack = new QStackedWidget(this);
 
         widgetStack->addWidget(recordsViewer);
-        widgetStack->addWidget(propertyEditor);
+        widgetStack->addWidget(personEditor);
 
 
         connect(recordsViewer, &RecordsWidget::createRecordIsRequred,
@@ -66,74 +63,48 @@ private:
 
 
 
-        connect(propertyEditor, &RecordEditor::saveIsRequred,
-                this, &PeopleTab::on_save);
+        connect(personEditor, &PersonEditor::saveIsRequred,
+                this, &PeopleTab::on_savePerson);
 
-        connect(propertyEditor, &RecordEditor::removeIsRequred,
-                this, &PeopleTab::on_remove);
+        connect(personEditor, &PersonEditor::removeIsRequred,
+                this, &PeopleTab::on_removePerson);
 
-        connect(propertyEditor, &RecordEditor::exitIsRequred,
+        connect(personEditor, &PersonEditor::exitIsRequred,
                 this, &PeopleTab::on_editorExit);
     }
 
 private slots:
     void on_createRecord()
     {
-        this->chosen_row = -1;
-
-        propertyEditor->updateContent(Person::getPattern());
-
+        personEditor->updateContent(Person());
         widgetStack->setCurrentIndex(1);
     }
 
     void on_editRecord(int row)
     {
-        this->chosen_row = row;
-
-        Person pers = people.at(row);
-
-        propertyEditor->updateContent(Person::getPattern(), pers.getInList());
-
-        widgetStack->setCurrentIndex(1);
+        if (row >= 0)
+        {
+            personEditor->updateContent(people.at(row));
+            widgetStack->setCurrentIndex(1);
+        }
     }
 
-    void on_save(QList<QString> record)
+    void on_savePerson(Person person)
     {
-        if (this->chosen_row >= 0)
-        {
-            Person pers = people.at(chosen_row);
-            pers.setInList(record);
-
-            emit savePerson(pers);
-        }
-        else
-        {
-            Person pers(record);
-            pers.who = this->who;
-
-            emit savePerson(pers);
-        }
-
+        person.who = who;
+        emit savePerson(person);
         on_editorExit();
     }
 
-    void on_remove()
+    void on_removePerson(int id)
     {
-        if (chosen_row >= 0)
-        {
-            Person pers = this->people.at(chosen_row);
-            emit removePerson(pers.id, pers.who);
-        }
-
+        emit removePerson(id, who);
         on_editorExit();
     }
 
     void on_editorExit()
     {
-        chosen_row = -1;
-
-        propertyEditor->updateContent({});
-
+        personEditor->dropContent();
         widgetStack->setCurrentIndex(0);
     }
 
@@ -142,11 +113,7 @@ public:
     {
         widgetStack->resize(resizeEvent->size());
     }
-
-
 };
-
-
 
 
 

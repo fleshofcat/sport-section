@@ -20,9 +20,6 @@ private slots:
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName("../record/tests/test_res/sport_people.db");
         QVERIFY(db.open());
-
-        // set db to defined state before tests
-//        setDbToKnownState();
     }
 
 
@@ -78,13 +75,24 @@ private slots:
 
         auto groups = grs.getGroups();
 
-        Group swimming = groups->at(0);
-        Group froad = groups->at(1);
+        Group swimming = groups.at(0);
+        Group froad = groups.at(1);
 
-        QCOMPARE(groups->count(), 2);
+        QCOMPARE(groups.count(), 2);
         QCOMPARE(swimming.id, 1);
         QCOMPARE(froad.getInList().at(1), "мошенник");
     }
+
+
+    void cleanUpTestCase()
+    {
+        {
+            QSqlDatabase db = QSqlDatabase::database("qt_sql_default_connection");
+            db.close();
+        }
+        QSqlDatabase::removeDatabase("qt_sql_default_connection");
+    }
+
 
 private:
    void setDefaultValuesToDb()
@@ -128,7 +136,6 @@ private:
        query.exec("DROP TABLE IF EXISTS " + sportsmen);
        query.exec("DROP TABLE IF EXISTS " + trainers);
    }
-
 };
 
 

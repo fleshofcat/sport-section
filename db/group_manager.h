@@ -16,28 +16,34 @@ class GroupManager : public QObject
 
     QString groupTable;
 
-    GroupPeopleRelations *refsToTrainers;
-    GroupPeopleRelations *refsToSportsmen;
+    GroupPeopleRelations refsToTrainers;
+    GroupPeopleRelations refsToSportsmen;
 
 public:
-    // конструктор
-    // если при создании этого объекта в бд нет нужной ему таблицы
-    // он сам создаст ее
-    explicit GroupManager(QString groupTable,
-                          QString trainerTable,
-                          QString sportsmanTable,
-                          QObject *parent = nullptr)
+    GroupManager(QObject *parent = nullptr)
+        : QObject(parent) {}
+
+
+    GroupManager(QString groupTable,
+                 QString trainerTable,
+                 QString sportsmanTable,
+                 QObject *parent = nullptr)
         : QObject(parent)
     {
-        this->groupTable = groupTable;
-        touchGroupTable(groupTable);
-
-        refsToTrainers = new GroupPeopleRelations(
-                    groupTable, trainerTable);
-
-        refsToSportsmen = new GroupPeopleRelations(
-                    groupTable, sportsmanTable);
+        touchManager(groupTable, trainerTable, sportsmanTable);
     }
+
+
+    void touchManager(QString groupTable,
+                      QString trainerTable,
+                      QString sportsmanTable)
+    {
+        touchTable(groupTable);
+
+        refsToTrainers.touchManager(groupTable, trainerTable);
+        refsToSportsmen.touchManager(groupTable, sportsmanTable);
+    }
+
 
     bool saveGroup(Group group)
     {
@@ -53,9 +59,9 @@ public:
 
     bool removeGroup(int group_id)
     {
-        if (refsToTrainers->removeGroupLinks(group_id))
+        if (refsToTrainers.removeGroupLinks(group_id))
         {
-            if (refsToSportsmen->removeGroupLinks(group_id))
+            if (refsToSportsmen.removeGroupLinks(group_id))
             {
                 QSqlQuery query;
                 query.prepare("DELETE FROM " + groupTable + " WHERE id = (:id)");
@@ -77,13 +83,14 @@ public:
     }
 
 
-    QList<Group> *getGroups()
+    QList<Group> getGroups()
     {
         QSqlQuery query("SELECT * FROM " + groupTable);
 
+        QList<Group> groups;
+
         if (query.lastError().isValid() == false)
         {
-            QList<Group> *groups = new QList<Group>;
 
             while (query.next())
             {
@@ -97,23 +104,17 @@ public:
                 Group group(groupInList);
                 group.id = query.record().value("id").toInt();
 
-                auto trainersRefs = refsToTrainers->getLinks(group.id);
-                auto sportsmenRefs = refsToSportsmen->getLinks(group.id);
 
-                if (trainersRefs != nullptr &&
-                        sportsmenRefs != nullptr)
-                {
-                    group.trainers_ids = *trainersRefs;
-                    group.sportsmen_ids = *sportsmenRefs;
-                    *groups << group;
-                }
+                group.trainers_ids = refsToTrainers.getLinks(group.id);
+                group.sportsmen_ids = refsToSportsmen.getLinks(group.id);
+
+                groups << group;
             }
-            return groups;
 
         } else
             qWarning() << query.lastError().text();
 
-        return nullptr;
+        return groups;
     }
 
 private:
@@ -136,9 +137,9 @@ private:
 
             if (query.exec())
             {
-                if (refsToTrainers->updateLinks(group.id, group.trainers_ids))
+                if (refsToTrainers.updateLinks(group.id, group.trainers_ids))
                 {
-                    if (refsToSportsmen->updateLinks(group.id, group.sportsmen_ids))
+                    if (refsToSportsmen.updateLinks(group.id, group.sportsmen_ids))
                     {
                         return true;
                     }
@@ -166,9 +167,9 @@ private:
 
         if (query.exec())
         {
-            if (refsToTrainers->updateLinks(group.id, group.trainers_ids))
+            if (refsToTrainers.updateLinks(group.id, group.trainers_ids))
             {
-                if (refsToSportsmen->updateLinks(group.id, group.sportsmen_ids))
+                if (refsToSportsmen.updateLinks(group.id, group.sportsmen_ids))
                 {
                     return true;
                 }
@@ -181,9 +182,10 @@ private:
         return false;
     }
 
-
-    void touchGroupTable(QString groupTable)
+    void touchTable(QString groupTable)
     {
+        this->groupTable = groupTable;
+
         QSqlQuery query("SELECT name FROM sqlite_master"
                         " WHERE name='" + groupTable + "'");
 
@@ -199,7 +201,6 @@ private:
                 qDebug() << "Creating " + groupTable + " table inside database";
         }
     }
-
 
     static int getMaxIdFromTable(QString table) // возвращает -1 при неудаче
     {
@@ -226,7 +227,6 @@ private:
             query.addBindValue(field);
         }
     }
-
 };
 
 

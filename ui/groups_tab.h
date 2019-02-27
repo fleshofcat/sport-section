@@ -12,9 +12,9 @@ class GroupsTab : public QWidget
     QList<Person> trainers;     // объект для хранения тренеров
     QList<Group> groups;
 
-    QStackedWidget *widgetStack = nullptr;
-    RecordsWidget *recordsViewer = nullptr;
-    GroupEditor *groupEditor = nullptr;
+    QStackedWidget *widgetStack;
+    RecordsWidget *recordsViewer;
+    GroupEditor *groupEditor;
 
 signals:
     void saveGroup(Group group);
@@ -43,14 +43,13 @@ public:
         {
             groupEditor->updateWhenRunning(trainers, sportsmen);
         }
-
     }
 
 private:
     void setUpUi()
     {
-        recordsViewer = new RecordsWidget(this);
-        groupEditor = new GroupEditor(this);
+        recordsViewer = new RecordsWidget;
+        groupEditor = new GroupEditor;
 
         widgetStack = new QStackedWidget(this);
 

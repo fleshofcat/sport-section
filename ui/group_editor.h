@@ -13,6 +13,8 @@ class GroupEditor : public QWidget
 {
     Q_OBJECT
 
+    friend class TestGroupEditor;
+
     QList<Person> sportsmen;
     QList<Person> trainers;
     Group group;
@@ -42,19 +44,16 @@ public:
         : QWidget(parent)
     {
         setUpUi();
-        editorsBox->updateContent(Group::getPattern(), group.getInList());
 
 
-        connect(saveButton, &QPushButton::pressed,
+        connect(saveButton, &QPushButton::clicked,
                 this, &GroupEditor::on_saveGroup);
 
-        connect(removeButton, &QPushButton::pressed,
+        connect(removeButton, &QPushButton::clicked,
                 this, &GroupEditor::on_removeGroup);
 
-        connect(exitButton, &QPushButton::pressed,
+        connect(exitButton, &QPushButton::clicked,
                 this, &GroupEditor::exitIsRequred);
-
-
 
 
         connect(sportsmenViewer, &RecordsWidget::createRecordIsRequred,
@@ -69,12 +68,15 @@ public:
         connect(trainersViewer, &RecordsWidget::editRecordIsRequred,
                 this, &GroupEditor::on_removeTrainer);
 
+
+
+
         updateContent(trainers, sportsmen, group);
     }
 
     void updateContent(QList<Person> trainers,
                        QList<Person> sportsmen,
-                       Group group)
+                       Group group = Group())
     {
         this->group = group;
 
@@ -100,8 +102,7 @@ public:
 private:
     void setUpUi()
     {
-        editorsBox = new EditorsBox(Group::getPattern(), group.getInList(), this);
-
+        editorsBox = new EditorsBox;
 
         trainersViewer = new RecordsWidget;
         sportsmenViewer = new RecordsWidget;
@@ -229,10 +230,7 @@ private slots:
 
     void on_saveGroup()
     {
-        auto groupInList = editorsBox->getInList();
-
-        group.setInList(groupInList);
-
+        group.setInList(editorsBox->getInList());
         emit saveIsRequred(group);
     }
 

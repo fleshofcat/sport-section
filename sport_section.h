@@ -10,23 +10,20 @@
 class SportSection : public QObject
 {
     Q_OBJECT // обязательный макрос
-private:
-    MainWindow mw; // пользовательский интерфейс
 
-    // создание модуля бд
-    DbManager *db;
+    MainWindow mw;
+    DbManager db;
 
 public:
     // конструктор, выполняющийся при создании объекта
-    explicit SportSection(QObject *parent = nullptr)
+    SportSection(QObject *parent = nullptr)
         : QObject(parent)
     {
         QString path = QDir("../record/res/").exists() ?
                     "../record/res/sport_people.db"
                   : "sport_people.db";
 
-        db = new DbManager(path, this);
-
+        db.touchDb(path);
         mw.show(); // активация пользовательского интерфейса
 
         // обновление объекта пользовательского интерфейса данными из бд
@@ -50,11 +47,10 @@ public:
     }
 
 private slots:
-
     // обработчик запроса добавления и обновления человека в бд
     void savePersonToDb(Person pers)
     {
-        if (db->savePerson(pers)) // попытка добавить человека в бд
+        if (db.savePerson(pers)) // попытка добавить человека в бд
         {
             updateMainWindow(); // обновление интерфейса
         }
@@ -64,7 +60,7 @@ private slots:
     // обработчик запроса удаления человека из бд
     void removePersonFromDb(int id, Person::Who who)
     {
-        if (db->removePerson(id, who)) // попытка удалить человека из бд
+        if (db.removePerson(id, who)) // попытка удалить человека из бд
         {
             updateMainWindow();     // обновление интерфейса
         }
@@ -73,7 +69,7 @@ private slots:
     // обработчик запроса добавления и обновления человека в бд
     void saveGroupToDb(Group group)
     {
-        if (db->saveGroup(group)) // попытка добавить человека в бд
+        if (db.saveGroup(group)) // попытка добавить человека в бд
         {
             updateMainWindow(); // обновление интерфейса
         }
@@ -83,7 +79,7 @@ private slots:
     // обработчик запроса удаления человека из бд
     void removeGroupFromDb(int id)
     {
-        if (db->removeGroup(id)) // попытка удалить человека из бд
+        if (db.removeGroup(id)) // попытка удалить человека из бд
         {
             updateMainWindow();     // обновление интерфейса
         }
@@ -91,13 +87,12 @@ private slots:
 
 
 private:
-
     // обновление главного окна пользовательского интерфейса
     void updateMainWindow()
     {
-        auto sportsmen = *db->getSportsmen();
-        auto trainers = *db->getTrainers();
-        auto groups = *db->getGroups();
+        auto sportsmen = db.getSportsmen();
+        auto trainers = db.getTrainers();
+        auto groups = db.getGroups();
 
         mw.updateContent(sportsmen,
                          trainers,

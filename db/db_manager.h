@@ -12,30 +12,41 @@ class DbManager : public QObject
     QString trainersTable = "trainers";
     QString sportsmenTable = "sportsmen";
 
-    PeopleManager *sportsmenManager;
-    PeopleManager *trainersManager;
-    GroupManager *groupManager;
+    PeopleManager sportsmenManager;
+    PeopleManager trainersManager;
+    GroupManager groupManager;
 
 public:
     // конструктор, при создании объекта от этого класса выполняется следующий код:
     // здесь создается и подключается база данных по пути
     // заданному в db_path
     // это строковая переменная, значение которой закладывается в объект при его создании
-    explicit DbManager(QString db_path, QObject *parent = nullptr)
+    DbManager(QObject *parent = nullptr) : QObject(parent) {}
+
+    DbManager(QString db_path, QObject *parent = nullptr)
         : QObject (parent)
     {        
-        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName(db_path);
+        touchDb(db_path);
+    }
 
-        if (db.open() == false) // проверка что бд открылась успешно
+    void touchDb(QString db_path)
+    {
+        if (!QSqlDatabase::database().isOpen())
         {
-            qDebug() << "Error: Database connection is failed";
-            return;
-        }
+            QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+            db.setDatabaseName(db_path);
 
-        sportsmenManager = new PeopleManager(sportsmenTable, this);
-        trainersManager =  new PeopleManager(trainersTable, this);
-        groupManager = new GroupManager(groupsTable, trainersTable, sportsmenTable, this);
+            if (db.open())
+            {
+                sportsmenManager.touchManager(sportsmenTable);
+                trainersManager.touchManager(trainersTable);
+                groupManager.touchManager(groupsTable, trainersTable, sportsmenTable);
+            }
+            else
+            {
+                qWarning() << "db connection wasn't opened. " << db.lastError().text();
+            }
+        }
     }
 
     // методы для взаимодействия с бд
@@ -49,11 +60,11 @@ public:
     {
         if (pers.who == Person::Who::TRAINER)
         {
-            return trainersManager->savePerson(pers);
+            return trainersManager.savePerson(pers);
         }
         else if (pers.who == Person::Who::SPORTSMAN)
         {
-            return sportsmenManager->savePerson(pers);
+            return sportsmenManager.savePerson(pers);
         }
         return false;
     }
@@ -64,23 +75,23 @@ public:
     {
         if (who == Person::Who::TRAINER)
         {
-            return trainersManager->removePerson(id);
+            return trainersManager.removePerson(id);
         }
         else if (who == Person::Who::SPORTSMAN)
         {
-            return sportsmenManager->removePerson(id);
+            return sportsmenManager.removePerson(id);
         }
         return false;
     }
 
     // метод возвращает из бд детей в виде спика List
-    QList<Person> *getSportsmen()
+    QList<Person> getSportsmen()
     {
-        QList<Person> *sportsmen = sportsmenManager->getPeople();
+        QList<Person> sportsmen = sportsmenManager.getPeople();
 
-        for (int i = 0; i < sportsmen->count(); i++)
+        for (int i = 0; i < sportsmen.count(); i++)
         {
-            sportsmen[0][i].who = Person::Who::SPORTSMAN;
+            sportsmen[i].who = Person::Who::SPORTSMAN;
         }
 
         return sportsmen;
@@ -88,13 +99,13 @@ public:
 
 
     // метод возвращает из бд тренеров в виде спика List
-    QList<Person> *getTrainers()
+    QList<Person> getTrainers()
     {
-        QList<Person> *trainers = trainersManager->getPeople();
+        QList<Person> trainers = trainersManager.getPeople();
 
-        for (int i = 0; i < trainers->count(); i++)
+        for (int i = 0; i < trainers.count(); i++)
         {
-            trainers[0][i].who = Person::Who::TRAINER;
+            trainers[i].who = Person::Who::TRAINER;
         }
 
         return trainers;
@@ -103,17 +114,17 @@ public:
 
     bool saveGroup(Group group)
     {
-        return groupManager->saveGroup(group);
+        return groupManager.saveGroup(group);
     }
 
     bool removeGroup(int id)
     {
-        return groupManager->removeGroup(id);
+        return groupManager.removeGroup(id);
     }
 
-    QList<Group> *getGroups()
+    QList<Group> getGroups()
     {
-        return groupManager->getGroups();
+        return groupManager.getGroups();
     }
 
 

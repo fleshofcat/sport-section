@@ -3,6 +3,7 @@
 #include <QHeaderView>
 #include <QTableWidget>
 
+// RecordPreview
 class RecordsViewer : public QTableWidget
 {
     Q_OBJECT
@@ -47,14 +48,14 @@ public:
         }
     }
 
-    void setHHeader(QList<QString> header = {})
+    void setHHeader(QList<QString> pattern = {})
     {
-        if (!header.isEmpty())
+        if (!pattern.isEmpty())
         {
-            for (int c = 0; c < header.count(); c++)
+            for (int c = 0; c < pattern.count(); c++)
             {
-                setHorizontalHeaderItem(
-                            c, new QTableWidgetItem(header.at(c)));
+                this->setHorizontalHeaderItem(
+                            c, new QTableWidgetItem(pattern.at(c)));
             }
             horizontalHeader()->setVisible(true);
         }
@@ -65,7 +66,7 @@ public:
            while (count)
            {
                 count--;
-                setHorizontalHeaderItem(count, new QTableWidgetItem(""));
+                this->setHorizontalHeaderItem(count, new QTableWidgetItem(""));
            }
 
            horizontalHeader()->setVisible(false);

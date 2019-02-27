@@ -19,10 +19,10 @@ private slots:
     {
         auto db = new DbManager("../record/res/sport_people.db", this);
 
-        auto groups = *db->getGroups();
+        auto groups = db->getGroups();
 
-        GroupEditor *edBox = new GroupEditor(*db->getTrainers(),
-                                             *db->getSportsmen(),
+        GroupEditor *edBox = new GroupEditor(db->getTrainers(),
+                                             db->getSportsmen(),
                                              Group());
 
 //        auto edBox = new EditorsBox({"q", "w", "e"}, {"e"}); // 7

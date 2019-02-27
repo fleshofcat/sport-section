@@ -2,24 +2,42 @@
 
 #include <QtSql> // для работы с бд
 
-class GroupPeopleRelations
+class GroupPeopleRelations : public QObject
 {
+    Q_OBJECT
+
     QString groupTable;
     QString peopleTable;
     QString groupPeopleTable;
 
 public:
-    GroupPeopleRelations(QString groupTable,
-                         QString peopleTable)
-    {
-        constructor(groupTable, peopleTable, groupTable + "_" + peopleTable);
-    }
+    GroupPeopleRelations(QObject *parent = nullptr)
+        : QObject(parent) { }
 
     GroupPeopleRelations(QString groupTable,
                          QString peopleTable,
-                         QString specifiedGroupPeopleTable)
+                         QString specifiedGroupPeopleTable = "",
+                         QObject *parent = nullptr)
+        : QObject(parent)
     {
-        constructor(groupTable, peopleTable, specifiedGroupPeopleTable);
+        touchManager(groupTable, peopleTable, specifiedGroupPeopleTable);
+    }
+
+
+    void touchManager(QString groupTable,
+                     QString peopleTable,
+                     QString groupPeopleTable = "")
+    {
+        if (groupPeopleTable == "")
+        {
+            groupPeopleTable = groupTable + "_" + peopleTable;
+        }
+
+        this->groupPeopleTable = groupPeopleTable;
+        this->groupTable = groupTable;
+        this->peopleTable = peopleTable;
+
+        touchTable(groupPeopleTable);
     }
 
 
@@ -50,28 +68,26 @@ public:
         return false;
     }
 
-    QList<int> *getLinks(int group_id)
+    QList<int> getLinks(int group_id)
     {
         QSqlQuery query;
         query.prepare("SELECT person_id FROM " + groupPeopleTable +
                       " WHERE group_id = (:id)");
         query.addBindValue(group_id);
 
+        QList<int> people_ids;
+
         if (query.exec())
         {
-            QList<int> *people_ids = new QList<int>;
-
             while (query.next())
             {
-                *people_ids << query.record().value(0).toInt();
+                people_ids << query.record().value(0).toInt();
             }
-
-            return  people_ids;
         }
         else
             qWarning() << query.lastError().text();
 
-        return nullptr;
+        return  people_ids;
     }
 
 
@@ -95,17 +111,6 @@ private:
             }
         }
         return true;
-    }
-
-    void constructor(QString groupTable,
-                     QString peopleTable,
-                     QString groupPeopleTable)
-    {
-        this->groupPeopleTable = groupPeopleTable;
-        this->groupTable = groupTable;
-        this->peopleTable = peopleTable;
-
-        touchTable(groupPeopleTable);
     }
 
     void touchTable(QString table)
