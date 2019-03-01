@@ -5,6 +5,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS +=                          \
     sport_section.h                 \
+    common/person.h                 \
+    common/group.h                  \
+    common/schedule.h               \
                                     \
     tests/main_test.h                   \
     tests/test_db/test_people_storage.h \
@@ -27,10 +30,7 @@ HEADERS +=                          \
     ui/person_editor.h \
     tests/test_db/test_group_links.h \
     ui/people_editor.h \
-    common/person.h \
-    common/group.h \
-    ui/groups_editor.h \
-    common/schedule.h
+    ui/groups_editor.h
 
 SOURCES += \
     main.cpp

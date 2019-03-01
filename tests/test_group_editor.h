@@ -45,6 +45,17 @@ private slots:
         QCOMPARE(spy.count(), 1);
     }
 
+    void test_updateContent()
+    {
+        auto traiers = getTestTrainers();
+        auto sportsmen = getTestSportsmen();
+        auto groups = getTestGroups();
+
+
+
+        GroupEditor editor(traiers, sportsmen, groups.at(0));
+    }
+
 private:
     QList<Person> getTestTrainers()
     {
@@ -94,15 +105,13 @@ private:
 
     QList<Group> getTestGroups()
     {
-        Group group({
-                        "Группа 1",
-                        "плавание"
-                    });
-
+        Group group({"Группа 1", "плавание"});
         group.trainers_ids << 3 << 5;
         group.sportsmen_ids << 1 << 2;
 
-        return {group};
+        Group empty_group({"q", "q"});
+
+        return {group, empty_group};
     }
 
     bool isGroupEqual(Group expected, Group actual)

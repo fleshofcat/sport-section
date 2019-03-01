@@ -22,10 +22,4 @@ public:
         QTest::qExec(new TestGroupEditor, argc, argv);
         QTest::qExec(new TestEditorsBox, argc, argv);
     }
-
-    static void runSpecificTest(QObject *testObject, int argc = 0, char **argv = nullptr)
-    {
-        QTest::qExec(testObject, argc, argv);
-    }
-
 };
