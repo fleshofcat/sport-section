@@ -7,15 +7,18 @@ class TestDbManager : public QObject
 {
     Q_OBJECT
 
-private slots:
-    // connection setting in constructor
-    // setting down in destructor
-    void test_instantCreation()
-    {
-        QVERIFY(dropStandartDbConnection()); // connection is not
+    QString db_path = "../record/tests/test_res/sport_people.db";
+    QString groups = "groups";
+    QString trainers = "trainers";
+    QString sportsmen = "sportsmen";
 
-        DbManager * storage = new DbManager(
-                    "../record/tests/test_res/sport_people.db");
+private slots:
+    void test_creation()
+    {
+        // test 1
+        QVERIFY(dropDbConnection()); // connection is not
+
+        DbManager * storage = new DbManager(db_path);
 
         // now it is. check it
         QCOMPARE(QSqlDatabase::database().isValid(), true);
@@ -24,15 +27,12 @@ private slots:
 
         // check that connection is not again
         QCOMPARE(QSqlDatabase::database().isValid(), false);
-    }
 
-    void test_laterCreation()
-    {
-        QVERIFY(dropStandartDbConnection()); // connection is not
 
+        // test 2
         {
             DbManager db_1;
-            db_1.touchDb("../record/tests/test_res/sport_people.db");
+            db_1.touchDb(db_path);
 
             // now it is, check
             QCOMPARE(QSqlDatabase::database().isValid(), true);
@@ -43,8 +43,18 @@ private slots:
     }
 
 
+    void test_removingPerson()
+    {
+        setDefaultState();
+
+        DbManager db(db_path);
+
+        QCOMPARE(db.removeSportsman(1), false);
+    }
+
+
 private:
-    bool dropStandartDbConnection()
+    bool dropDbConnection()
     {
         if (QSqlDatabase::database().isValid()) // drop db if exist
         {
@@ -57,6 +67,40 @@ private:
 
         // check that connection is not
         return !(QSqlDatabase::database().isValid());
+    }
+
+    void setDefaultState()
+    {
+        dropDbData();
+
+        DbManager db(db_path);
+
+        db.saveSportsman(Person({"Артем", "Эдуардович", "Оношко", "12.01.1998", "плавание"}));
+        db.saveSportsman(Person({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"}));
+
+        db.saveTrainer(Person({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"}));
+
+        Group gr(Group::getPattern());
+        gr.trainers_ids << 1;
+        gr.sportsmen_ids << 1;
+        db.saveGroup(gr);
+
+        Group gr_2({"Группа мошеннег", "мошенник"});
+        gr_2.trainers_ids << 1;
+        gr_2.sportsmen_ids << 2;
+        db.saveGroup(gr_2);
+    }
+
+    void dropDbData()
+    {
+        DbManager db(db_path);
+
+        QSqlQuery query;
+        query.exec("DROP TABLE IF EXISTS " + groups + "_" + sportsmen);
+        query.exec("DROP TABLE IF EXISTS " + groups + "_" + trainers);
+        query.exec("DROP TABLE IF EXISTS " + groups);
+        query.exec("DROP TABLE IF EXISTS " + sportsmen);
+        query.exec("DROP TABLE IF EXISTS " + trainers);
     }
 };
 

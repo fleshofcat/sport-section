@@ -6,7 +6,7 @@
 #include "db/group_manager.h"
 #include "db/people_manager.h"
 
-class TestGroupStorage : public QObject
+class TestGroupManager : public QObject
 {
     Q_OBJECT
 

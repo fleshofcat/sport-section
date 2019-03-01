@@ -4,7 +4,7 @@
 
 #include "ui/group_editor.h"
 
-class GroupsTab : public QWidget
+class GroupsEditor : public QWidget
 {
     Q_OBJECT
 
@@ -21,7 +21,7 @@ signals:
     void removeGroup(int group_id);
 
 public:
-    GroupsTab(QWidget *parent = nullptr) : QWidget(parent)
+    GroupsEditor(QWidget *parent = nullptr) : QWidget(parent)
     {
         setUpUi();
     }
@@ -58,21 +58,21 @@ private:
 
 
         connect(recordsViewer, &RecordsWidget::createRecordIsRequred,
-                this, &GroupsTab::on_createRecord);
+                this, &GroupsEditor::on_createRecord);
 
         connect(recordsViewer, &RecordsWidget::editRecordIsRequred,
-                this, &GroupsTab::on_editRecord);
+                this, &GroupsEditor::on_editRecord);
 
 
 
         connect(groupEditor, &GroupEditor::saveIsRequred,
-                this, &GroupsTab::on_saveGroup);
+                this, &GroupsEditor::on_saveGroup);
 
         connect(groupEditor, &GroupEditor::removeIsRequred,
-                this, &GroupsTab::on_removeGroup);
+                this, &GroupsEditor::on_removeGroup);
 
         connect(groupEditor, &GroupEditor::exitIsRequred,
-                this, &GroupsTab::groupEditorExit);
+                this, &GroupsEditor::groupEditorExit);
 
     }
 

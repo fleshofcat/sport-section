@@ -5,6 +5,7 @@
 class GroupPeopleRelations : public QObject
 {
     Q_OBJECT
+    friend class TestGroupPeopleRelations;
 
     QString groupTable;
     QString peopleTable;

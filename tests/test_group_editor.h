@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "ui/groups_tab.h"
+#include "ui/groups_editor.h"
 #include "db/db_manager.h"
 
 class TestGroupEditor : public QObject
@@ -12,9 +12,6 @@ public:
     void manualTest()
     {
         DbManager db("../record/res/sport_people.db");
-
-//        auto groupsTab = new GroupsTab;
-//        groupsTab->show();
 
         auto groupEditor = new GroupEditor();
         groupEditor->show();
@@ -43,7 +40,7 @@ private slots:
                     getTestGroups()[0]);
 
 
-        groupEditor->saveButton->pressed();
+        groupEditor->saveButton->clicked();
 
         QCOMPARE(spy.count(), 1);
     }

@@ -27,13 +27,9 @@ public:
                              QWidget *parent = nullptr)
     {
         int row = -1;
+        RecordChooser chooseDialog(stringTable, &row, parent);
 
-        RecordChooser *chooseDialog = new RecordChooser(
-                    stringTable, &row, parent);
-
-        int execResult = chooseDialog->exec();
-
-        if (execResult == QDialog::Accepted)
+        if (chooseDialog.exec() == QDialog::Accepted)
         {
             return row;
         }

@@ -2,7 +2,7 @@
 
 #include <QPushButton>
 
-#include "common/common_objects.h"
+#include "common/person.h"
 #include "ui/widgets/editors_box.h"
 
 class PersonEditor : public QWidget
@@ -18,9 +18,9 @@ class PersonEditor : public QWidget
     EditorsBox *editorsBox;
 
 signals:
-    void saveIsRequred(Person person);
-    void removeIsRequred(int id);
-    void exitIsRequred();
+    void needSave(Person person);
+    void needRemove(int id);
+    void needExit();
 
 public:
     PersonEditor(QWidget *parent = nullptr)
@@ -31,30 +31,23 @@ public:
     {
         setUpUi();
 
-
-        connect(saveButton, &QPushButton::clicked,
-                this, &PersonEditor::on_savePerson);
-
-        connect(removeButton, &QPushButton::clicked,
-                this, &PersonEditor::on_removePerson);
-
-        connect(exitButton, &QPushButton::clicked,
-                this, &PersonEditor::exitIsRequred);
-
+        connect(saveButton,   &QPushButton::clicked, this, &PersonEditor::on_save);
+        connect(removeButton, &QPushButton::clicked, this, &PersonEditor::on_remove);
+        connect(exitButton,   &QPushButton::clicked, this, &PersonEditor::needExit);
 
         updateContent(person);
     }
 
-    void updateContent(Person person)
+    void updateContent(Person person = Person())
     {
         this->person = person;
-
         editorsBox->updateContent(Person::getPattern(), person.getInList());
     }
 
-    void dropContent()
+    Person getPerson()
     {
-        updateContent(Person());
+        person.setInList(editorsBox->getInList());
+        return person;
     }
 
 private:
@@ -76,18 +69,15 @@ private:
     }
 
 private slots:
-    void on_savePerson()
+    void on_save()
     {
-        auto personInList = editorsBox->getInList();
-
-        person.setInList(personInList);
-
-        emit saveIsRequred(person);
+        person.setInList(editorsBox->getInList());
+        emit needSave(person);
     }
 
-    void on_removePerson()
+    void on_remove()
     {
-        emit removeIsRequred(this->person.id);
+        emit needRemove(this->person.id);
     }
 };
 

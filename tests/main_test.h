@@ -16,11 +16,16 @@ public:
 
     static void runAllTests(int argc, char *argv[])
     {
-//        QTest::qExec(new TestPeopleStorage, argc, argv);
-//        QTest::qExec(new TestGroupStorage, argc, argv);
-//        QTest::qExec(new TestDbManager, argc, argv);
+        QTest::qExec(new TestPeopleStorage, argc, argv);
+        QTest::qExec(new TestGroupManager, argc, argv);
+        QTest::qExec(new TestDbManager, argc, argv);
         QTest::qExec(new TestGroupEditor, argc, argv);
-//        QTest::qExec(new TestEditorsBox, argc, argv);
+        QTest::qExec(new TestEditorsBox, argc, argv);
+    }
+
+    static void runSpecificTest(QObject *testObject, int argc = 0, char **argv = nullptr)
+    {
+        QTest::qExec(testObject, argc, argv);
     }
 
 };

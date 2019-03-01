@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ui/people_tab.h"
-#include "ui/groups_tab.h"
+#include "ui/people_editor.h"
+#include "ui/groups_editor.h"
 
 
 // класс MainWindow/ГлавноеОкно является классом-прослойкой
@@ -11,24 +11,26 @@
 // принимает и обрабатывает его запросы
 class MainWindow : public QWidget
 {
-    Q_OBJECT    // обязательный макрос
+    Q_OBJECT
+
+    QTabWidget *tabs;
+    PeoplePresentor *sportsmenTab;
+    PeoplePresentor *trainersTab;
+    GroupsEditor *groupTab;
+
+    QList<Person> sportsmen;
+    QList<Person> trainers;
+    QList<Group> groups;
 
 signals:
-    void saveSportsmen(Person pers);
-    void removeSportsmen(int id);
+    void saveSportsman(Person pers);
+    void removeSportsman(int id);
 
     void saveTrainer(Person pers);
     void removeTrainer(int id);
 
     void saveGroup(Group group);
     void removeGroup(int id);
-
-private:
-    QTabWidget *tabs;
-
-    PeopleTab *sportsmenTab;
-    PeopleTab *trainersTab;
-    GroupsTab *groupTab;
 
 public:
     // код который будет выполняться при создании объекта от этого класса
@@ -38,14 +40,14 @@ public:
     {
         setUpUi();
 
-        connect(sportsmenTab, &PeopleTab::savePerson, this, &MainWindow::saveSportsmen);
-        connect(sportsmenTab, &PeopleTab::removePerson, this, &MainWindow::removeSportsmen);
+        connect(sportsmenTab, &PeoplePresentor::savePerson, this, &MainWindow::saveSportsman);
+        connect(sportsmenTab, &PeoplePresentor::removePerson, this, &MainWindow::on_removeSportsman);
 
-        connect(trainersTab, &PeopleTab::savePerson, this, &MainWindow::saveTrainer);
-        connect(trainersTab, &PeopleTab::removePerson, this, &MainWindow::removeTrainer);
+        connect(trainersTab, &PeoplePresentor::savePerson, this, &MainWindow::saveTrainer);
+        connect(trainersTab, &PeoplePresentor::removePerson, this, &MainWindow::on_removeTrainer);
 
-        connect(groupTab, &GroupsTab::saveGroup, this, &MainWindow::saveGroup);
-        connect(groupTab, &GroupsTab::removeGroup, this, &MainWindow::removeGroup);
+        connect(groupTab, &GroupsEditor::saveGroup, this, &MainWindow::saveGroup);
+        connect(groupTab, &GroupsEditor::removeGroup, this, &MainWindow::removeGroup);
     }
 
 
@@ -55,20 +57,54 @@ public:
                        QList<Person> trainers,
                        QList<Group> groups)
     {
+        this->sportsmen = sportsmen;
+        this->trainers = trainers;
+        this->groups = groups;
+
         sportsmenTab->updateContent(sportsmen);
         trainersTab->updateContent(trainers);
         groupTab->updateContent(sportsmen, trainers, groups);
     }
 
+private slots:
+    void on_removeSportsman(int id)
+    {
+        for (Group group : groups)
+        {
+            if (group.sportsmen_ids.contains(id))
+            {
+                QString groupName = group.getInList().at(0);
+                sportsmenTab->showWarning("Пока этот спортсмен состоит в группе '" +
+                                          groupName + "' его нельзя удалить.");
+                return;
+            }
+        }
+         emit removeSportsman(id);
+    }
+
+    void on_removeTrainer(int id)
+    {
+        for (Group group : groups)
+        {
+            if (group.trainers_ids.contains(id))
+            {
+                QString groupName = group.getInList().at(0);
+                trainersTab->showWarning("Пока этот тренер состоит в группе '" +
+                                         groupName + "' его нельзя удалить.");
+                return;
+            }
+        }
+         emit removeTrainer(id);
+    }
 
 private:
     void setUpUi()
     {
         this->resize(800, 400);
 
-        sportsmenTab = new PeopleTab;
-        trainersTab = new PeopleTab;
-        groupTab = new GroupsTab;
+        sportsmenTab = new PeoplePresentor;
+        trainersTab = new PeoplePresentor;
+        groupTab = new GroupsEditor;
 
         tabs = new QTabWidget(this);
 
@@ -78,11 +114,11 @@ private:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(tabs->sizePolicy().hasHeightForWidth());
         tabs->setSizePolicy(sizePolicy);
+        tabs->setMovable(true);
 
-
-        tabs->addTab(sportsmenTab, "Спортсмены");
-        tabs->addTab(trainersTab, "Тренера");
         tabs->addTab(groupTab, "Группы");
+        tabs->addTab(trainersTab, "Тренера");
+        tabs->addTab(sportsmenTab, "Спортсмены");
     }
 
 public:

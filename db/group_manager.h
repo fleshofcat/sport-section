@@ -2,7 +2,7 @@
 
 #include <QtSql> // для работы с бд
 
-#include "common/common_objects.h"
+#include "common/group.h"
 #include "db/group_people_relations.h"
 
 // класс ScheduleManager/МенеджерРасписаний
@@ -12,7 +12,7 @@ class GroupManager : public QObject
 {
     Q_OBJECT
 
-    friend class TestGroupStorage;
+    friend class TestGroupManager;
 
     QString groupTable;
 
@@ -220,7 +220,7 @@ private:
         return -1;
     }
 
-    void bindValueList(QSqlQuery &query, QList<QString> list) // TODO test it
+    static void bindValueList(QSqlQuery &query, QList<QString> list)
     {
         for (QString field : list)
         {

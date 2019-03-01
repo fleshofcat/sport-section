@@ -6,7 +6,7 @@
 // класс DbManager/БдМенеджер
 class DbManager : public QObject
 {
-    Q_OBJECT    // обязательный макрос для Qt Framework
+    Q_OBJECT
 
     QString groupsTable = "groups";
     QString trainersTable = "trainers";
@@ -17,10 +17,6 @@ class DbManager : public QObject
     GroupManager groupManager;
 
 public:
-    // конструктор, при создании объекта от этого класса выполняется следующий код:
-    // здесь создается и подключается база данных по пути
-    // заданному в db_path
-    // это строковая переменная, значение которой закладывается в объект при его создании
     DbManager(QObject *parent = nullptr) : QObject(parent) {}
 
     DbManager(QString db_path, QObject *parent = nullptr)
@@ -38,6 +34,8 @@ public:
 
             if (db.open())
             {
+                QSqlQuery query("PRAGMA foreign_keys=on");
+
                 sportsmenManager.touchManager(sportsmenTable);
                 trainersManager.touchManager(trainersTable);
                 groupManager.touchManager(groupsTable, trainersTable, sportsmenTable);

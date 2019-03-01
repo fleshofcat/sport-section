@@ -31,19 +31,19 @@ public:
 
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
-        connect(&mw, &MainWindow::saveSportsmen, this, &SportSection::on_saveSportsman);
-        connect(&mw, &MainWindow::removeSportsmen, this, &SportSection::on_removeSportsman);
+        connect(&mw, &MainWindow::saveSportsman, this, &SportSection::on_saveSportsmanInDb);
+        connect(&mw, &MainWindow::removeSportsman, this, &SportSection::on_removeSportsmanInDb);
 
-        connect(&mw, &MainWindow::saveTrainer, this, &SportSection::on_saveTrainer);
-        connect(&mw, &MainWindow::removeTrainer, this, &SportSection::on_removeTrainer);
+        connect(&mw, &MainWindow::saveTrainer, this, &SportSection::on_saveTrainerInDb);
+        connect(&mw, &MainWindow::removeTrainer, this, &SportSection::on_removeTrainerInDb);
 
-        connect(&mw, &MainWindow::saveGroup, this, &SportSection::on_saveGroup);
-        connect(&mw, &MainWindow::removeGroup, this, &SportSection::on_removeGroup);
+        connect(&mw, &MainWindow::saveGroup, this, &SportSection::on_saveGroupInDb);
+        connect(&mw, &MainWindow::removeGroup, this, &SportSection::on_removeGroupInDb);
     }
 
 private slots:
     // обработчик запроса добавления и обновления человека в бд
-    void on_saveSportsman(Person pers)
+    void on_saveSportsmanInDb(Person pers)
     {
         if (db.saveSportsman(pers)) // попытка добавить человека в бд
         {
@@ -51,7 +51,7 @@ private slots:
         }
     }
 
-    void on_saveTrainer(Person pers)
+    void on_saveTrainerInDb(Person pers)
     {
         if (db.saveTrainer(pers)) // попытка добавить человека в бд
         {
@@ -61,7 +61,7 @@ private slots:
 
 
     // обработчик запроса удаления человека из бд
-    void on_removeSportsman(int id)
+    void on_removeSportsmanInDb(int id)
     {
         if (db.removeSportsman(id)) // попытка удалить человека из бд
         {
@@ -69,7 +69,7 @@ private slots:
         }
     }
 
-    void on_removeTrainer(int id)
+    void on_removeTrainerInDb(int id)
     {
         if (db.removeTrainer(id)) // попытка удалить человека из бд
         {
@@ -78,7 +78,7 @@ private slots:
     }
 
     // обработчик запроса добавления и обновления человека в бд
-    void on_saveGroup(Group group)
+    void on_saveGroupInDb(Group group)
     {
         if (db.saveGroup(group)) // попытка добавить человека в бд
         {
@@ -88,7 +88,7 @@ private slots:
 
 
     // обработчик запроса удаления человека из бд
-    void on_removeGroup(int id)
+    void on_removeGroupInDb(int id)
     {
         if (db.removeGroup(id)) // попытка удалить человека из бд
         {

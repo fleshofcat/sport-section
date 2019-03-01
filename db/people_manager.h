@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QtSql> // для работы с бд
+#include <QtSql>
 
-#include "common/common_objects.h" // общие объекты (Person/Schedule)
+#include "common/person.h"
 
 // класс PeopleManager/МенеджерЛюдей
 //

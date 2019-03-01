@@ -4,7 +4,9 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "common/common_objects.h"
+#include "common/group.h"
+#include "common/person.h"
+
 #include "ui/widgets/editors_box.h"
 #include "ui/widgets/records_widget.h"
 #include "ui/widgets/record_chooser.h"
@@ -45,31 +47,15 @@ public:
     {
         setUpUi();
 
+        connect(saveButton, &QPushButton::clicked, this, &GroupEditor::on_saveGroup);
+        connect(removeButton, &QPushButton::clicked, this, &GroupEditor::on_removeGroup);
+        connect(exitButton, &QPushButton::clicked, this, &GroupEditor::exitIsRequred);
 
-        connect(saveButton, &QPushButton::clicked,
-                this, &GroupEditor::on_saveGroup);
+        connect(sportsmenViewer, &RecordsWidget::createRecordIsRequred, this, &GroupEditor::on_addSportsmen);
+        connect(sportsmenViewer, &RecordsWidget::editRecordIsRequred, this, &GroupEditor::on_removeSportsmen);
 
-        connect(removeButton, &QPushButton::clicked,
-                this, &GroupEditor::on_removeGroup);
-
-        connect(exitButton, &QPushButton::clicked,
-                this, &GroupEditor::exitIsRequred);
-
-
-        connect(sportsmenViewer, &RecordsWidget::createRecordIsRequred,
-                this, &GroupEditor::on_addSportsmen);
-
-        connect(sportsmenViewer, &RecordsWidget::editRecordIsRequred,
-                this, &GroupEditor::on_removeSportsmen);
-
-        connect(trainersViewer, &RecordsWidget::createRecordIsRequred,
-                this, &GroupEditor::on_addTrainer);
-
-        connect(trainersViewer, &RecordsWidget::editRecordIsRequred,
-                this, &GroupEditor::on_removeTrainer);
-
-
-
+        connect(trainersViewer, &RecordsWidget::createRecordIsRequred, this, &GroupEditor::on_addTrainer);
+        connect(trainersViewer, &RecordsWidget::editRecordIsRequred, this, &GroupEditor::on_removeTrainer);
 
         updateContent(trainers, sportsmen, group);
     }
@@ -89,6 +75,9 @@ public:
     {
         this->trainers = trainers;
         this->sportsmen = sportsmen;
+
+        group.dropFakeIds(Person::getIds(sportsmen),
+                                Person::getIds(trainers));
 
         updateViewer(trainersViewer, trainers, group.trainers_ids);
         updateViewer(sportsmenViewer, sportsmen, group.sportsmen_ids);
@@ -175,19 +164,13 @@ private slots:
 
     void on_removeSportsmen(int row)
     {
-        int result = QMessageBox::question(
-                    this, "",
-                    "Удалить спортсмена?");
+        int result = QMessageBox::question(this, " ",
+                    "Убрать спортсмена из группы?");
 
         if (result == QMessageBox::Yes)
         {
-            if (row >= 0)
-            {
-                int id = sportsmen.at(row).id;
-                group.sportsmen_ids.removeAll(id);
-
-                updateWhenRunning(trainers, sportsmen);
-            }
+            group.sportsmen_ids.removeAt(row);
+            updateWhenRunning(trainers, sportsmen);
         }
     }
 
@@ -211,19 +194,13 @@ private slots:
 
     void on_removeTrainer(int row)
     {
-        int result = QMessageBox::question(
-                    this, "",
-                    "Удалить тренера?");
+        int result = QMessageBox::question(this, " ",
+                    "Убрать тренера из группы?");
 
         if (result == QMessageBox::Yes)
         {
-            if (row >= 0)
-            {
-                int id = trainers.at(row).id;
-                group.trainers_ids.removeAll(id);
-
-                updateWhenRunning(trainers, sportsmen);
-            }
+            group.trainers_ids.removeAt(row);
+            updateWhenRunning(trainers, sportsmen);
         }
     }
 
