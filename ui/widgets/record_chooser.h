@@ -49,11 +49,12 @@ private:
 
 
         connect(rejectButton, &QPushButton::pressed, this, &QDialog::reject);
-        connect(table, &QTableWidget::cellPressed, this, &RecordChooser::on_tablePressed);
+        connect(table, &RecordsViewer::rowIsActivated, this, &RecordChooser::on_tablePressed);
+//        connect(table, &QTableWidget::cellPressed, this, &RecordChooser::on_tablePressed);
     }
 
 private slots:
-    void on_tablePressed(int row, int)
+    void on_tablePressed(int row)
     {
         *this->result = row;
 

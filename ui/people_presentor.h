@@ -54,8 +54,8 @@ private:
         widgets->addWidget(viewer);
         widgets->addWidget(editor);
 
-        connect(viewer, &RecordsWidget::createRecordIsRequred, this, &PeoplePresentor::on_createRecord);
-        connect(viewer, &RecordsWidget::editRecordIsRequred,   this, &PeoplePresentor::on_editRecord);
+        connect(viewer, &RecordsWidget::createRecordActivate, this, &PeoplePresentor::on_createRecord);
+        connect(viewer, &RecordsWidget::recordActivated,   this, &PeoplePresentor::on_editRecord);
 
         connect(editor, &PersonEditor::needSave,   this, &PeoplePresentor::on_needSave);
         connect(editor, &PersonEditor::needRemove, this, &PeoplePresentor::on_needRemove);

@@ -3,10 +3,12 @@
 #include <QHeaderView>
 #include <QTableWidget>
 
-// RecordPreview
 class RecordsViewer : public QTableWidget
 {
     Q_OBJECT
+
+signals:
+    void rowIsActivated(int row);
 
 public:
     RecordsViewer(QWidget *parent = nullptr)
@@ -25,15 +27,10 @@ public:
 
     void updateContent(QList<QList<QString>> &table)
     {
-        if (isStringTableValid(table))
+        dropContent();
+
+        if (isTableValid(table))
         {
-            dropTable();
-
-            if (table.count() == 0)
-            {
-                return;
-            }
-
             setRowCount(table.count());
             setColumnCount(table.at(0).count());
 
@@ -78,32 +75,40 @@ private:
     {
         horizontalHeader()->hide();
         horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+        connect(this, &QTableWidget::cellClicked, this, &RecordsViewer::on_itemClicked);
     }
 
-    bool isStringTableValid(QList<QList<QString>> &table)
+    bool isTableValid(QList<QList<QString>> &table)
     {
-        if (table.count() > 0)
-        {
-            int length = table.at(0).count();
+        if (table.count() <= 0)
+            return false;
 
-            for (auto list : table)
+
+        int length = table.at(0).count();
+
+        for (auto list : table)
+        {
+            if (list.count() != length)
             {
-                if (list.count() != length)
-                {
-                    return false;
-                }
+                return false;
             }
         }
         return true;
     }
 
-    void dropTable()
+    void dropContent()
     {
         clear();
         setRowCount(0);
         setColumnCount(0);
     }
 
+private slots:
+    void on_itemClicked(int row, int)
+    {
+        emit rowIsActivated(row);
+    }
 };
 
 

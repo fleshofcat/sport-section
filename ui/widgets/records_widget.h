@@ -15,8 +15,8 @@ Q_OBJECT
     QList<QString> pattern;
 
 signals:
-    void createRecordIsRequred();
-    void editRecordIsRequred(int row);
+    void createRecordActivate();
+    void recordActivated(int row);
 
 public:
     RecordsWidget(QList<QString> pattern,
@@ -49,7 +49,8 @@ public:
 private:
     void setUpConnections()
     {
-        connect(table, &QTableWidget::cellPressed, this, &RecordsWidget::on_tablePressed);
+        connect(table, &RecordsViewer::rowIsActivated, this, &RecordsWidget::on_tablePressed);
+//        connect(table, &QTableWidget::cellPressed, this, &RecordsWidget::on_tablePressed);
         connect(addButton, &QPushButton::pressed, this, &RecordsWidget::on_createButton);
     }
 
@@ -67,14 +68,14 @@ private:
 
 
 private slots:
-    void on_tablePressed(int row, int)
+    void on_tablePressed(int row)
     {
-        emit editRecordIsRequred(row);
+        emit recordActivated(row);
     }
 
     void on_createButton()
     {
-        emit createRecordIsRequred();
+        emit createRecordActivate();
     }
 };
 

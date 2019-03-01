@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ui/people_editor.h"
-#include "ui/groups_editor.h"
+#include "ui/people_presentor.h"
+#include "ui/groups_presentor.h"
 
 
 // класс MainWindow/ГлавноеОкно является классом-прослойкой
@@ -16,7 +16,7 @@ class MainWindow : public QWidget
     QTabWidget *tabs;
     PeoplePresentor *sportsmenTab;
     PeoplePresentor *trainersTab;
-    GroupsEditor *groupTab;
+    GroupsPresentor *groupTab;
 
     QList<Person> sportsmen;
     QList<Person> trainers;
@@ -46,8 +46,8 @@ public:
         connect(trainersTab, &PeoplePresentor::savePerson, this, &MainWindow::saveTrainer);
         connect(trainersTab, &PeoplePresentor::removePerson, this, &MainWindow::on_removeTrainer);
 
-        connect(groupTab, &GroupsEditor::saveGroup, this, &MainWindow::saveGroup);
-        connect(groupTab, &GroupsEditor::removeGroup, this, &MainWindow::removeGroup);
+        connect(groupTab, &GroupsPresentor::saveGroup, this, &MainWindow::saveGroup);
+        connect(groupTab, &GroupsPresentor::removeGroup, this, &MainWindow::removeGroup);
     }
 
 
@@ -104,7 +104,7 @@ private:
 
         sportsmenTab = new PeoplePresentor;
         trainersTab = new PeoplePresentor;
-        groupTab = new GroupsEditor;
+        groupTab = new GroupsPresentor;
 
         tabs = new QTabWidget(this);
 

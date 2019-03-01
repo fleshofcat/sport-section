@@ -4,7 +4,7 @@
 
 #include "ui/group_editor.h"
 
-class GroupsEditor : public QWidget
+class GroupsPresentor : public QWidget
 {
     Q_OBJECT
 
@@ -21,7 +21,7 @@ signals:
     void removeGroup(int group_id);
 
 public:
-    GroupsEditor(QWidget *parent = nullptr) : QWidget(parent)
+    GroupsPresentor(QWidget *parent = nullptr) : QWidget(parent)
     {
         setUpUi();
     }
@@ -57,22 +57,22 @@ private:
         widgetStack->addWidget(groupEditor);
 
 
-        connect(recordsViewer, &RecordsWidget::createRecordIsRequred,
-                this, &GroupsEditor::on_createRecord);
+        connect(recordsViewer, &RecordsWidget::createRecordActivate,
+                this, &GroupsPresentor::on_createRecord);
 
-        connect(recordsViewer, &RecordsWidget::editRecordIsRequred,
-                this, &GroupsEditor::on_editRecord);
+        connect(recordsViewer, &RecordsWidget::recordActivated,
+                this, &GroupsPresentor::on_editRecord);
 
 
 
         connect(groupEditor, &GroupEditor::saveIsRequred,
-                this, &GroupsEditor::on_saveGroup);
+                this, &GroupsPresentor::on_saveGroup);
 
         connect(groupEditor, &GroupEditor::removeIsRequred,
-                this, &GroupsEditor::on_removeGroup);
+                this, &GroupsPresentor::on_removeGroup);
 
         connect(groupEditor, &GroupEditor::exitIsRequred,
-                this, &GroupsEditor::groupEditorExit);
+                this, &GroupsPresentor::groupEditorExit);
 
     }
 
@@ -108,7 +108,7 @@ private slots:
 
     void groupEditorExit()
     {
-        groupEditor->dropContent();
+        groupEditor->updateContent(QList<Person>(), QList<Person>(), Group());
         widgetStack->setCurrentIndex(0);
     }
 

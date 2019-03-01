@@ -51,11 +51,11 @@ public:
         connect(removeButton, &QPushButton::clicked, this, &GroupEditor::on_removeGroup);
         connect(exitButton, &QPushButton::clicked, this, &GroupEditor::exitIsRequred);
 
-        connect(sportsmenViewer, &RecordsWidget::createRecordIsRequred, this, &GroupEditor::on_addSportsmen);
-        connect(sportsmenViewer, &RecordsWidget::editRecordIsRequred, this, &GroupEditor::on_removeSportsmen);
+        connect(sportsmenViewer, &RecordsWidget::createRecordActivate, this, &GroupEditor::on_addSportsmen);
+        connect(sportsmenViewer, &RecordsWidget::recordActivated, this, &GroupEditor::on_removeSportsmen);
 
-        connect(trainersViewer, &RecordsWidget::createRecordIsRequred, this, &GroupEditor::on_addTrainer);
-        connect(trainersViewer, &RecordsWidget::editRecordIsRequred, this, &GroupEditor::on_removeTrainer);
+        connect(trainersViewer, &RecordsWidget::createRecordActivate, this, &GroupEditor::on_addTrainer);
+        connect(trainersViewer, &RecordsWidget::recordActivated, this, &GroupEditor::on_removeTrainer);
 
         updateContent(trainers, sportsmen, group);
     }
@@ -83,10 +83,6 @@ public:
         updateViewer(sportsmenViewer, sportsmen, group.sportsmen_ids);
     }
 
-    void dropContent()
-    {
-        updateContent(QList<Person>(), QList<Person>(), Group());
-    }
 
 private:
     void setUpUi()
@@ -146,17 +142,23 @@ private:
 private slots:
     void on_addSportsmen()
     {
+        QList<Person> peopleToShow;
+        for (Person pers : sportsmen)
+        {
+            if (!group.sportsmen_ids.contains(pers.id)
+                    /*&& group.sportType == pers.sportType*/)
+            {
+                peopleToShow << pers;
+            }
+        }
+
         int row = RecordChooser::getChoosedRow(
-                    Person::personListToStringTable(sportsmen), this);
+                    Person::personListToStringTable(peopleToShow), this);
 
         if (row >= 0)
         {
-            int id = sportsmen.at(row).id;
-
-            if (!group.sportsmen_ids.contains(id))
-            {
-                group.sportsmen_ids << id;
-            }
+            int id = peopleToShow.at(row).id;
+            group.sportsmen_ids << id;
 
             updateWhenRunning(trainers, sportsmen);
         }
@@ -176,17 +178,23 @@ private slots:
 
     void on_addTrainer()
     {
+        QList<Person> peopleToShow;
+        for (Person pers : trainers)
+        {
+            if (!group.trainers_ids.contains(pers.id)
+                    /*&& group.sportType == pers.sportType*/)
+            {
+                peopleToShow << pers;
+            }
+        }
+
         int row = RecordChooser::getChoosedRow(
-                    Person::personListToStringTable(trainers), this);
+                    Person::personListToStringTable(peopleToShow), this);
 
         if (row >= 0)
         {
-            int id = trainers.at(row).id;
-
-            if (!group.trainers_ids.contains(id))
-            {
-                group.trainers_ids << id;
-            }
+            int id = peopleToShow.at(row).id;
+            group.trainers_ids << id;
 
             updateWhenRunning(trainers, sportsmen);
         }

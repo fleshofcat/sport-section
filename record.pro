@@ -29,8 +29,8 @@ HEADERS +=                          \
     ui/widgets/records_viewer.h \
     ui/person_editor.h \
     tests/test_db/test_group_links.h \
-    ui/people_editor.h \
-    ui/groups_editor.h
+    ui/people_presentor.h \
+    ui/groups_presentor.h
 
 SOURCES += \
     main.cpp
