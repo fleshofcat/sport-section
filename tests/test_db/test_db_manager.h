@@ -8,6 +8,7 @@ class TestDbManager : public QObject
     Q_OBJECT
 
     QString db_path = "../record/tests/test_res/sport_people.db";
+    QString schedule = "schedule";
     QString groups = "groups";
     QString trainers = "trainers";
     QString sportsmen = "sportsmen";
@@ -96,6 +97,8 @@ private:
         DbManager db(db_path);
 
         QSqlQuery query;
+        query.exec("DROP TABLE IF EXISTS " + schedule + "_" + groups);
+        query.exec("DROP TABLE IF EXISTS " + schedule);
         query.exec("DROP TABLE IF EXISTS " + groups + "_" + sportsmen);
         query.exec("DROP TABLE IF EXISTS " + groups + "_" + trainers);
         query.exec("DROP TABLE IF EXISTS " + groups);

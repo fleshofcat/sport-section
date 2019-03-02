@@ -4,6 +4,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include <QListView>
+
 #include "common/group.h"
 #include "common/person.h"
 
@@ -21,11 +23,12 @@ class GroupEditor : public QWidget
     QList<Person> trainers;
     Group group;
 
-    QPushButton *saveButton = new QPushButton("Сохранить");
-    QPushButton *removeButton = new QPushButton("Удалить");
-    QPushButton *exitButton = new QPushButton("Выйти");
+    QPushButton *saveButton;
+    QPushButton *removeButton;
+    QPushButton *exitButton;
 
-    EditorsBox *editorsBox;
+    QLineEdit *groupNameField;
+    QLineEdit *sportTypeField;
 
     RecordsWidget *trainersViewer;
     RecordsWidget *sportsmenViewer;
@@ -66,7 +69,9 @@ public:
     {
         this->group = group;
 
-        editorsBox->updateContent(Group::getPattern(), group.getInList());
+        groupNameField->setText(group.groupName);
+        sportTypeField->setText(group.sportType);
+
         updateWhenRunning(trainers, sportsmen);
     }
 
@@ -87,24 +92,25 @@ public:
 private:
     void setUpUi()
     {
-        editorsBox = new EditorsBox;
+        saveButton = new QPushButton("Сохранить");
+        removeButton = new QPushButton("Удалить");
+        exitButton = new QPushButton("Выйти");
+
+        groupNameField = new QLineEdit;
+        sportTypeField = new QLineEdit;
+
+        QFormLayout *editors = new QFormLayout;
+        editors->addRow("Имя группы", groupNameField);
+        editors->addRow("Вид спорта", sportTypeField);
 
         trainersViewer = new RecordsWidget;
         sportsmenViewer = new RecordsWidget;
 
-
-        QVBoxLayout *trainersViewerLayout = new QVBoxLayout;
-        trainersViewerLayout->addWidget(new QLabel("Тренеры"));
-        trainersViewerLayout->addWidget(trainersViewer);
-
-        QVBoxLayout *sportsmenViewerLayout = new QVBoxLayout;
-        sportsmenViewerLayout->addWidget(new QLabel("Спортсмены"));
-        sportsmenViewerLayout->addWidget(sportsmenViewer);
-
-
-        QHBoxLayout *peopleViewerLayout = new QHBoxLayout;
-        peopleViewerLayout->addItem(trainersViewerLayout);
-        peopleViewerLayout->addItem(sportsmenViewerLayout);
+        QGridLayout *peopleViever = new QGridLayout;
+        peopleViever->addWidget(new QLabel("Тренеры"), 0, 0);
+        peopleViever->addWidget(new QLabel("Спортсмены"), 0, 1);
+        peopleViever->addWidget(trainersViewer, 1, 0);
+        peopleViever->addWidget(sportsmenViewer, 1, 1);
 
 
         QHBoxLayout *buttonLayout = new QHBoxLayout;
@@ -114,12 +120,13 @@ private:
 
 
         QVBoxLayout *basicLayout = new QVBoxLayout;
-        basicLayout->addWidget(editorsBox);
-        basicLayout->addLayout(peopleViewerLayout);
-        basicLayout->addItem(buttonLayout);
+        basicLayout->addLayout(editors);
+        basicLayout->addLayout(peopleViever);
+        basicLayout->addLayout(buttonLayout);
 
         setLayout(basicLayout);
     }
+
 
     void updateViewer(RecordsWidget *peopleViewer,
                       QList<Person> people, QList<int> ids)
@@ -142,6 +149,11 @@ private:
 private slots:
     void on_addSportsmen()
     {
+//        auto palette = saveButton->palette();
+//        palette.setColor(QPalette::Button, QColor(Qt::blue));
+//        saveButton->setAutoFillBackground(true);
+//        saveButton->setPalette(palette);
+
         QList<Person> peopleToShow;
         for (Person pers : sportsmen)
         {
@@ -215,7 +227,7 @@ private slots:
 
     void on_saveGroup()
     {
-        group.setInList(editorsBox->getInList());
+        group.setInList({groupNameField->text(), sportTypeField->text()});
         emit saveIsRequred(group);
     }
 

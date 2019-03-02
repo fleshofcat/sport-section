@@ -16,8 +16,8 @@ class GroupManager : public QObject
 
     QString groupTable;
 
-    GroupPeopleRelations refsToTrainers;
-    GroupPeopleRelations refsToSportsmen;
+    RelationsInDb refsToTrainers;
+    RelationsInDb refsToSportsmen;
 
 public:
     GroupManager(QObject *parent = nullptr)
@@ -48,20 +48,16 @@ public:
     bool saveGroup(Group group)
     {
         if (group.id < 1)
-        {
             return addGroup(group);
-        }
         else
-        {
             return updateGroup(group);
-        }
     }
 
     bool removeGroup(int group_id)
     {
-        if (refsToTrainers.removeGroupLinks(group_id))
+        if (refsToTrainers.removeMainLinks(group_id))
         {
-            if (refsToSportsmen.removeGroupLinks(group_id))
+            if (refsToSportsmen.removeMainLinks(group_id))
             {
                 QSqlQuery query;
                 query.prepare("DELETE FROM " + groupTable + " WHERE id = (:id)");
@@ -89,9 +85,8 @@ public:
 
         QList<Group> groups;
 
-        if (query.lastError().isValid() == false)
+        if (!query.lastError().isValid())
         {
-
             while (query.next())
             {
                 QList<QString> groupInList;
@@ -175,8 +170,7 @@ private:
                 }
             }
         } else
-            qWarning() << "group was not updated in "
-                          + groupTable + " table. "
+            qWarning() << "GroupManager::updateGroup: "
                        << query.lastError().text();
 
         return false;

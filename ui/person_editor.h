@@ -17,6 +17,7 @@ class PersonEditor : public QWidget
 
     EditorsBox *editorsBox;
 
+
 signals:
     void needSave(Person person);
     void needRemove(int id);

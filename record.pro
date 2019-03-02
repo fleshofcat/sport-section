@@ -30,7 +30,9 @@ HEADERS +=                          \
     ui/person_editor.h \
     tests/test_db/test_group_links.h \
     ui/people_presentor.h \
-    ui/groups_presentor.h
+    ui/groups_presentor.h \
+    db/schedule_manager.h \
+    tests/test_db/test_schedule_manager.h
 
 SOURCES += \
     main.cpp

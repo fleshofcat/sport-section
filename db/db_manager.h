@@ -2,6 +2,7 @@
 
 #include "people_manager.h" // файл объекта отвечающего за "людей" в бд
 #include "group_manager.h" // файл объекта отвечающего за "расписание" в бд
+#include "schedule_manager.h"
 
 // класс DbManager/БдМенеджер
 class DbManager : public QObject
@@ -11,10 +12,12 @@ class DbManager : public QObject
     QString groupsTable = "groups";
     QString trainersTable = "trainers";
     QString sportsmenTable = "sportsmen";
+    QString scheduleTable = "schedule";
 
     PeopleManager sportsmenManager;
     PeopleManager trainersManager;
     GroupManager groupManager;
+    DbSchedule scheduleManager;
 
 public:
     DbManager(QObject *parent = nullptr) : QObject(parent) {}
@@ -39,6 +42,7 @@ public:
                 sportsmenManager.touchManager(sportsmenTable);
                 trainersManager.touchManager(trainersTable);
                 groupManager.touchManager(groupsTable, trainersTable, sportsmenTable);
+                scheduleManager.touchManager(scheduleTable, groupsTable);
             }
             else
             {
@@ -102,6 +106,20 @@ public:
         return groupManager.getGroups();
     }
 
+    bool saveSchedule(Schedule sch)
+    {
+        return scheduleManager.saveSchedule(sch);
+    }
+
+    bool removeSchedule(int id)
+    {
+        return scheduleManager.removeSchedule(id);
+    }
+
+    QList<Schedule> getSchedules()
+    {
+        return scheduleManager.getSchedules();
+    }
 
     ~DbManager()
     {

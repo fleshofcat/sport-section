@@ -34,8 +34,8 @@ private slots:
         gr.sportsmen_ids << 1;
 
         QVERIFY(grs.addGroup(gr));
+        QVERIFY(grs.addGroup(Group({"empty", "group"})));
     }
-
 
     void test_updateGroup()
     {
@@ -103,14 +103,14 @@ private:
        PeopleManager sportsmenManager(sportsmen);
 
        sportsmenManager.savePerson(
-                   Person({"Артем", "Эдуардович", "Оношко", "12.01.1998", "плавание"}));
+            Person({"Артем", "Эдуардович", "Оношко", "12.01.1998", "плавание"}));
 
        sportsmenManager.savePerson(
-                   Person({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"}));
+            Person({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"}));
 
        PeopleManager trainersManager(trainers);
        trainersManager.savePerson(
-                   Person({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"}));
+            Person({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"}));
 
 
        GroupManager grs(groups, trainers, sportsmen);
