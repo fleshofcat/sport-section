@@ -13,8 +13,8 @@ HEADERS +=                          \
     tests/test_db/test_people_storage.h \
     tests/test_db/test_db_manager.h     \
     tests/test_db/test_group_manager.h  \
-    tests/test_group_editor.h           \
-    tests/test_editors_box.h            \
+    tests/test_ui/test_group_editor.h   \
+    tests/test_ui/test_editors_box.h    \
                                         \
     db/db_manager.h                 \
     db/people_manager.h             \
@@ -29,13 +29,19 @@ HEADERS +=                          \
     ui/widgets/records_viewer.h \
     ui/person_editor.h \
     tests/test_db/test_group_links.h \
-    ui/people_presentor.h \
-    ui/groups_presentor.h \
     db/schedule_manager.h \
-    tests/test_db/test_schedule_manager.h
+    tests/test_db/test_schedule_manager.h \
+    ui/schedule_presenter.h \
+    ui/groups_presenter.h \
+    ui/people_presenter.h \
+    ui/schedule_editor.h \
+    tests/test_ui/test_schedule_editor.h \
+    tests/test_ui/test_schedule_presenter.h \
+    ui/widgets/list_view.h
 
 SOURCES += \
-    main.cpp
+    main.cpp \
+    common/schedule.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

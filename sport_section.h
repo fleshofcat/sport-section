@@ -31,14 +31,67 @@ public:
 
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
-        connect(&mw, &MainWindow::saveSportsman, this, &SportSection::on_saveSportsmanInDb);
-        connect(&mw, &MainWindow::removeSportsman, this, &SportSection::on_removeSportsmanInDb);
+        connect(&mw, &MainWindow::saveSportsman, [=] (Person pers)
+        {
+            if (db.saveSportsman(pers))
+            {
+                updateMainWindow();
+            }
+        });
+        connect(&mw, &MainWindow::removeSportsman, [=] (int id)
+        {
+            if (db.removeSportsman(id))
+            {
+                updateMainWindow();
+            }
+        });
 
-        connect(&mw, &MainWindow::saveTrainer, this, &SportSection::on_saveTrainerInDb);
-        connect(&mw, &MainWindow::removeTrainer, this, &SportSection::on_removeTrainerInDb);
+        connect(&mw, &MainWindow::saveTrainer, this, [=] (Person pers)
+        {
+            if (db.saveTrainer(pers))
+            {
+                updateMainWindow();
+            }
+        });
+        connect(&mw, &MainWindow::removeTrainer, this, [=] (int id)
+        {
+            if (db.removeTrainer(id))
+            {
+                updateMainWindow();
+            }
+        });
 
-        connect(&mw, &MainWindow::saveGroup, this, &SportSection::on_saveGroupInDb);
-        connect(&mw, &MainWindow::removeGroup, this, &SportSection::on_removeGroupInDb);
+
+        connect(&mw, &MainWindow::saveGroup, [=] (Group group)
+        {
+            if (db.saveGroup(group))
+            {
+                updateMainWindow();
+            }
+        });
+        connect(&mw, &MainWindow::removeGroup, [=] (int id)
+        {
+            if (db.removeGroup(id))
+            {
+                updateMainWindow();
+            }
+        });
+
+
+        connect(&mw, &MainWindow::saveSchedule, [=] (Schedule sch)
+        {
+            if (db.saveSchedule(sch))
+            {
+                updateMainWindow();
+            }
+        });
+        connect(&mw, &MainWindow::removeSchedule, [=] (int id)
+        {
+            if (db.removeSchedule(id))
+            {
+                updateMainWindow();
+            }
+        });
     }
 
 private slots:
@@ -104,10 +157,12 @@ private:
         auto sportsmen = db.getSportsmen();
         auto trainers = db.getTrainers();
         auto groups = db.getGroups();
+        auto schedules = db.getSchedules();
 
         mw.updateContent(sportsmen,
                          trainers,
-                         groups);
+                         groups,
+                         schedules);
     }
 
 };

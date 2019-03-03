@@ -4,7 +4,7 @@
 
 #include "ui/group_editor.h"
 
-class GroupsPresentor : public QWidget
+class GroupsPresenter : public QWidget
 {
     Q_OBJECT
 
@@ -13,7 +13,7 @@ class GroupsPresentor : public QWidget
     QList<Group> groups;
 
     QStackedWidget *widgetStack;
-    RecordsWidget *recordsViewer;
+    RecordsWidget *groupsViewer;
     GroupEditor *groupEditor;
 
 signals:
@@ -21,7 +21,7 @@ signals:
     void removeGroup(int group_id);
 
 public:
-    GroupsPresentor(QWidget *parent = nullptr) : QWidget(parent)
+    GroupsPresenter(QWidget *parent = nullptr) : QWidget(parent)
     {
         setUpUi();
     }
@@ -35,7 +35,7 @@ public:
         this->trainers = trainers;
         this->groups = groups;
 
-        recordsViewer->updateData(
+        groupsViewer->updateData(
                     Group::getPattern(),
                     Group::groupListToStringTable(groups));
 
@@ -48,32 +48,20 @@ public:
 private:
     void setUpUi()
     {
-        recordsViewer = new RecordsWidget;
+        groupsViewer = new RecordsWidget;
         groupEditor = new GroupEditor;
 
         widgetStack = new QStackedWidget(this);
 
-        widgetStack->addWidget(recordsViewer);
+        widgetStack->addWidget(groupsViewer);
         widgetStack->addWidget(groupEditor);
 
+        connect(groupsViewer, &RecordsWidget::createRecordActivated, this, &GroupsPresenter::on_createRecord);
+        connect(groupsViewer, &RecordsWidget::recordActivated, this, &GroupsPresenter::on_editRecord);
 
-        connect(recordsViewer, &RecordsWidget::createRecordActivate,
-                this, &GroupsPresentor::on_createRecord);
-
-        connect(recordsViewer, &RecordsWidget::recordActivated,
-                this, &GroupsPresentor::on_editRecord);
-
-
-
-        connect(groupEditor, &GroupEditor::saveIsRequred,
-                this, &GroupsPresentor::on_saveGroup);
-
-        connect(groupEditor, &GroupEditor::removeIsRequred,
-                this, &GroupsPresentor::on_removeGroup);
-
-        connect(groupEditor, &GroupEditor::exitIsRequred,
-                this, &GroupsPresentor::groupEditorExit);
-
+        connect(groupEditor, &GroupEditor::needSave, this, &GroupsPresenter::on_saveGroup);
+        connect(groupEditor, &GroupEditor::needRemove, this, &GroupsPresenter::on_removeGroup);
+        connect(groupEditor, &GroupEditor::needExit, this, &GroupsPresenter::groupEditorExit);
     }
 
 

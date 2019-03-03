@@ -15,7 +15,7 @@ Q_OBJECT
     QList<QString> pattern;
 
 signals:
-    void createRecordActivate();
+    void createRecordActivated();
     void recordActivated(int row);
 
 public:
@@ -75,7 +75,7 @@ private slots:
 
     void on_createButton()
     {
-        emit createRecordActivate();
+        emit createRecordActivated();
     }
 };
 

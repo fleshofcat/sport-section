@@ -51,10 +51,39 @@ public:
     {
         return {"Событие", "Дата", "Вид спорта"};
     }
+
+    static QList<QList<QString>>
+    schedulesToTable(QList<Schedule> schedules)
+    {
+        QList<QList<QString>> stringTable;
+        for (Schedule sch : schedules)
+        {
+            auto inList = sch.getInList();
+
+            if (inList.first().toInt() == int(Event::EMPTY))
+            {
+                inList.first() = "Сбор";
+            }
+            else if (inList.first().toInt() == int(Event::TRAINING))
+            {
+                inList.first() = "Тренировка";
+            }
+            else if (inList.first().toInt() == int(Event::COMPETITION))
+            {
+                inList.first() = "Соревнование";
+            }
+
+            stringTable << inList;
+        }
+
+        return stringTable;
+    }
+
+    friend bool operator== (const Schedule &s1, const Schedule &s2);
+    friend bool operator!= (const Schedule &s1, const Schedule &s2);
 };
 
-
-
+Q_DECLARE_METATYPE(Schedule)
 
 
 

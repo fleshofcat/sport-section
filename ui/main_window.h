@@ -1,7 +1,11 @@
 #pragma once
 
-#include "ui/people_presentor.h"
-#include "ui/groups_presentor.h"
+#include <QTextStream>
+#include <QDateTime>
+
+#include "ui/people_presenter.h"
+#include "ui/groups_presenter.h"
+#include "ui/schedule_presenter.h"
 
 
 // класс MainWindow/ГлавноеОкно является классом-прослойкой
@@ -14,13 +18,15 @@ class MainWindow : public QWidget
     Q_OBJECT
 
     QTabWidget *tabs;
-    PeoplePresentor *sportsmenTab;
-    PeoplePresentor *trainersTab;
-    GroupsPresentor *groupTab;
+    PeoplePresenter *sportsmenTab;
+    PeoplePresenter *trainersTab;
+    GroupsPresenter *groupTab;
+    SchedulePresenter *scheduleTab;
 
     QList<Person> sportsmen;
     QList<Person> trainers;
     QList<Group> groups;
+    QList<Schedule> schedules;
 
 signals:
     void saveSportsman(Person pers);
@@ -32,6 +38,9 @@ signals:
     void saveGroup(Group group);
     void removeGroup(int id);
 
+    void saveSchedule(Schedule chedule);
+    void removeSchedule(int id);
+
 public:
     // код который будет выполняться при создании объекта от этого класса
     // имеет 1 не обязательный системный параметр
@@ -39,15 +48,7 @@ public:
         : QWidget(parent)
     {
         setUpUi();
-
-        connect(sportsmenTab, &PeoplePresentor::savePerson, this, &MainWindow::saveSportsman);
-        connect(sportsmenTab, &PeoplePresentor::removePerson, this, &MainWindow::on_removeSportsman);
-
-        connect(trainersTab, &PeoplePresentor::savePerson, this, &MainWindow::saveTrainer);
-        connect(trainersTab, &PeoplePresentor::removePerson, this, &MainWindow::on_removeTrainer);
-
-        connect(groupTab, &GroupsPresentor::saveGroup, this, &MainWindow::saveGroup);
-        connect(groupTab, &GroupsPresentor::removeGroup, this, &MainWindow::removeGroup);
+        setUpConnections();
     }
 
 
@@ -55,46 +56,18 @@ public:
     // будут загружаться в данный класс и отображаться пользователю
     void updateContent(QList<Person> sportsmen,
                        QList<Person> trainers,
-                       QList<Group> groups)
+                       QList<Group> groups,
+                       QList<Schedule> schedules)
     {
         this->sportsmen = sportsmen;
         this->trainers = trainers;
         this->groups = groups;
+        this->schedules = schedules;
 
         sportsmenTab->updateContent(sportsmen);
         trainersTab->updateContent(trainers);
         groupTab->updateContent(sportsmen, trainers, groups);
-    }
-
-private slots:
-    void on_removeSportsman(int id)
-    {
-        for (Group group : groups)
-        {
-            if (group.sportsmen_ids.contains(id))
-            {
-                QString groupName = group.getInList().at(0);
-                sportsmenTab->showWarning("Пока этот спортсмен состоит в группе '" +
-                                          groupName + "' его нельзя удалить.");
-                return;
-            }
-        }
-         emit removeSportsman(id);
-    }
-
-    void on_removeTrainer(int id)
-    {
-        for (Group group : groups)
-        {
-            if (group.trainers_ids.contains(id))
-            {
-                QString groupName = group.getInList().at(0);
-                trainersTab->showWarning("Пока этот тренер состоит в группе '" +
-                                         groupName + "' его нельзя удалить.");
-                return;
-            }
-        }
-         emit removeTrainer(id);
+        scheduleTab->showData(schedules, groups);
     }
 
 private:
@@ -102,9 +75,10 @@ private:
     {
         this->resize(800, 400);
 
-        sportsmenTab = new PeoplePresentor;
-        trainersTab = new PeoplePresentor;
-        groupTab = new GroupsPresentor;
+        sportsmenTab = new PeoplePresenter;
+        trainersTab = new PeoplePresenter;
+        groupTab = new GroupsPresenter;
+        scheduleTab = new SchedulePresenter;
 
         tabs = new QTabWidget(this);
 
@@ -116,9 +90,64 @@ private:
         tabs->setSizePolicy(sizePolicy);
         tabs->setMovable(true);
 
-        tabs->addTab(groupTab, "Группы");
-        tabs->addTab(trainersTab, "Тренера");
-        tabs->addTab(sportsmenTab, "Спортсмены");
+        tabs->addTab(scheduleTab, QIcon("../record/res/img/schedule.png"),   "Расписания");
+        tabs->addTab(groupTab, QIcon("../record/res/img/group.png"),         "Группы");
+        tabs->addTab(trainersTab, QIcon("../record/res/img/trainer.png"),    "Тренера");
+        tabs->addTab(sportsmenTab, QIcon("../record/res/img/sportsman.png"), "Спортсмены");
+    }
+
+    void setUpConnections()
+    {
+        connect(sportsmenTab, &PeoplePresenter::savePerson, this, &MainWindow::saveSportsman);
+        connect(trainersTab, &PeoplePresenter::savePerson, this, &MainWindow::saveTrainer);
+        connect(groupTab, &GroupsPresenter::saveGroup, this, &MainWindow::saveGroup);
+        connect(scheduleTab, &SchedulePresenter::saveSchedule, this, &MainWindow::saveSchedule);
+        connect(scheduleTab, &SchedulePresenter::removeSchedule, this, &MainWindow::removeSchedule);
+
+        connect(sportsmenTab, &PeoplePresenter::removePerson, [=] (int id)
+        {
+            for (Group group : groups)
+            {
+                if (group.sportsmen_ids.contains(id))
+                {
+                    QString groupName = group.getInList().at(0);
+                    sportsmenTab->showWarning("Пока этот спортсмен состоит в группе '" +
+                                              groupName + "' его нельзя удалить.");
+                    return;
+                }
+            }
+             emit removeSportsman(id);
+        });
+
+        connect(trainersTab, &PeoplePresenter::removePerson, [=] (int id)
+        {
+            for (Group group : groups)
+            {
+                if (group.trainers_ids.contains(id))
+                {
+                    QString groupName = group.getInList().at(0);
+                    trainersTab->showWarning("Пока этот тренер состоит в группе '" +
+                                             groupName + "' его нельзя удалить.");
+                    return;
+                }
+            }
+             emit removeTrainer(id);
+        });
+
+        connect(groupTab, &GroupsPresenter::removeGroup, [=] (int id)
+        {
+            for (Schedule sch : schedules)
+            {
+                if (sch.group_ids.contains(id))
+                {
+                    QString scheduleName = QString::number(schedules.indexOf(sch) + 1);
+                    trainersTab->showWarning("Пока эта группа находится в расписании '" +
+                                             scheduleName + "' ее нельзя удалить.");
+                    return;
+                }
+            }
+             emit removeSchedule(id);
+        });
     }
 
 public:

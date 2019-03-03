@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "ui/groups_presentor.h"
+#include "ui/groups_presenter.h"
 #include "db/db_manager.h"
 
 class TestGroupEditor : public QObject
@@ -31,7 +31,7 @@ private slots:
 
         qRegisterMetaType<Group>("Group");
 
-        QSignalSpy spy(groupEditor, &GroupEditor::saveIsRequred);
+        QSignalSpy spy(groupEditor, &GroupEditor::needSave);
 
         // fill data
         groupEditor->updateContent(

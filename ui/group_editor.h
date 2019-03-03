@@ -1,15 +1,14 @@
 #pragma once
 
 #include <QLabel>
+#include <QFormLayout>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-
-#include <QListView>
 
 #include "common/group.h"
 #include "common/person.h"
 
-#include "ui/widgets/editors_box.h"
 #include "ui/widgets/records_widget.h"
 #include "ui/widgets/record_chooser.h"
 
@@ -34,9 +33,9 @@ class GroupEditor : public QWidget
     RecordsWidget *sportsmenViewer;
 
 signals:
-    void saveIsRequred(Group group);
-    void removeIsRequred(int id);
-    void exitIsRequred();
+    void needSave(Group group);
+    void needRemove(int id);
+    void needExit();
 
 public:
     GroupEditor(QWidget *parent = nullptr)
@@ -52,12 +51,12 @@ public:
 
         connect(saveButton, &QPushButton::clicked, this, &GroupEditor::on_saveGroup);
         connect(removeButton, &QPushButton::clicked, this, &GroupEditor::on_removeGroup);
-        connect(exitButton, &QPushButton::clicked, this, &GroupEditor::exitIsRequred);
+        connect(exitButton, &QPushButton::clicked, this, &GroupEditor::needExit);
 
-        connect(sportsmenViewer, &RecordsWidget::createRecordActivate, this, &GroupEditor::on_addSportsmen);
+        connect(sportsmenViewer, &RecordsWidget::createRecordActivated, this, &GroupEditor::on_addSportsmen);
         connect(sportsmenViewer, &RecordsWidget::recordActivated, this, &GroupEditor::on_removeSportsmen);
 
-        connect(trainersViewer, &RecordsWidget::createRecordActivate, this, &GroupEditor::on_addTrainer);
+        connect(trainersViewer, &RecordsWidget::createRecordActivated, this, &GroupEditor::on_addTrainer);
         connect(trainersViewer, &RecordsWidget::recordActivated, this, &GroupEditor::on_removeTrainer);
 
         updateContent(trainers, sportsmen, group);
@@ -228,12 +227,12 @@ private slots:
     void on_saveGroup()
     {
         group.setInList({groupNameField->text(), sportTypeField->text()});
-        emit saveIsRequred(group);
+        emit needSave(group);
     }
 
     void on_removeGroup()
     {
-        emit removeIsRequred(this->group.id);
+        emit needRemove(this->group.id);
     }
 };
 

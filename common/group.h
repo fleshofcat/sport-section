@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QList>
-#include "common/person.h"
+//#include "common/person.h"
 
 // класс Group/Группа
 // хранение данных о графике тренировок тренеров и детей

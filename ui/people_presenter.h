@@ -8,7 +8,7 @@
 #include "ui/person_editor.h"
 #include "ui/widgets/records_widget.h"
 
-class PeoplePresentor : public QWidget
+class PeoplePresenter : public QWidget
 {
     Q_OBJECT
 
@@ -23,7 +23,7 @@ signals:
     void removePerson(int id);
 
 public:
-    PeoplePresentor(QWidget *parent = nullptr)
+    PeoplePresenter(QWidget *parent = nullptr)
         : QWidget(parent)
     {
         setUpUi();
@@ -54,12 +54,12 @@ private:
         widgets->addWidget(viewer);
         widgets->addWidget(editor);
 
-        connect(viewer, &RecordsWidget::createRecordActivate, this, &PeoplePresentor::on_createRecord);
-        connect(viewer, &RecordsWidget::recordActivated,   this, &PeoplePresentor::on_editRecord);
+        connect(viewer, &RecordsWidget::createRecordActivated, this, &PeoplePresenter::on_createRecord);
+        connect(viewer, &RecordsWidget::recordActivated,   this, &PeoplePresenter::on_editRecord);
 
-        connect(editor, &PersonEditor::needSave,   this, &PeoplePresentor::on_needSave);
-        connect(editor, &PersonEditor::needRemove, this, &PeoplePresentor::on_needRemove);
-        connect(editor, &PersonEditor::needExit,   this, &PeoplePresentor::setPreviewMode);
+        connect(editor, &PersonEditor::needSave,   this, &PeoplePresenter::on_needSave);
+        connect(editor, &PersonEditor::needRemove, this, &PeoplePresenter::on_needRemove);
+        connect(editor, &PersonEditor::needExit,   this, &PeoplePresenter::setPreviewMode);
     }
 
 private slots:
