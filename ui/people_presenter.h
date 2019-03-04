@@ -4,39 +4,65 @@
 #include <QStackedWidget>
 #include <QMessageBox>
 
+#include <QStandardItemModel>
+#include <QTableView>
+#include <QHeaderView>
+
 #include "common/person.h"
 #include "ui/person_editor.h"
-#include "ui/widgets/records_widget.h"
 
 class PeoplePresenter : public QWidget
 {
     Q_OBJECT
 
+    QString icon_path;
     QList<Person> people;
 
-    QStackedWidget *widgets;
-    RecordsWidget *viewer;
+    QPushButton *createButton;
+
+    QTableView *peopleViewer;
     PersonEditor *editor;
+    QStackedWidget *widgets;
+
 
 signals:
     void savePerson(Person person);
     void removePerson(int id);
 
 public:
-    PeoplePresenter(QWidget *parent = nullptr)
+    PeoplePresenter(QString icon_path, QWidget *parent = nullptr)
         : QWidget(parent)
     {
+        this->icon_path = icon_path;
         setUpUi();
     }
+
+    PeoplePresenter(QWidget *parent = nullptr)
+        : PeoplePresenter("", parent) { }
 
 
     void updateContent(QList<Person> people)
     {
         this->people = people;
 
-        viewer->updateData(
-                    Person::getPattern(),
-                    Person::personListToStringTable(people));
+        int columns = Person::pattern().count();
+        int rows = people.count();
+        auto stringTable = Person::toStringTable(people);
+
+
+        QStandardItemModel *model = new QStandardItemModel(rows, columns);
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < columns; c++)
+            {
+                QModelIndex index = model->index(r, c);
+                model->setData(index, stringTable.at(r).at(c));
+            }
+            model->setVerticalHeaderItem(r, new QStandardItem(QIcon(icon_path), ""));
+        }
+        model->setHorizontalHeaderLabels(Person::pattern());
+        peopleViewer->setModel(model);
     }
 
     void showWarning(QString warning)
@@ -47,15 +73,36 @@ public:
 private:
     void setUpUi()
     {
-        viewer = new RecordsWidget;
+        createButton = new QPushButton("+");
+
+        peopleViewer = new QTableView;
+        peopleViewer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+        QVBoxLayout *viewerLayout = new QVBoxLayout;
+        viewerLayout->addWidget(createButton);
+        viewerLayout->addWidget(peopleViewer);
+
+        QWidget *viewer_w = new QWidget;
+        viewer_w->setLayout(viewerLayout);
+
         editor = new PersonEditor;
 
         widgets = new QStackedWidget(this);
-        widgets->addWidget(viewer);
+        widgets->addWidget(viewer_w);
         widgets->addWidget(editor);
 
-        connect(viewer, &RecordsWidget::createRecordActivated, this, &PeoplePresenter::on_createRecord);
-        connect(viewer, &RecordsWidget::recordActivated,   this, &PeoplePresenter::on_editRecord);
+
+        connect(createButton, &QPushButton::clicked, this, [=] ()
+        {
+            setEditMode();
+        });
+        connect(peopleViewer, &QTableView::clicked, [=] (QModelIndex index)
+        {
+            if (index.row() >= 0)
+            {
+                setEditMode(people.at(index.row()));
+            }
+        });
 
         connect(editor, &PersonEditor::needSave,   this, &PeoplePresenter::on_needSave);
         connect(editor, &PersonEditor::needRemove, this, &PeoplePresenter::on_needRemove);
@@ -73,19 +120,6 @@ private slots:
     {
         editor->updateContent();
         widgets->setCurrentIndex(0);
-    }
-
-    void on_createRecord()
-    {
-        setEditMode();
-    }
-
-    void on_editRecord(int row)
-    {
-        if (row >= 0)
-        {
-            setEditMode(people.at(row));
-        }
     }
 
     void on_needSave(Person pers)

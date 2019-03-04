@@ -27,7 +27,7 @@ public:
 
     void setInList(QList<QString> property)
     {
-        if (property.count() == Group::getPattern().count())
+        if (property.count() == Group::pattern().count())
         {
             groupName = property.at(0);
             sportType = property.at(1);
@@ -59,13 +59,13 @@ public:
         return {groupName, sportType};
     }
 
-    static QList<QString> getPattern()
+    static QList<QString> pattern()
     {
         return {"Группа", "Спорт"};
     }
 
     static QList<QList<QString>>
-    groupListToStringTable(QList<Group> groups)
+    toStringTable(QList<Group> groups)
     {
         QList<QList<QString>> stringTable;
         for (Group group : groups)

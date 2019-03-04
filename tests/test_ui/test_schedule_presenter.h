@@ -18,7 +18,7 @@ private:
     QList<Group> testGroups()
     {
         Group q({"q", "q"});
-        Group gr(Group::getPattern());
+        Group gr(Group::pattern());
         Group gr_2({"Группа мошеннег", "мошенник"});
 
         q.id = 1;

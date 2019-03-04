@@ -75,10 +75,10 @@ private:
     {
         this->resize(800, 400);
 
-        sportsmenTab = new PeoplePresenter;
-        trainersTab = new PeoplePresenter;
-        groupTab = new GroupsPresenter;
-        scheduleTab = new SchedulePresenter;
+        sportsmenTab = new PeoplePresenter("../record/res/img/sportsman.png");
+        trainersTab = new PeoplePresenter("../record/res/img/trainer.png");
+        groupTab = new GroupsPresenter("../record/res/img/group.png");
+        scheduleTab = new SchedulePresenter("../record/res/img/schedule.png");
 
         tabs = new QTabWidget(this);
 
@@ -92,7 +92,7 @@ private:
 
         tabs->addTab(scheduleTab, QIcon("../record/res/img/schedule.png"),   "Расписания");
         tabs->addTab(groupTab, QIcon("../record/res/img/group.png"),         "Группы");
-        tabs->addTab(trainersTab, QIcon("../record/res/img/trainer.png"),    "Тренера");
+        tabs->addTab(trainersTab, QIcon("../record/res/img/trainer.png"),    "Тренеры");
         tabs->addTab(sportsmenTab, QIcon("../record/res/img/sportsman.png"), "Спортсмены");
     }
 
@@ -100,9 +100,9 @@ private:
     {
         connect(sportsmenTab, &PeoplePresenter::savePerson, this, &MainWindow::saveSportsman);
         connect(trainersTab, &PeoplePresenter::savePerson, this, &MainWindow::saveTrainer);
-        connect(groupTab, &GroupsPresenter::saveGroup, this, &MainWindow::saveGroup);
-        connect(scheduleTab, &SchedulePresenter::saveSchedule, this, &MainWindow::saveSchedule);
-        connect(scheduleTab, &SchedulePresenter::removeSchedule, this, &MainWindow::removeSchedule);
+        connect(groupTab, &GroupsPresenter::needSave, this, &MainWindow::saveGroup);
+        connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::saveSchedule);
+        connect(scheduleTab, &SchedulePresenter::needRemove, this, &MainWindow::removeSchedule);
 
         connect(sportsmenTab, &PeoplePresenter::removePerson, [=] (int id)
         {
@@ -134,7 +134,7 @@ private:
              emit removeTrainer(id);
         });
 
-        connect(groupTab, &GroupsPresenter::removeGroup, [=] (int id)
+        connect(groupTab, &GroupsPresenter::needRemove, [=] (int id)
         {
             for (Schedule sch : schedules)
             {

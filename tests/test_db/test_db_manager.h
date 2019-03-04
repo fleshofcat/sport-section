@@ -81,7 +81,7 @@ private:
 
         db.saveTrainer(Person({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"}));
 
-        Group gr(Group::getPattern());
+        Group gr(Group::pattern());
         gr.trainers_ids << 1;
         gr.sportsmen_ids << 1;
         db.saveGroup(gr);

@@ -23,7 +23,7 @@ public:
 
     void setInList(QList<QString> personData)
     {
-        if (personData.count() == getPattern().count())
+        if (personData.count() == pattern().count())
         {
             firstName   = personData.takeFirst();
             secondName  = personData.takeFirst();
@@ -38,13 +38,13 @@ public:
         return {firstName, secondName, lastName, birthday, sportType};
     }
 
-    static QList<QString> getPattern()
+    static QList<QString> pattern()
     {
         return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт"};
     }
 
     static QList<QList<QString>>
-    personListToStringTable(QList<Person> people)
+    toStringTable(QList<Person> people)
     {
         QList<QList<QString>> stringTable;
         for (Person pers : people)

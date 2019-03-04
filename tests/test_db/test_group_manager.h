@@ -115,7 +115,7 @@ private:
 
        GroupManager grs(groups, trainers, sportsmen);
 
-       Group gr(Group::getPattern());
+       Group gr(Group::pattern());
        gr.trainers_ids << 1;
        gr.sportsmen_ids << 1;
        grs.addGroup(gr);

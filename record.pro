@@ -37,7 +37,8 @@ HEADERS +=                          \
     ui/schedule_editor.h \
     tests/test_ui/test_schedule_editor.h \
     tests/test_ui/test_schedule_presenter.h \
-    ui/widgets/list_view.h
+    ui/widgets/list_view.h \
+    ui/schedule_result.h
 
 SOURCES += \
     main.cpp \

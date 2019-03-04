@@ -34,7 +34,7 @@ public:
 
     void setInList(QList<QString> property)
     {
-        if (property.count() == getPattern().count())
+        if (property.count() == pattern().count())
         {
             event = Event(property.takeFirst().toInt());
             date = property.takeFirst();
@@ -47,13 +47,13 @@ public:
         return {QString::number(int(event)), date, sportType};
     }
 
-    static QList<QString> getPattern()
+    static QList<QString> pattern()
     {
         return {"Событие", "Дата", "Вид спорта"};
     }
 
     static QList<QList<QString>>
-    schedulesToTable(QList<Schedule> schedules)
+    toStringTable(QList<Schedule> schedules)
     {
         QList<QList<QString>> stringTable;
         for (Schedule sch : schedules)

@@ -84,7 +84,7 @@ public:
             {
                 QList<QString> persInList;
 
-                for (int c = 0; c < Person::getPattern().count(); c++)
+                for (int c = 0; c < Person::pattern().count(); c++)
                 {
                     persInList << sqlModel.record(r).value(c + 1).toString();
                 }

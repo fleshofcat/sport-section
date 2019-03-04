@@ -2,6 +2,8 @@
 
 #include <QStackedWidget>
 
+#include <QStandardItemModel>
+
 #include "ui/schedule_editor.h"
 
 class SchedulePresenter : public QWidget
@@ -9,25 +11,29 @@ class SchedulePresenter : public QWidget
     Q_OBJECT
     friend class TestSchedulePresenter;
 
+    QString icon_path;
     QList<Schedule> schedules;
     QList<Group> groups;
 
+    QPushButton *createButton;
+    QTableView *scheduleViewer;
+//    RecordsWidget *schedulesViewer;
     QStackedWidget *widgetStack;
-    RecordsWidget *schedulesViewer;
     ScheduleEditor *scheduleEditor;
 
 signals:
-    void saveSchedule(Schedule schedule);
-    void removeSchedule(int id);
+    void needSave(Schedule schedule);
+    void needRemove(int id);
 
 public:
     SchedulePresenter(QWidget *parent = nullptr)
-        : SchedulePresenter({}, {}, parent) { }
+        : SchedulePresenter("", parent) { }
 
-    SchedulePresenter(QList<Schedule> schedules, QList<Group> groups, QWidget *parent = nullptr) : QWidget(parent)
+    SchedulePresenter(QString icon_path, QWidget *parent = nullptr)
+        : QWidget(parent)
     {
+        this->icon_path = icon_path;
         setUpUi();
-        showData(schedules, groups);
         setUpConnections();
     }
 
@@ -36,9 +42,7 @@ public:
         this->groups = groups;
         this->schedules = schedules;
 
-        schedulesViewer->updateData(
-                    Schedule::getPattern(),
-                    Schedule::schedulesToTable(schedules));
+        updateView(schedules);
 
         if (widgetStack->currentIndex() == 1)
         {
@@ -57,7 +61,7 @@ public:
                 }
                 else if (result == QMessageBox::No)
                 {
-                     setViewerMode();
+                     showSchedules();
                 }
             }
         }
@@ -66,45 +70,80 @@ public:
 private:
     void setUpUi()
     {
-        schedulesViewer = new RecordsWidget;
+        createButton = new QPushButton("+");
+
+        scheduleViewer = new QTableView;
+        scheduleViewer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+        QVBoxLayout *viewerLayout = new QVBoxLayout;
+        viewerLayout->addWidget(createButton);
+        viewerLayout->addWidget(scheduleViewer);
+
+        QWidget *viewerWidget = new QWidget;
+        viewerWidget->setLayout(viewerLayout);
+
         scheduleEditor = new ScheduleEditor;
 
         widgetStack = new QStackedWidget(this);
-
-        widgetStack->addWidget(schedulesViewer);
+        widgetStack->addWidget(viewerWidget);
         widgetStack->addWidget(scheduleEditor);
     }
 
     void setUpConnections()
     {
-        connect(schedulesViewer, &RecordsWidget::createRecordActivated, [=] ()
+        connect(createButton, &QPushButton::clicked, [=] ()
         {
-            scheduleEditor->showData(Schedule(), groups);
-            widgetStack->setCurrentIndex(1);
+            showEditor();
         });
-        connect(schedulesViewer, &RecordsWidget::recordActivated, [=] (int row)
+        connect(scheduleViewer, &QTableView::clicked, [=] (QModelIndex index)
         {
-            scheduleEditor->showData(schedules.at(row), groups);
-            widgetStack->setCurrentIndex(1);
+            showEditor(schedules.at(index.row()));
         });
-
 
         connect(scheduleEditor, &ScheduleEditor::needSave, [=] (Schedule sch)
         {
-            setViewerMode();
-            emit saveSchedule(sch);
+            emit needSave(sch);
+            showSchedules();
         });
         connect(scheduleEditor, &ScheduleEditor::needRemove, [=] (int id)
         {
-            setViewerMode();
-            emit removeSchedule(id);
+            emit needRemove(id);
+            showSchedules();
         });
         connect(scheduleEditor, &ScheduleEditor::needExit,
-                this, &SchedulePresenter::setViewerMode);
+                this, &SchedulePresenter::showSchedules);
+    }
+
+    void updateView(QList<Schedule> schedules)
+    {
+        int columns = Schedule::pattern().count();
+        int rows = schedules.count();
+        auto stringTable = Schedule::toStringTable(schedules);
+
+        QStandardItemModel *model = new QStandardItemModel(rows, columns);
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < columns; c++)
+            {
+                QModelIndex index = model->index(r, c);
+                model->setData(index, stringTable.at(r).at(c));
+            }
+            model->setVerticalHeaderItem(r, new QStandardItem(QIcon(icon_path), ""));
+        }
+
+        model->setHorizontalHeaderLabels(Schedule::pattern());
+        scheduleViewer->setModel(model);
     }
 
 private slots:
-    void setViewerMode()
+    void showEditor(Schedule sched = Schedule())
+    {
+        scheduleEditor->showData(sched, groups);
+        widgetStack->setCurrentIndex(1);
+    }
+
+    void showSchedules()
     {
         scheduleEditor->showData(Schedule(), {});
         widgetStack->setCurrentIndex(0);

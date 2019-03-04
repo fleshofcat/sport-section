@@ -42,7 +42,7 @@ public:
     void updateContent(Person person = Person())
     {
         this->person = person;
-        editorsBox->updateContent(Person::getPattern(), person.getInList());
+        editorsBox->updateContent(Person::pattern(), person.getInList());
     }
 
     Person getPerson()

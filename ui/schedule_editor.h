@@ -112,7 +112,7 @@ private slots:
         }
 
         int row = RecordChooser::getChoosedRow(
-                    Group::groupListToStringTable(groupsToShow), this);
+                    Group::toStringTable(groupsToShow), this);
 
         if (row >= 0)
         {
@@ -197,8 +197,8 @@ private:
         }
 
         groupsViewer->updateData(
-                    Group::getPattern(),
-                    Group::groupListToStringTable(validGroups));
+                    Group::pattern(),
+                    Group::toStringTable(validGroups));
     }
 };
 

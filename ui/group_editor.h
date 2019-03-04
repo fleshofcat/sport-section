@@ -142,7 +142,7 @@ private:
             }
         }
 
-        peopleViewer->updateData(Person::getPattern(), strindTable);
+        peopleViewer->updateData(Person::pattern(), strindTable);
     }
 
 private slots:
@@ -164,7 +164,7 @@ private slots:
         }
 
         int row = RecordChooser::getChoosedRow(
-                    Person::personListToStringTable(peopleToShow), this);
+                    Person::toStringTable(peopleToShow), this);
 
         if (row >= 0)
         {
@@ -200,7 +200,7 @@ private slots:
         }
 
         int row = RecordChooser::getChoosedRow(
-                    Person::personListToStringTable(peopleToShow), this);
+                    Person::toStringTable(peopleToShow), this);
 
         if (row >= 0)
         {

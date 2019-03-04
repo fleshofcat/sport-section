@@ -69,7 +69,7 @@ public:
             {
                 QList<QString> scheduleInList;
 
-                for (int i = 0; i < Schedule::getPattern().count(); i++)
+                for (int i = 0; i < Schedule::pattern().count(); i++)
                 {
                     scheduleInList << query.record().value(i + 1).toString();
                 }

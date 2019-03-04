@@ -91,7 +91,7 @@ public:
             {
                 QList<QString> groupInList;
 
-                for (int i = 0; i < Group::getPattern().count(); i++)
+                for (int i = 0; i < Group::pattern().count(); i++)
                 {
                     groupInList << query.record().value(i + 1).toString();
                 }
