@@ -90,13 +90,13 @@ private:
 
         connect(editor, &PersonEditor::needSave, [=] (Person pers)
         {
-            emit savePerson(pers);
             setViewMode();
+            emit savePerson(pers);
         });
         connect(editor, &PersonEditor::needRemove, [=] (int id)
         {
-            emit removePerson(id);
             setViewMode();
+            emit removePerson(id);
         });
         connect(editor, &PersonEditor::needExit,
                 this, &PeoplePresenter::setViewMode);

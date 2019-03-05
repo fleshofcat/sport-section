@@ -3,8 +3,7 @@
 #include <QtSql> // для работы с бд
 
 #include "common/group.h"
-#include "db/people_manager.h"
-#include "db/group_people_relations.h"
+#include "db/relations_in_db.h"
 
 // класс ScheduleManager/МенеджерРасписаний
 //
@@ -19,9 +18,6 @@ class GroupManager : public QObject
 
     RelationsInDb refsToTrainers;
     RelationsInDb refsToSportsmen;
-
-    PeopleManager trainersManaget;
-    PeopleManager sportsmenManaget;
 
 public:
     GroupManager(QObject *parent = nullptr)
@@ -43,9 +39,6 @@ public:
                       QString sportsmanTable)
     {
         touchTable(groupTable);
-
-        trainersManaget.touchManager(trainerTable);
-        sportsmenManaget.touchManager(sportsmanTable);
 
         refsToTrainers.touchManager(groupTable, trainerTable);
         refsToSportsmen.touchManager(groupTable, sportsmanTable);
@@ -109,11 +102,11 @@ public:
 
                 for (int id : refsToTrainers.getLinks(group.id))
                 {
-                    group.trainers << trainersManaget.getPerson(id);
+                    group.trainers << Person(id);
                 }
                 for (int id : refsToSportsmen.getLinks(group.id))
                 {
-                    group.sportsmen << sportsmenManaget.getPerson(id);
+                    group.sportsmen << Person(id);
                 }
 
                 groups << group;
@@ -148,11 +141,11 @@ public:
 
                 for (int id : refsToTrainers.getLinks(group.id))
                 {
-                    group.trainers << trainersManaget.getPerson(id);
+                    group.trainers << Person(id);
                 }
                 for (int id : refsToSportsmen.getLinks(group.id))
                 {
-                    group.sportsmen << sportsmenManaget.getPerson(id);
+                    group.sportsmen << Person(id);
                 }
 
                 return group;

@@ -19,6 +19,10 @@ public:
     {
         setInList(personData);
     }
+    Person(int id)
+    {
+        this->id = id;
+    }
     Person() {}
 
     void setInList(QList<QString> personData)

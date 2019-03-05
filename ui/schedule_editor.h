@@ -20,7 +20,7 @@ class ScheduleEditor : public QWidget
 
     Schedule schedule;
     Schedule old_schedule;
-    QList<Group> groups;
+    QList<Group> allGroups;
 
     QPushButton *saveButton;
     QPushButton *removeButton;
@@ -54,13 +54,13 @@ public:
         : ScheduleEditor(Schedule(), {} , parent) { }
 
     void showData(Schedule schedule,
-                  QList<Group> groups)
+                  QList<Group> allGroups)
     {
         this->schedule = schedule;
         this->old_schedule = schedule;
 
         setEditors(schedule);
-        updateGroups(groups);
+        updateGroups(allGroups);
     }
 
     Schedule currentSchedule()
@@ -79,10 +79,11 @@ public:
         return this->old_schedule;
     }
 
-    void updateGroups(QList<Group> groups)
+    void updateGroups(QList<Group> allGroups)
     {
-        this->groups = groups;
-        showValidGroups(groups, schedule.group_ids);
+        this->allGroups = allGroups;
+
+        updateGroupsViewer();
     }
 
 private:
@@ -146,9 +147,9 @@ private:
         connect(addGroupButton, &QPushButton::clicked, [=] ()
         {
             QList<Group> groupsToShow;
-            for (Group group : this->groups)
+            for (Group group : this->allGroups)
             {
-                if (schedule.group_ids.contains(group.id))
+                if (!schedule.groups.contains(group))
                 {
                     groupsToShow << group;
                 }
@@ -159,10 +160,8 @@ private:
 
             if (row >= 0)
             {
-                int id = groupsToShow.at(row).id;
-                schedule.group_ids << id;
-
-                showValidGroups(groups, schedule.group_ids);
+                schedule.groups << groupsToShow.at(row);
+                updateGroupsViewer();
             }
         });
         connect(groupsViewer, &RecordsViewer::rowIsActivated, [=] (int row)
@@ -170,12 +169,19 @@ private:
             int result = QMessageBox::question(
                         this, " ", "Убрать группу?");
 
-            if (result == QMessageBox::Yes)
+            if (result != QMessageBox::Yes)
             {
-                schedule.group_ids.removeAt(row);
-                showValidGroups(groups, schedule.group_ids);
+                return;
             }
+            schedule.groups.removeAt(row);
+            updateGroupsViewer();
         });
+    }
+
+    void updateGroupsViewer()
+    {
+        groupsViewer->updateContent(Group::toStringTable(schedule.groups),
+                                    Group::pattern());
     }
 
     void setEditors(Schedule sch)
@@ -187,23 +193,6 @@ private:
 
         eventEdit->setCurrentIndex(int(sch.event));
         sportTypeEdit->setText(sch.sportType);
-    }
-
-    void showValidGroups(QList<Group> groups, QList<int> valid_ids)
-    {
-        QList<Group> validGroups;
-
-        for (Group group : groups)
-        {
-            if (valid_ids.contains(group.id))
-            {
-                validGroups << group;
-            }
-        }
-
-        groupsViewer->updateContent(
-                    Group::toStringTable(validGroups),
-                    Group::pattern());
     }
 };
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "db/group_people_relations.h"
+#include "db/relations_in_db.h"
 
 class TestGroupPeopleRelations: public QObject
 {

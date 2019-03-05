@@ -84,13 +84,13 @@ private:
 
         connect(scheduleEditor, &ScheduleEditor::needSave, [=] (Schedule sch)
         {
-            emit needSave(sch);
             showSchedules();
+            emit needSave(sch);
         });
         connect(scheduleEditor, &ScheduleEditor::needRemove, [=] (int id)
         {
-            emit needRemove(id);
             showSchedules();
+            emit needRemove(id);
         });
         connect(scheduleEditor, &ScheduleEditor::needExit,
                 this, &SchedulePresenter::showSchedules);

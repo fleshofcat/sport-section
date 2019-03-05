@@ -25,6 +25,11 @@ public:
         setInList(property);
     }
 
+    Group(int id)
+    {
+        this->id = id;
+    }
+
     // конструктор создания пустого объекта
     Group() {}
 

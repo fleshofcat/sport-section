@@ -138,7 +138,7 @@ private:
         {
             for (Schedule sch : schedules)
             {
-                if (sch.group_ids.contains(id))
+                if (sch.getGroupsIds().contains(id))
                 {
                     QString scheduleName = QString::number(schedules.indexOf(sch) + 1);
                     trainersTab->showWarning("Пока эта группа находится в расписании '" +

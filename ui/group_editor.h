@@ -76,9 +76,6 @@ public:
         this->trainers = trainers;
         this->sportsmen = sportsmen;
 
-//        group.dropFakeIds(Person::getIds(sportsmen),
-//                                Person::getIds(trainers));
-
         trainersViewer->updateContent(Person::toStringTable(group.trainers),
                                       Person::pattern());
         sportsmenViewer->updateContent(Person::toStringTable(group.sportsmen),

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <QList>
 #include <QDateTime>
+
+#include "group.h"
 
 class Schedule
 {
@@ -17,7 +18,7 @@ public:
     QString date;
     QString sportType;
 
-    QList<int> group_ids;
+    QList<Group> groups;
 
     Schedule(Event event, QString date, QString sportType)
     {
@@ -30,6 +31,12 @@ public:
     {
         setInList(property);
     }
+
+    Schedule(int id)
+    {
+        this->id = id;
+    }
+
     Schedule() {}
 
     void setInList(QList<QString> property)
@@ -45,6 +52,18 @@ public:
     QList<QString> getInList()
     {
         return {QString::number(int(event)), date, sportType};
+    }
+
+    QList<int> getGroupsIds()
+    {
+        QList<int> groupsIds;
+
+        for (Group group : groups)
+        {
+            groupsIds << group.id;
+        }
+
+        return groupsIds;
     }
 
     static QList<QString> pattern()

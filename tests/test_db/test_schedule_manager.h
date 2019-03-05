@@ -24,7 +24,7 @@ private slots:
         DbManager db(db_path);
 
         Schedule sch(Schedule::Event::TRAINING, "10.02.1997", "climbing");
-        sch.group_ids << 1;
+        sch.groups << Group(1);
 
         DbSchedule sm(schedule, groups);
 

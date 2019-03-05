@@ -19,7 +19,6 @@ HEADERS +=                          \
     db/db_manager.h                 \
     db/people_manager.h             \
     db/group_manager.h              \
-    db/group_people_relations.h     \
                                     \
     ui/main_window.h                \
     ui/group_editor.h               \
@@ -37,7 +36,8 @@ HEADERS +=                          \
     tests/test_ui/test_schedule_editor.h \
     tests/test_ui/test_schedule_presenter.h \
     ui/widgets/list_view.h \
-    ui/schedule_result.h
+    ui/schedule_result.h \
+    db/relations_in_db.h
 
 SOURCES += \
     main.cpp \

@@ -16,7 +16,7 @@ private slots:
     void test_saveButton()
     {
         Schedule sch(Schedule::Event::EMPTY, "", "climbing");
-        sch.group_ids << 1 << 2;
+        sch.groups << Group(1) << Group(2);
 
         ScheduleEditor editor(sch, testGroups());
 
@@ -50,7 +50,7 @@ public:
     void test_removeGroup() // manualy test
     {
         Schedule sch(Schedule::Event::EMPTY, "", "climbing");
-        sch.group_ids << 1;
+        sch.groups << Group(1);
 
         ScheduleEditor editor(sch, testGroups());
 
@@ -62,7 +62,7 @@ public:
         emit editor.groupsViewer->rowIsActivated(0);
         emit editor.saveButton->clicked();
 
-        QCOMPARE(spySave.first().first().value<Schedule>().group_ids.count(), 0);
+        QCOMPARE(spySave.first().first().value<Schedule>().groups.count(), 0);
 
         QCOMPARE(spySave.count(), 1);
         QCOMPARE(spyRemove.count(), 0);
@@ -72,7 +72,7 @@ public:
     void test_addGroup() // manual testing
     {
         Schedule sch(Schedule::Event::EMPTY, "", "climbing");
-        sch.group_ids << 1;
+        sch.groups << Group(1);
 
         ScheduleEditor editor(sch, testGroups());
 
@@ -84,7 +84,7 @@ public:
         emit editor.addGroupButton->clicked();
         emit editor.saveButton->clicked();
 
-        QCOMPARE(spySave.first().first().value<Schedule>().group_ids.count(), 2);
+        QCOMPARE(spySave.first().first().value<Schedule>().groups.count(), 2);
 
         QCOMPARE(spySave.count(), 1);
         QCOMPARE(spyRemove.count(), 0);

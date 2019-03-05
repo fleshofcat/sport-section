@@ -112,7 +112,27 @@ public:
 
     QList<Group> getGroups()
     {
-        return groupManager.getGroups();
+        QList<Group> groups = groupManager.getGroups();
+
+        for (int g = 0; g < groups.count(); g++)
+        {
+            QList<Person> trainersIds = groups[g].trainers;
+            QList<Person> sportsmenIds = groups[g].sportsmen;
+            groups[g].trainers = {};
+            groups[g].sportsmen = {};
+
+            for (Person trainerId : trainersIds)
+            {
+                groups[g].trainers << trainersManager.getPerson(trainerId.id);
+            }
+
+            for (Person sportsmenId : sportsmenIds)
+            {
+                groups[g].sportsmen << sportsmenManager.getPerson(sportsmenId.id);
+            }
+        }
+
+        return groups;
     }
 
     bool saveSchedule(Schedule sch)
@@ -127,7 +147,20 @@ public:
 
     QList<Schedule> getSchedules()
     {
-        return scheduleManager.getSchedules();
+        QList<Schedule> schedules = scheduleManager.getSchedules();
+
+        for (int s = 0; s < schedules.count(); s++)
+        {
+            QList<Group> groupsIds = schedules[s].groups;
+            schedules[s].groups = {};
+
+            for (Group groupId : groupsIds)
+            {
+                schedules[s].groups << groupManager.getGroup(groupId.id);
+            }
+        }
+
+        return schedules;
     }
 
     ~DbManager()

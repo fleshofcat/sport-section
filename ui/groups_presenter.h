@@ -86,13 +86,13 @@ private:
 
         connect(groupEditor, &GroupEditor::needSave, [=] (Group group)
         {
-            emit needSave(group);
             showGroups();
+            emit needSave(group);
         });
         connect(groupEditor, &GroupEditor::needRemove, [=] (int id)
         {
-            emit needRemove(id);
             showGroups();
+            emit needRemove(id);
         });
         connect(groupEditor, &GroupEditor::needExit,
                 this, &GroupsPresenter::showGroups);

@@ -3,13 +3,14 @@
 #include <QtSql> // для работы с бд
 
 #include "common/schedule.h"
-#include "db/group_people_relations.h"
+#include "db/relations_in_db.h"
 
 class DbSchedule : public QObject
 {
     Q_OBJECT
 
     QString scheduleTable;
+
     RelationsInDb refsToGroups;
 
 public:
@@ -18,7 +19,7 @@ public:
 
 
     DbSchedule(QString scheduleTable,
-                    QString groupTable,
+               QString groupTable,
                  QObject *parent = nullptr)
         : QObject(parent)
     {
@@ -76,7 +77,11 @@ public:
 
                 Schedule sch(scheduleInList);
                 sch.id = query.record().value("id").toInt();
-                sch.group_ids = refsToGroups.getLinks(sch.id);
+
+                for (int id : refsToGroups.getLinks(sch.id))
+                {
+                    sch.groups << Group(id);
+                }
 
                 schedules << sch;
             }
@@ -108,7 +113,7 @@ private:
 
             if (query.exec())
             {
-                if (refsToGroups.updateLinks(sch.id, sch.group_ids))
+                if (refsToGroups.updateLinks(sch.id, sch.getGroupsIds()))
                 {
                     return true;
                 }
@@ -136,7 +141,7 @@ private:
 
         if (query.exec())
         {
-            if (refsToGroups.updateLinks(sch.id, sch.group_ids))
+            if (refsToGroups.updateLinks(sch.id, sch.getGroupsIds()))
             {
                 return true;
             }
