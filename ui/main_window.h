@@ -108,7 +108,7 @@ private:
         {
             for (Group group : groups)
             {
-                if (group.sportsmen_ids.contains(id))
+                if (group.getSportsmenIds().contains(id))
                 {
                     QString groupName = group.getInList().at(0);
                     sportsmenTab->showWarning("Пока этот спортсмен состоит в группе '" +
@@ -123,7 +123,7 @@ private:
         {
             for (Group group : groups)
             {
-                if (group.trainers_ids.contains(id))
+                if (group.getTrainersIds().contains(id))
                 {
                     QString groupName = group.getInList().at(0);
                     trainersTab->showWarning("Пока этот тренер состоит в группе '" +

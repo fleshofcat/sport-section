@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QList>
-//#include "common/person.h"
+#include "common/person.h"
 
 // класс Group/Группа
 // хранение данных о графике тренировок тренеров и детей
@@ -13,8 +13,11 @@ public:
     QString groupName;
     QString sportType;
 
-    QList<int> trainers_ids;
-    QList<int> sportsmen_ids;
+    QList<Person> trainers;
+    QList<Person> sportsmen;
+
+//    QList<int> trainers_ids;
+//    QList<int> sportsmen_ids;
 
     // констуктор мгновенного создания полного объекта
     Group(QList<QString> property)
@@ -34,29 +37,33 @@ public:
         }
     }
 
-    void dropFakeIds(QList<int> all_sportsmen, QList<int> all_trainers)
-    {
-        sportsmen_ids = clearFakeIds(sportsmen_ids, all_sportsmen);
-        trainers_ids = clearFakeIds(trainers_ids, all_trainers);
-    }
-
-
-    static QList<int> clearFakeIds(QList<int> ids_for_clear, QList<int> all_ids)
-    {
-        for (int id : ids_for_clear)
-        {
-            if (!all_ids.contains(id))
-            {
-                ids_for_clear.removeAll(id);
-            }
-        }
-
-        return ids_for_clear;
-    }
-
     QList<QString> getInList()
     {
         return {groupName, sportType};
+    }
+
+    QList<int> getTrainersIds()
+    {
+        QList<int> trainers_ids;
+
+        for (auto trainer : trainers)
+        {
+            trainers_ids << trainer.id;
+        }
+
+        return trainers_ids;
+    }
+
+    QList<int> getSportsmenIds()
+    {
+        QList<int> sportsmen_ids;
+
+        for (auto trainer : sportsmen)
+        {
+            sportsmen_ids << trainer.id;
+        }
+
+        return sportsmen_ids;
     }
 
     static QList<QString> pattern()
@@ -75,9 +82,13 @@ public:
 
         return stringTable;
     }
+
+    friend bool operator== (const Group &g1, const Group &g2);
+    friend bool operator!= (const Group &g1, const Group &g2);
 };
 
 
+Q_DECLARE_METATYPE(Group)
 
 
 

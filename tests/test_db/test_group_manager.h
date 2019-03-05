@@ -22,19 +22,20 @@ private slots:
         QVERIFY(db.open());
     }
 
-
     void test_addGroup()
     {
         setDefaultValuesToDb();
 
         GroupManager grs(groups, trainers, sportsmen);
+        PeopleManager trainersManager(trainers);
+        PeopleManager sportsmenManager(sportsmen);
 
         Group gr(Group({"testGroupName", "testSportType"}));
-        gr.trainers_ids << 1;
-        gr.sportsmen_ids << 1;
+        gr.trainers << sportsmenManager.getPerson(2);
+        gr.sportsmen << sportsmenManager.getPerson(2);
 
-        QVERIFY(grs.addGroup(gr));
-        QVERIFY(grs.addGroup(Group({"empty", "group"})));
+        QVERIFY(grs.addGroup(gr));                         // test full group
+        QVERIFY(grs.addGroup(Group({"empty", "group"})));  // test empty group
     }
 
     void test_updateGroup()
@@ -42,15 +43,20 @@ private slots:
         setDefaultValuesToDb();
 
         GroupManager grs(groups, trainers, sportsmen);
+        PeopleManager trainersManager(trainers);
+        PeopleManager sportsmenManager(sportsmen);
 
-        Group gr(Group({"testGroupName", "testSportType"}));
-        gr.trainers_ids << 1;
-        gr.sportsmen_ids << 1;
+        Group basicGroup(Group({"testGroupName", "testSportType"}));
+        basicGroup.trainers << sportsmenManager.getPerson(1);
+        basicGroup.sportsmen << sportsmenManager.getPerson(1);
 
-        gr.id = grs.getMaxIdFromTable(groups);
-        QVERIFY(gr.id > 0);
+        basicGroup.id = grs.getMaxIdFromTable(groups);
+        QVERIFY(basicGroup.id > 0);
 
-        QVERIFY(grs.updateGroup(gr));
+        QVERIFY(grs.updateGroup(basicGroup));
+
+        Group updatedGroup = grs.getGroup(basicGroup.id);
+        QCOMPARE(updatedGroup, basicGroup);
     }
 
     void test_removeGroup()
@@ -65,7 +71,6 @@ private slots:
 
         QCOMPARE(grs.getMaxIdFromTable(groups), 1);
     }
-
 
     void test_getGroups()
     {
@@ -83,7 +88,6 @@ private slots:
         QCOMPARE(froad.getInList().at(1), "мошенник");
     }
 
-
     void cleanUpTestCase()
     {
         {
@@ -93,49 +97,58 @@ private slots:
         QSqlDatabase::removeDatabase("qt_sql_default_connection");
     }
 
-
 private:
-   void setDefaultValuesToDb()
+    void setDefaultValuesToDb()
     {
-       // delete order is important
-       dropDbState();
-
-       PeopleManager sportsmenManager(sportsmen);
-
-       sportsmenManager.savePerson(
-            Person({"Артем", "Эдуардович", "Оношко", "12.01.1998", "плавание"}));
-
-       sportsmenManager.savePerson(
-            Person({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"}));
-
-       PeopleManager trainersManager(trainers);
-       trainersManager.savePerson(
-            Person({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"}));
+        // delete order is important
+        dropDbState();
 
 
-       GroupManager grs(groups, trainers, sportsmen);
+        Person artem({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание"});
+        Person oleg({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"});
 
-       Group gr(Group::pattern());
-       gr.trainers_ids << 1;
-       gr.sportsmen_ids << 1;
-       grs.addGroup(gr);
+        PeopleManager sportsmenManager(sportsmen);
+        sportsmenManager.savePerson(artem);
+        artem.id = 1; // now artem's id = 1
 
-       Group gr_2({"Группа мошеннег", "мошенник"});
-       gr_2.trainers_ids << 1;
-       gr_2.sportsmen_ids << 2;
-       grs.addGroup(gr_2);
+        sportsmenManager.savePerson(oleg);
+        oleg.id = 2; //  now oleg's id = 2
 
+
+        Person ivan({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"});
+        Person vadim({"Вадим", "Александрович", "Сурков", "26.03.1997", "плавание"});
+
+
+        PeopleManager trainersManager(trainers);
+        trainersManager.savePerson(ivan);
+        ivan.id = 1; // now ivan's id = 1
+
+        trainersManager.savePerson(vadim);
+        vadim.id = 2; // now vadim's id = 2
+
+
+        Group gr(Group::pattern());
+        gr.trainers << ivan;
+        gr.sportsmen << artem;
+
+        Group gr_2({"Группа мошеннег", "мошенник"});
+        gr_2.trainers << ivan;
+        gr_2.sportsmen << oleg;
+
+        GroupManager grs(groups, trainers, sportsmen);
+        grs.addGroup(gr);
+        grs.addGroup(gr_2);
     }
 
-   void dropDbState()
-   {
-       QSqlQuery query;
-       query.exec("DROP TABLE IF EXISTS " + groups + "_" + sportsmen);
-       query.exec("DROP TABLE IF EXISTS " + groups + "_" + trainers);
-       query.exec("DROP TABLE IF EXISTS " + groups);
-       query.exec("DROP TABLE IF EXISTS " + sportsmen);
-       query.exec("DROP TABLE IF EXISTS " + trainers);
-   }
+    void dropDbState()
+    {
+        QSqlQuery query;
+        query.exec("DROP TABLE IF EXISTS " + groups + "_" + sportsmen);
+        query.exec("DROP TABLE IF EXISTS " + groups + "_" + trainers);
+        query.exec("DROP TABLE IF EXISTS " + groups);
+        query.exec("DROP TABLE IF EXISTS " + sportsmen);
+        query.exec("DROP TABLE IF EXISTS " + trainers);
+    }
 };
 
 

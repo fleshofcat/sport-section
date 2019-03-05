@@ -102,6 +102,33 @@ public:
         return people;
     }
 
+    Person getPerson(int id)
+    {
+        QSqlQuery query;
+        query.prepare("SELECT * FROM " + tableName + " WHERE id = (:id)");
+        query.bindValue(":id", id);
+
+        if (query.exec())
+        {
+            if (query.next())
+            {
+                QList<QString> persInList;
+
+                for (int c = 0; c < Person::pattern().count(); c++)
+                {
+                    persInList << query.record().value(c + 1).toString();
+                }
+
+                Person pers(persInList);
+                pers.id = query.record().value("id").toInt();
+
+                return pers;
+            }
+        }
+        return Person();
+    }
+
+
 private:
     // метод добавления человека
     bool addPerson(Person person)

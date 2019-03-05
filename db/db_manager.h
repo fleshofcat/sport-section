@@ -24,7 +24,7 @@ public:
 
     DbManager(QString db_path, QObject *parent = nullptr)
         : QObject (parent)
-    {        
+    {
         touchDb(db_path);
     }
 
@@ -88,6 +88,15 @@ public:
         return trainersManager.getPeople();
     }
 
+    Person getSportsman(int id)
+    {
+        return sportsmenManager.getPerson(id);
+    }
+
+    Person getTrainer(int id)
+    {
+        return trainersManager.getPerson(id);
+    }
 
     bool saveGroup(Group group)
     {

@@ -65,9 +65,12 @@ public:
 
         return ids;
     }
+
+    friend bool operator== (const Person &p1, const Person &p2);
+    friend bool operator!= (const Person &p1, const Person &p2);
 };
 
-
+Q_DECLARE_METATYPE(Person)
 
 
 

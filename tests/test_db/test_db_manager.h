@@ -16,7 +16,7 @@ class TestDbManager : public QObject
 private slots:
     void test_creation()
     {
-        // test 1
+        // test 1 // create by pointer
         QVERIFY(dropDbConnection()); // connection is not
 
         DbManager * storage = new DbManager(db_path);
@@ -30,7 +30,7 @@ private slots:
         QCOMPARE(QSqlDatabase::database().isValid(), false);
 
 
-        // test 2
+        // test 2 // create by object
         {
             DbManager db_1;
             db_1.touchDb(db_path);
@@ -42,17 +42,6 @@ private slots:
         // check that connection is not again
         QCOMPARE(QSqlDatabase::database().isValid(), false);
     }
-
-
-    void test_removingPerson()
-    {
-        setDefaultState();
-
-        DbManager db(db_path);
-
-        QCOMPARE(db.removeSportsman(1), false);
-    }
-
 
 private:
     bool dropDbConnection()
@@ -69,28 +58,40 @@ private:
         // check that connection is not
         return !(QSqlDatabase::database().isValid());
     }
-
+/*
     void setDefaultState()
     {
         dropDbData();
 
         DbManager db(db_path);
 
-        db.saveSportsman(Person({"Артем", "Эдуардович", "Оношко", "12.01.1998", "плавание"}));
-        db.saveSportsman(Person({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"}));
+        Person artem({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание"});
+        Person oleg({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"});
 
-        db.saveTrainer(Person({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"}));
+        db.saveSportsman(artem);
+        artem.id = 1; // now artem's id = 1
+        db.saveSportsman(oleg);
+        oleg.id = 2; // now oleg's id = 1
+
+        Person ivan({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"});
+        Person vadim({"Вадим", "Александрович", "Сурков", "26.03.1997", "плавание"});
+
+        db.saveTrainer(ivan);
+        ivan.id = 2; // now ivan's id = 1
+        db.saveTrainer(vadim);
+        vadim.id = 2; // now vadim's id = 1
 
         Group gr(Group::pattern());
-        gr.trainers_ids << 1;
-        gr.sportsmen_ids << 1;
+        gr.trainers << ivan;
+        gr.sportsmen << artem;
         db.saveGroup(gr);
 
         Group gr_2({"Группа мошеннег", "мошенник"});
-        gr_2.trainers_ids << 1;
-        gr_2.sportsmen_ids << 2;
+        gr_2.trainers << ivan;
+        gr_2.sportsmen << oleg;
         db.saveGroup(gr_2);
     }
+*/
 
     void dropDbData()
     {

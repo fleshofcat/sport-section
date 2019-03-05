@@ -25,7 +25,6 @@ HEADERS +=                          \
     ui/group_editor.h               \
     ui/widgets/record_chooser.h     \
     ui/widgets/editors_box.h        \
-    ui/widgets/records_widget.h     \
     ui/widgets/records_viewer.h \
     ui/person_editor.h \
     tests/test_db/test_group_links.h \
@@ -42,7 +41,9 @@ HEADERS +=                          \
 
 SOURCES += \
     main.cpp \
-    common/schedule.cpp
+    common/schedule.cpp \
+    common/person.cpp \
+    common/group.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -3,6 +3,7 @@
 #include <QtSql> // для работы с бд
 
 #include "common/group.h"
+#include "db/people_manager.h"
 #include "db/group_people_relations.h"
 
 // класс ScheduleManager/МенеджерРасписаний
@@ -18,6 +19,9 @@ class GroupManager : public QObject
 
     RelationsInDb refsToTrainers;
     RelationsInDb refsToSportsmen;
+
+    PeopleManager trainersManaget;
+    PeopleManager sportsmenManaget;
 
 public:
     GroupManager(QObject *parent = nullptr)
@@ -39,6 +43,9 @@ public:
                       QString sportsmanTable)
     {
         touchTable(groupTable);
+
+        trainersManaget.touchManager(trainerTable);
+        sportsmenManaget.touchManager(sportsmanTable);
 
         refsToTrainers.touchManager(groupTable, trainerTable);
         refsToSportsmen.touchManager(groupTable, sportsmanTable);
@@ -100,8 +107,14 @@ public:
                 group.id = query.record().value("id").toInt();
 
 
-                group.trainers_ids = refsToTrainers.getLinks(group.id);
-                group.sportsmen_ids = refsToSportsmen.getLinks(group.id);
+                for (int id : refsToTrainers.getLinks(group.id))
+                {
+                    group.trainers << trainersManaget.getPerson(id);
+                }
+                for (int id : refsToSportsmen.getLinks(group.id))
+                {
+                    group.sportsmen << sportsmenManaget.getPerson(id);
+                }
 
                 groups << group;
             }
@@ -110,6 +123,43 @@ public:
             qWarning() << query.lastError().text();
 
         return groups;
+    }
+
+    Group getGroup(int id)
+    {
+        QSqlQuery query;
+        query.prepare("SELECT * FROM " + groupTable + " WHERE id = (:id)");
+        query.bindValue(":id", id);
+
+        if (query.exec())
+        {
+            if (query.next())
+            {
+                QList<QString> groupInList;
+
+                for (int i = 0; i < Group::pattern().count(); i++)
+                {
+                    groupInList << query.record().value(i + 1).toString();
+                }
+
+                Group group(groupInList);
+                group.id = query.record().value("id").toInt();
+
+
+                for (int id : refsToTrainers.getLinks(group.id))
+                {
+                    group.trainers << trainersManaget.getPerson(id);
+                }
+                for (int id : refsToSportsmen.getLinks(group.id))
+                {
+                    group.sportsmen << sportsmenManaget.getPerson(id);
+                }
+
+                return group;
+            }
+        }
+
+        return Group();
     }
 
 private:
@@ -132,9 +182,9 @@ private:
 
             if (query.exec())
             {
-                if (refsToTrainers.updateLinks(group.id, group.trainers_ids))
+                if (refsToTrainers.updateLinks(group.id, group.getTrainersIds()))
                 {
-                    if (refsToSportsmen.updateLinks(group.id, group.sportsmen_ids))
+                    if (refsToSportsmen.updateLinks(group.id, group.getSportsmenIds()))
                     {
                         return true;
                     }
@@ -162,9 +212,9 @@ private:
 
         if (query.exec())
         {
-            if (refsToTrainers.updateLinks(group.id, group.trainers_ids))
+            if (refsToTrainers.updateLinks(group.id, group.getTrainersIds()))
             {
-                if (refsToSportsmen.updateLinks(group.id, group.sportsmen_ids))
+                if (refsToSportsmen.updateLinks(group.id, group.getSportsmenIds()))
                 {
                     return true;
                 }

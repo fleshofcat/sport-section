@@ -8,6 +8,7 @@ class TestGroupEditor : public QObject
 {
     Q_OBJECT
 
+#if 0
 public:
     void manualTest()
     {
@@ -134,6 +135,7 @@ private:
         }
         return true;
     }
+#endif
 };
 
 

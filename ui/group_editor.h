@@ -9,7 +9,7 @@
 #include "common/group.h"
 #include "common/person.h"
 
-#include "ui/widgets/records_widget.h"
+#include "ui/widgets/records_viewer.h"
 #include "ui/widgets/record_chooser.h"
 
 class GroupEditor : public QWidget
@@ -35,8 +35,8 @@ class GroupEditor : public QWidget
     // people in group
     QPushButton *addTrainerButton;
     QPushButton *addSportsmanButton;
-    RecordsViewer *trainersV;
-    RecordsViewer *sportsmenV;
+    RecordsViewer *trainersViewer;
+    RecordsViewer *sportsmenViewer;
 
 signals:
     void needSave(Group group);
@@ -76,11 +76,13 @@ public:
         this->trainers = trainers;
         this->sportsmen = sportsmen;
 
-        group.dropFakeIds(Person::getIds(sportsmen),
-                                Person::getIds(trainers));
+//        group.dropFakeIds(Person::getIds(sportsmen),
+//                                Person::getIds(trainers));
 
-        updateViewer(trainersV, trainers, group.trainers_ids);
-        updateViewer(sportsmenV, sportsmen, group.sportsmen_ids);
+        trainersViewer->updateContent(Person::toStringTable(group.trainers),
+                                      Person::pattern());
+        sportsmenViewer->updateContent(Person::toStringTable(group.sportsmen),
+                                       Person::pattern());
     }
 
     Group currentGroup()
@@ -108,16 +110,16 @@ private:
 
         addTrainerButton = new QPushButton("+");
         addSportsmanButton = new QPushButton("+");
-        trainersV = new RecordsViewer;
-        sportsmenV = new RecordsViewer;
+        trainersViewer = new RecordsViewer;
+        sportsmenViewer = new RecordsViewer;
 
         QGridLayout *peopleViever = new QGridLayout;
         peopleViever->addWidget(new QLabel("Тренеры"), 0, 0);
         peopleViever->addWidget(new QLabel("Спортсмены"), 0, 1);
         peopleViever->addWidget(addTrainerButton, 1, 0);
         peopleViever->addWidget(addSportsmanButton, 1, 1);
-        peopleViever->addWidget(trainersV, 2, 0);
-        peopleViever->addWidget(sportsmenV, 2, 1);
+        peopleViever->addWidget(trainersViewer, 2, 0);
+        peopleViever->addWidget(sportsmenViewer, 2, 1);
 
 
         QHBoxLayout *buttonLayout = new QHBoxLayout;
@@ -149,50 +151,29 @@ private:
 
         connect(addSportsmanButton, &QPushButton::clicked, [=] ()
         {
-            addPersonToPreview(sportsmen, &group.sportsmen_ids);
+            addPersonToPreview(sportsmen, &group.sportsmen);
         });
-        connect(sportsmenV, &RecordsViewer::rowIsActivated, [=] (int row)
+        connect(sportsmenViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            removePersonFromPreview(row, &group.sportsmen_ids, "Удалить спортсмена из группы?");
+            removePersonFromPreview(row, &group.sportsmen, "Удалить спортсмена из группы?");
         });
 
         connect(addTrainerButton, &QPushButton::clicked, [=] ()
         {
-            addPersonToPreview(trainers, &group.trainers_ids);
+            addPersonToPreview(trainers, &group.trainers);
         });
-        connect(trainersV, &RecordsViewer::rowIsActivated, [=] (int row)
+        connect(trainersViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            removePersonFromPreview(row, &group.trainers_ids, "Удалить тренера из группы?");
+            removePersonFromPreview(row, &group.trainers, "Удалить тренера из группы?");
         });
     }
 
-
-    void updateViewer(RecordsViewer *peopleViewer,
-                      QList<Person> people, QList<int> ids)
-    {
-        QList<QList<QString>> strindTable;
-
-        for (int id : ids)
-        {
-            for (Person pers : people)
-            {
-                if (pers.id == id)
-                {
-                    strindTable << pers.getInList();
-                }
-            }
-        }
-
-        peopleViewer->updateContent(strindTable, Person::pattern());
-    }
-
-
-    void addPersonToPreview(QList<Person> people, QList<int> *peopleValidIds)
+    void addPersonToPreview(QList<Person> all_people, QList<Person> *existing_people)
     {
         QList<Person> peopleToShow;
-        for (Person pers : people)
+        for (Person pers : all_people)
         {
-            if (!peopleValidIds->contains(pers.id)
+            if (!existing_people->contains(pers)
                     /*&& group.sportType == pers.sportType*/)
             {
                 peopleToShow << pers;
@@ -204,14 +185,13 @@ private:
 
         if (row >= 0)
         {
-            int id = peopleToShow.at(row).id;
-            *peopleValidIds << id;
+            *existing_people << peopleToShow.at(row);
 
             updateWhenRunning(trainers, sportsmen);
         }
     }
 
-    void removePersonFromPreview(int row, QList<int> *validIds, QString question = "")
+    void removePersonFromPreview(int row, QList<Person> *existingPeople, QString question = "")
     {
         if (question != "")
         {
@@ -222,7 +202,7 @@ private:
                 return;
             }
         }
-        validIds->removeAt(row);
+        existingPeople->removeAt(row);
         updateWhenRunning(trainers, sportsmen);
     }
 };
