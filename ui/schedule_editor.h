@@ -10,7 +10,7 @@
 #include "common/schedule.h"
 #include "common/group.h"
 
-#include "ui/widgets/records_widget.h"
+#include "ui/widgets/records_viewer.h"
 #include "ui/widgets/record_chooser.h"
 
 class ScheduleEditor : public QWidget
@@ -30,7 +30,9 @@ class ScheduleEditor : public QWidget
     QDateTimeEdit *dateEdit;
     QLineEdit *sportTypeEdit;
 
-    RecordsWidget *groupsViewer;
+
+    QPushButton *addGroupButton;
+    RecordsViewer *groupsViewer;
 
 signals:
     void needSave(Schedule schedule);
@@ -44,14 +46,8 @@ public:
         : QWidget(parent)
     {
         setUpUi();
+        setUpConnections();
         showData(schedule, groups);
-
-        connect(saveButton, &QPushButton::clicked, this, &ScheduleEditor::on_saveButton);
-        connect(removeButton, &QPushButton::clicked, this, &ScheduleEditor::on_removeButton);
-        connect(exitButton, &QPushButton::clicked, this, &ScheduleEditor::needExit);
-
-        connect(groupsViewer, &RecordsWidget::createRecordActivated, this, &ScheduleEditor::on_addGroup);
-        connect(groupsViewer, &RecordsWidget::recordActivated, this, &ScheduleEditor::on_removeGroup);
     }
 
     ScheduleEditor(QWidget *parent = nullptr)
@@ -69,13 +65,13 @@ public:
 
     Schedule currentSchedule()
     {
-        QList<QString> inList;
-        inList << QString::number(eventEdit->currentIndex());
-        inList << dateEdit->text();
-        inList << sportTypeEdit->text();
+        QList<QString> scheduleInList;
+        scheduleInList << QString::number(eventEdit->currentIndex());
+        scheduleInList << dateEdit->text();
+        scheduleInList << sportTypeEdit->text();
 
-        this->schedule.setInList(inList);
-        return this->schedule;
+        schedule.setInList(scheduleInList);
+        return schedule;
     }
 
     Schedule oldSchedule()
@@ -89,55 +85,10 @@ public:
         showValidGroups(groups, schedule.group_ids);
     }
 
-private slots:
-    void on_saveButton()
-    {
-        emit needSave(currentSchedule());
-    }
-
-    void on_removeButton()
-    {
-        emit needRemove(schedule.id);
-    }
-
-    void on_addGroup()
-    {
-        QList<Group> groupsToShow;
-        for (Group group : this->groups)
-        {
-            if (!schedule.group_ids.contains(group.id))
-            {
-                groupsToShow << group;
-            }
-        }
-
-        int row = RecordChooser::getChoosedRow(
-                    Group::toStringTable(groupsToShow), this);
-
-        if (row >= 0)
-        {
-            int id = groupsToShow.at(row).id;
-            schedule.group_ids << id;
-
-            showValidGroups(groups, schedule.group_ids);
-        }
-    }
-
-    void on_removeGroup(int row)
-    {
-        int result = QMessageBox::question(
-                    this, " ", "Убрать группу?");
-
-        if (result == QMessageBox::Yes)
-        {
-            schedule.group_ids.removeAt(row);
-            showValidGroups(groups, schedule.group_ids);
-        }
-    }
-
 private:
     void setUpUi()
     {
+        // editors
         dateEdit = new QDateTimeEdit;
         dateEdit->setCalendarPopup(true);
         dateEdit->setDisplayFormat("yyyy.MM.dd");
@@ -154,8 +105,14 @@ private:
         editors->addRow("Вид события", eventEdit);
         editors->addRow("Вид спорта", sportTypeEdit);
 
-        groupsViewer = new RecordsWidget;
+        // group viewer
+        addGroupButton = new QPushButton("+");
+        groupsViewer = new RecordsViewer;
+        QVBoxLayout *groupViewerLayout = new QVBoxLayout;
+        groupViewerLayout->addWidget(addGroupButton);
+        groupViewerLayout->addWidget(groupsViewer);
 
+        // standart buttons
         saveButton = new QPushButton("Сохранить");
         removeButton = new QPushButton("Удалить");
         exitButton = new QPushButton("Выйти");
@@ -167,10 +124,58 @@ private:
         QVBoxLayout *basicLayout = new QVBoxLayout;
         basicLayout->addLayout(editors);
         basicLayout->addWidget(new QLabel("Группы для участия"));
-        basicLayout->addWidget(groupsViewer);
+        basicLayout->addLayout(groupViewerLayout);
         basicLayout->addLayout(buttonLayout);
 
         setLayout(basicLayout);
+    }
+
+    void setUpConnections()
+    {
+        connect(saveButton, &QPushButton::clicked, [=] ()
+        {
+            emit needSave(currentSchedule());
+        });
+        connect(removeButton, &QPushButton::clicked, [=] ()
+        {
+            emit needRemove(schedule.id);
+        });
+        connect(exitButton, &QPushButton::clicked,
+                this, &ScheduleEditor::needExit);
+
+        connect(addGroupButton, &QPushButton::clicked, [=] ()
+        {
+            QList<Group> groupsToShow;
+            for (Group group : this->groups)
+            {
+                if (schedule.group_ids.contains(group.id))
+                {
+                    groupsToShow << group;
+                }
+            }
+
+            int row = RecordChooser::getChoosedRow(
+                        Group::toStringTable(groupsToShow), this);
+
+            if (row >= 0)
+            {
+                int id = groupsToShow.at(row).id;
+                schedule.group_ids << id;
+
+                showValidGroups(groups, schedule.group_ids);
+            }
+        });
+        connect(groupsViewer, &RecordsViewer::rowIsActivated, [=] (int row)
+        {
+            int result = QMessageBox::question(
+                        this, " ", "Убрать группу?");
+
+            if (result == QMessageBox::Yes)
+            {
+                schedule.group_ids.removeAt(row);
+                showValidGroups(groups, schedule.group_ids);
+            }
+        });
     }
 
     void setEditors(Schedule sch)
@@ -196,9 +201,9 @@ private:
             }
         }
 
-        groupsViewer->updateData(
-                    Group::pattern(),
-                    Group::toStringTable(validGroups));
+        groupsViewer->updateContent(
+                    Group::toStringTable(validGroups),
+                    Group::pattern());
     }
 };
 

@@ -10,6 +10,7 @@
 
 #include "common/person.h"
 #include "ui/person_editor.h"
+#include "ui/widgets/records_viewer.h"
 
 class PeoplePresenter : public QWidget
 {
@@ -20,7 +21,7 @@ class PeoplePresenter : public QWidget
 
     QPushButton *createButton;
 
-    QTableView *peopleViewer;
+    RecordsViewer *peopleViewer;
     PersonEditor *editor;
     QStackedWidget *widgets;
 
@@ -45,24 +46,7 @@ public:
     {
         this->people = people;
 
-        int columns = Person::pattern().count();
-        int rows = people.count();
-        auto stringTable = Person::toStringTable(people);
-
-
-        QStandardItemModel *model = new QStandardItemModel(rows, columns);
-
-        for (int r = 0; r < rows; r++)
-        {
-            for (int c = 0; c < columns; c++)
-            {
-                QModelIndex index = model->index(r, c);
-                model->setData(index, stringTable.at(r).at(c));
-            }
-            model->setVerticalHeaderItem(r, new QStandardItem(QIcon(icon_path), ""));
-        }
-        model->setHorizontalHeaderLabels(Person::pattern());
-        peopleViewer->setModel(model);
+        peopleViewer->updateContent(Person::toStringTable(people), Person::pattern());
     }
 
     void showWarning(QString warning)
@@ -75,8 +59,8 @@ private:
     {
         createButton = new QPushButton("+");
 
-        peopleViewer = new QTableView;
-        peopleViewer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        peopleViewer = new RecordsViewer;
+        peopleViewer->setIconPath(icon_path);
 
         QVBoxLayout *viewerLayout = new QVBoxLayout;
         viewerLayout->addWidget(createButton);
@@ -96,17 +80,26 @@ private:
         {
             setEditMode();
         });
-        connect(peopleViewer, &QTableView::clicked, [=] (QModelIndex index)
+        connect(peopleViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            if (index.row() >= 0)
+            if (row >= 0)
             {
-                setEditMode(people.at(index.row()));
+                setEditMode(people.at(row));
             }
         });
 
-        connect(editor, &PersonEditor::needSave,   this, &PeoplePresenter::on_needSave);
-        connect(editor, &PersonEditor::needRemove, this, &PeoplePresenter::on_needRemove);
-        connect(editor, &PersonEditor::needExit,   this, &PeoplePresenter::setPreviewMode);
+        connect(editor, &PersonEditor::needSave, [=] (Person pers)
+        {
+            emit savePerson(pers);
+            setViewMode();
+        });
+        connect(editor, &PersonEditor::needRemove, [=] (int id)
+        {
+            emit removePerson(id);
+            setViewMode();
+        });
+        connect(editor, &PersonEditor::needExit,
+                this, &PeoplePresenter::setViewMode);
     }
 
 private slots:
@@ -116,22 +109,10 @@ private slots:
         widgets->setCurrentIndex(1);
     }
 
-    void setPreviewMode()
+    void setViewMode()
     {
         editor->updateContent();
         widgets->setCurrentIndex(0);
-    }
-
-    void on_needSave(Person pers)
-    {
-        emit savePerson(pers);
-        setPreviewMode();
-    }
-
-    void on_needRemove(int id)
-    {
-        emit removePerson(id);
-        setPreviewMode();
     }
 
 public:

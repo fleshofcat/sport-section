@@ -67,7 +67,7 @@ public:
         sportsmenTab->updateContent(sportsmen);
         trainersTab->updateContent(trainers);
         groupTab->updateContent(sportsmen, trainers, groups);
-        scheduleTab->showData(schedules, groups);
+        scheduleTab->updateContent(schedules, groups);
     }
 
 private:

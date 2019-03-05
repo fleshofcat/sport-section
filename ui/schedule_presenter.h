@@ -15,9 +15,8 @@ class SchedulePresenter : public QWidget
     QList<Schedule> schedules;
     QList<Group> groups;
 
+    RecordsViewer *scheduleViewer;
     QPushButton *createButton;
-    QTableView *scheduleViewer;
-//    RecordsWidget *schedulesViewer;
     QStackedWidget *widgetStack;
     ScheduleEditor *scheduleEditor;
 
@@ -37,33 +36,16 @@ public:
         setUpConnections();
     }
 
-    void showData(QList<Schedule> schedules, QList<Group> groups)
+    void updateContent(QList<Schedule> schedules, QList<Group> groups)
     {
         this->groups = groups;
         this->schedules = schedules;
 
-        updateView(schedules);
+        scheduleViewer->updateContent(Schedule::toStringTable(schedules), Schedule::pattern());
 
         if (widgetStack->currentIndex() == 1)
         {
-            if (schedules.contains(scheduleEditor->oldSchedule()))
-            {
-                scheduleEditor->updateGroups(groups);
-            }
-            else
-            {
-                int result = QMessageBox::question(this, " ",
-                        "Данное расписание было изменено извне. "
-                        "Продолжить редактирование?");
-                if (result == QMessageBox::Ok)
-                {
-                    scheduleEditor->updateGroups(groups);
-                }
-                else if (result == QMessageBox::No)
-                {
-                     showSchedules();
-                }
-            }
+             updateSchedule(schedules, groups);
         }
     }
 
@@ -72,8 +54,8 @@ private:
     {
         createButton = new QPushButton("+");
 
-        scheduleViewer = new QTableView;
-        scheduleViewer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        scheduleViewer = new RecordsViewer;
+        scheduleViewer->setIconPath(icon_path);
 
         QVBoxLayout *viewerLayout = new QVBoxLayout;
         viewerLayout->addWidget(createButton);
@@ -95,9 +77,9 @@ private:
         {
             showEditor();
         });
-        connect(scheduleViewer, &QTableView::clicked, [=] (QModelIndex index)
+        connect(scheduleViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            showEditor(schedules.at(index.row()));
+            showEditor(schedules.at(row));
         });
 
         connect(scheduleEditor, &ScheduleEditor::needSave, [=] (Schedule sch)
@@ -114,27 +96,29 @@ private:
                 this, &SchedulePresenter::showSchedules);
     }
 
-    void updateView(QList<Schedule> schedules)
+    void updateSchedule(QList<Schedule> schedules, QList<Group> groups)
     {
-        int columns = Schedule::pattern().count();
-        int rows = schedules.count();
-        auto stringTable = Schedule::toStringTable(schedules);
-
-        QStandardItemModel *model = new QStandardItemModel(rows, columns);
-
-        for (int r = 0; r < rows; r++)
+        if (schedules.contains(scheduleEditor->oldSchedule()))
         {
-            for (int c = 0; c < columns; c++)
-            {
-                QModelIndex index = model->index(r, c);
-                model->setData(index, stringTable.at(r).at(c));
-            }
-            model->setVerticalHeaderItem(r, new QStandardItem(QIcon(icon_path), ""));
+            scheduleEditor->updateGroups(groups);
         }
-
-        model->setHorizontalHeaderLabels(Schedule::pattern());
-        scheduleViewer->setModel(model);
+        else
+        {
+            int result = QMessageBox::question(this, " ",
+                    "Данное расписание было изменено извне. "
+                    "Продолжить редактирование?");
+            if (result == QMessageBox::Ok)
+            {
+                scheduleEditor->updateGroups(groups);
+            }
+            else if (result == QMessageBox::No)
+            {
+                 showSchedules();
+            }
+        }
     }
+
+
 
 private slots:
     void showEditor(Schedule sched = Schedule())

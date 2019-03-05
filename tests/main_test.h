@@ -20,12 +20,13 @@ public:
 
     static void runAllTests(int argc, char *argv[])
     {
-//        QTest::qExec(new TestScheduleManager, argc, argv);
-//        QTest::qExec(new TestGroupManager, argc, argv);
-//        QTest::qExec(new TestPeopleStorage, argc, argv);
-//        QTest::qExec(new TestDbManager, argc, argv);
-//        QTest::qExec(new TestGroupEditor, argc, argv);
-//        QTest::qExec(new TestEditorsBox, argc, argv);
+        QTest::qExec(new TestDbManager, argc, argv);
+        QTest::qExec(new TestScheduleManager, argc, argv);
+        QTest::qExec(new TestGroupManager, argc, argv);
+        QTest::qExec(new TestPeopleStorage, argc, argv);
+
+        QTest::qExec(new TestGroupEditor, argc, argv);
+        QTest::qExec(new TestEditorsBox, argc, argv);
         QTest::qExec(new TestScheduleEditor, argc, argv);
         QTest::qExec(new TestSchedulePresenter, argc, argv);
     }

@@ -59,7 +59,7 @@ public:
         QSignalSpy spyExit(&editor, &ScheduleEditor::needExit);
 
         // test
-        emit editor.groupsViewer->recordActivated(0);
+        emit editor.groupsViewer->rowIsActivated(0);
         emit editor.saveButton->clicked();
 
         QCOMPARE(spySave.first().first().value<Schedule>().group_ids.count(), 0);
@@ -81,7 +81,7 @@ public:
         QSignalSpy spyExit(&editor, &ScheduleEditor::needExit);
 
         // test
-        emit editor.groupsViewer->createRecordActivated();
+        emit editor.addGroupButton->clicked();
         emit editor.saveButton->clicked();
 
         QCOMPARE(spySave.first().first().value<Schedule>().group_ids.count(), 2);

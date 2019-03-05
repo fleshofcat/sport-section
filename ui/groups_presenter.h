@@ -15,7 +15,7 @@ class GroupsPresenter : public QWidget
     QList<Group> groups;
 
     QPushButton *createButton;
-    QTableView *groupsViewer;
+    RecordsViewer *groupsViewer;
     QStackedWidget *widgetStack;
     GroupEditor *groupEditor;
 
@@ -43,7 +43,8 @@ public:
         this->trainers = trainers;
         this->groups = groups;
 
-        updateView(groups);
+        groupsViewer->updateContent(Group::toStringTable(groups),
+                            Group::pattern());
 
         if (widgetStack->currentIndex() == 1)
         {
@@ -55,9 +56,8 @@ private:
     void setUpUi()
     {
         createButton = new QPushButton("+");
-
-        groupsViewer = new QTableView;
-        groupsViewer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        groupsViewer = new RecordsViewer;
+        groupsViewer->setIconPath(icon_path);
 
         QVBoxLayout *viewerLayout = new QVBoxLayout;
         viewerLayout->addWidget(createButton);
@@ -71,7 +71,7 @@ private:
         widgetStack = new QStackedWidget(this);
         widgetStack->addWidget(viewerWidget);
         widgetStack->addWidget(groupEditor);
-}
+    }
 
     void setUpConnections()
     {
@@ -79,9 +79,9 @@ private:
         {
             editGroup();
         });
-        connect(groupsViewer, &QTableView::clicked, [=] (QModelIndex index)
+        connect(groupsViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            editGroup(groups.at(index.row()));
+            editGroup(groups.at(row));
         });
 
         connect(groupEditor, &GroupEditor::needSave, [=] (Group group)
@@ -96,28 +96,6 @@ private:
         });
         connect(groupEditor, &GroupEditor::needExit,
                 this, &GroupsPresenter::showGroups);
-    }
-
-    void updateView(QList<Group> groups)
-    {
-        int columns = Group::pattern().count();
-        int rows = groups.count();
-        auto stringTable = Group::toStringTable(groups);
-
-        QStandardItemModel *model = new QStandardItemModel(rows, columns);
-
-        for (int r = 0; r < rows; r++)
-        {
-            for (int c = 0; c < columns; c++)
-            {
-                QModelIndex index = model->index(r, c);
-                model->setData(index, stringTable.at(r).at(c));
-            }
-            model->setVerticalHeaderItem(r, new QStandardItem(QIcon(icon_path), ""));
-        }
-
-        model->setHorizontalHeaderLabels(Group::pattern());
-        groupsViewer->setModel(model);
     }
 
 private slots:
