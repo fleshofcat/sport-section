@@ -163,6 +163,36 @@ public:
         return schedules;
     }
 
+    bool hardSaveGroup(Group group)
+    {
+        for (Person sportsmen : group.sportsmen)
+        {
+            if(sportsmenManager.savePerson(sportsmen) == false)
+                return false;
+        }
+
+        for (Person trainer : group.trainers)
+        {
+            if (trainersManager.savePerson(trainer) == false)
+            {
+                return false;
+            }
+        }
+
+        return groupManager.saveGroup(group);
+    }
+
+    bool hardSaveSchedule(Schedule schedule)
+    {
+        for (Group group : schedule.groups)
+        {
+            if (hardSaveGroup(group) == false)
+                return false;
+        }
+
+        return scheduleManager.saveSchedule(schedule);
+    }
+
     ~DbManager()
     {
         {

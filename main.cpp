@@ -3,14 +3,14 @@
 #include "tests/main_test.h" // тесты
 #include "sport_section.h"   // главный класс программы (SportSection)
 
-#include "ui/support/schedule_result.h"
+#include "ui/support/schedule_close.h"
 
 // точка входа программы
 int main(int argc, char *argv[])
 {
     QString img_path = "/home/fleshofcat/Projects/sandbox/record/record/res/img/schedule.png";
 
-#if 0 // переключатель режима запуска тестов или программы
+#if 1 // переключатель режима запуска тестов или программы
 
     QApplication app(argc, argv);
 

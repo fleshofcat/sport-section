@@ -15,6 +15,8 @@ class RelationsInDb : public QObject
     QString main_id;
     QString secondary_id;
 
+    bool isSecondaryIdHaveManyMainIds = true;
+
 public:
     RelationsInDb(QObject *parent = nullptr)
         : QObject(parent) { }
@@ -48,12 +50,19 @@ public:
         touchTable(specificRelationsTable);
     }
 
+    void setSecondIdHaveOnlyOneMainId(bool onlyOne)
+    {
+        isSecondaryIdHaveManyMainIds = !onlyOne;
+    }
 
     bool updateLinks(int mainTable_id, QList<int> secondaryTable_ids)
     {
-        if (removeMainLinks(mainTable_id))
+        if (isIdsValid(mainTable_id, secondaryTable_ids))
         {
-            return addLinks(mainTable_id, secondaryTable_ids);
+            if (removeMainLinks(mainTable_id))
+            {
+                return addLinks(mainTable_id, secondaryTable_ids);
+            }
         }
         return false;
     }
@@ -103,9 +112,9 @@ public:
 
 
 private:
-    bool addLinks(int mainTable_id, QList<int> secondaryTable)
+    bool addLinks(int mainTable_id, QList<int> secondaryTable_ids)
     {
-        for (int id : secondaryTable)
+        for (int id : secondaryTable_ids)
         {
             QSqlQuery query;
             query.prepare(QString("INSERT INTO %1 (%2, %3)  "
@@ -121,6 +130,33 @@ private:
                 return false;
             }
         }
+        return true;
+    }
+
+    bool isIdsValid(int mainId, QList<int> secondaryIds)
+    {
+        if (isSecondaryIdHaveManyMainIds == false)
+        {
+            for (int id : secondaryIds)
+            {
+                QSqlQuery query(QString("SELECT %1 FROM %2 "
+                                   " WHERE %3 = %4 ")
+                        .arg(main_id)
+                        .arg(relations)
+                        .arg(secondary_id)
+                        .arg(QString::number(id)));
+
+                if (query.next())
+                {
+                    if (query.record().value(main_id).toInt() != mainId)
+                        return false;
+                }
+
+                if (query.next())
+                    return false;
+            }
+        }
+
         return true;
     }
 

@@ -5,7 +5,7 @@
 #include "common/schedule.h"
 #include "ui/support/preview_result_calculation.h"
 
-class ScheduleResult : public QWidget
+class ScheduleClose : public QWidget
 {
     Q_OBJECT
 
@@ -17,7 +17,7 @@ class ScheduleResult : public QWidget
 signals:
 
 public:
-    ScheduleResult(Schedule sch, QWidget *parent = nullptr)
+    ScheduleClose(Schedule sch, QWidget *parent = nullptr)
         : QWidget(parent)
     {
         this->schedule = sch;
@@ -37,8 +37,8 @@ public:
 //        toolBox->setM
     }
 
-    ScheduleResult(QWidget *parent = nullptr)
-        : ScheduleResult(Schedule(), parent) {}
+    ScheduleClose(QWidget *parent = nullptr)
+        : ScheduleClose(Schedule(), parent) {}
 
 private:
     void setUpUi()

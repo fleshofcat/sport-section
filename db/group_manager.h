@@ -42,6 +42,7 @@ public:
 
         refsToTrainers.touchManager(groupTable, trainerTable);
         refsToSportsmen.touchManager(groupTable, sportsmanTable);
+        refsToSportsmen.setSecondIdHaveOnlyOneMainId(true);
     }
 
 
