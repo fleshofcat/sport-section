@@ -4,7 +4,7 @@
 
 #include <QStandardItemModel>
 
-#include "ui/schedule_editor.h"
+#include "ui/support/schedule_editor.h"
 
 class SchedulePresenter : public QWidget
 {

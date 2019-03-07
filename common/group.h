@@ -71,6 +71,30 @@ public:
         return sportsmen_ids;
     }
 
+    float getGroupRating()
+    {
+        if (!sportsmen.isEmpty())
+        {
+            int sportsmenRating = Person::getPeopleRating(sportsmen);
+
+            return (sportsmenRating / sportsmen.count())
+                    + (sportsmenRating % sportsmen.count());
+        }
+        return 0;
+    }
+
+    void updateSportsman(Person pers)
+    {
+        for (int i = 0; i < sportsmen.count(); i++)
+        {
+            if (sportsmen.at(i).id == pers.id)
+            {
+                sportsmen[i] = pers;
+                return;
+            }
+        }
+    }
+
     static QList<QString> pattern()
     {
         return {"Группа", "Спорт"};

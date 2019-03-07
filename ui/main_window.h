@@ -146,7 +146,7 @@ private:
                     return;
                 }
             }
-             emit removeSchedule(id);
+             emit removeGroup(id);
         });
     }
 

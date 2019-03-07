@@ -3,19 +3,21 @@
 #include "tests/main_test.h" // тесты
 #include "sport_section.h"   // главный класс программы (SportSection)
 
-#include "ui/schedule_result.h"
+#include "ui/support/schedule_result.h"
 
 // точка входа программы
 int main(int argc, char *argv[])
 {
-#if 1 // переключатель режима запуска тестов или программы
+    QString img_path = "/home/fleshofcat/Projects/sandbox/record/record/res/img/schedule.png";
+
+#if 0 // переключатель режима запуска тестов или программы
 
     QApplication app(argc, argv);
 
     SportSection sect;  // сама программа
 
     return app.exec();
-#elif 1 // auto tests
+#elif 0 // auto tests
     QApplication app(argc, argv);
 
     MainTest::runAllTests(argc, argv);
@@ -24,9 +26,15 @@ int main(int argc, char *argv[])
 #else // manually test
     QApplication app(argc, argv);
 
+    PreviewResultCalculation resultPreview; // ("../record/res/img/sportsman.png")
+    resultPreview.show();
+
     DbManager db("../record/res/sport_people.db");
 
-//    Sch
+    resultPreview.setGroupIconPath("../record/res/img/group.png");
+    resultPreview.setTrainerIconPath("../record/res/img/trainer.png");
+    resultPreview.setSportsmanIconPath("../record/res/img/sportsman.png");
+    resultPreview.setGroups(db.getGroups());
 
     return app.exec();
 #endif

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "ui/schedule_editor.h"
+#include "ui/support/schedule_editor.h"
 
 class TestScheduleEditor : public QObject
 {

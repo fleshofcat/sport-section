@@ -9,7 +9,7 @@
 #include <QHeaderView>
 
 #include "common/person.h"
-#include "ui/person_editor.h"
+#include "ui/support/person_editor.h"
 #include "ui/widgets/records_viewer.h"
 
 class PeoplePresenter : public QWidget

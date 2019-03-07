@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "ui/group_editor.h"
+#include "ui/support/group_editor.h"
 #include "db/db_manager.h"
 
 class TestEditorsBox : public QObject

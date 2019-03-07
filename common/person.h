@@ -9,11 +9,15 @@ class Person
 public:
     int id = 0;             // id в конечном итоге должна устанавливать сама бд
 
+    int rating = 0;
+    int events = 0;
+
     QString firstName;      // имя
     QString secondName;     // Отчество
     QString lastName;       // фамилия
     QString birthday;       // дата рождения
     QString sportType;      // вид спорта
+    QString phoneNumber;    // TODO now is not influence
 
     Person(QList<QString> personData)
     {
@@ -68,6 +72,17 @@ public:
         }
 
         return ids;
+    }
+
+    static int getPeopleRating(QList<Person> people)
+    {
+        int summRating = 0;
+        for (Person pers : people)
+        {
+            summRating += pers.rating;
+        }
+
+        return summRating;
     }
 
     friend bool operator== (const Person &p1, const Person &p2);

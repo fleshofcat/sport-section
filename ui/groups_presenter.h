@@ -3,7 +3,7 @@
 #include <QStandardItemModel>
 #include <QStackedWidget>
 
-#include "ui/group_editor.h"
+#include "ui/support/group_editor.h"
 
 class GroupsPresenter : public QWidget
 {
