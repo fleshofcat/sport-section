@@ -66,6 +66,7 @@ public:
 
         this->allSportsmen = sportsmen;
 
+
         for (int r = 0; r < sportsmen.count(); r++)
         {
             QString stringPers = QString::number(r+1)

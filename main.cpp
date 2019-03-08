@@ -26,20 +26,24 @@ int main(int argc, char *argv[])
 #else // manually test
     QApplication app(argc, argv);
 
-//    DbManager db("../record/res/sport_people.db");
-
-//    ScheduleClose closer(db.getSchedules().at(0));
-//    closer.show();
-
-    PreviewResultCalculation resultPreview;
-    resultPreview.show();
-
     DbManager db("../record/res/sport_people.db");
 
-    resultPreview.setGroupIconPath("../record/res/img/group.png");
-    resultPreview.setTrainerIconPath("../record/res/img/trainer.png");
-    resultPreview.setSportsmanIconPath("../record/res/img/sportsman.png");
-    resultPreview.setGroups(db.getGroups());
+    auto schedule = db.getSchedules().at(0);
+
+    for (int g = 0; g < schedule.groups.count(); g++)
+    {
+        for (int s = 0; s < schedule.groups[g].sportsmen.count(); s++)
+        {
+            schedule.groups[g].sportsmen[s].rating += rand() % 50;
+        }
+
+        int additional = rand() % 50;
+        schedule.groups[g].increaseTrainersRating(additional);
+    }
+
+
+    ScheduleClose closer(schedule);
+    closer.show();
 
     return app.exec();
 #endif

@@ -38,7 +38,7 @@ public:
         this->currentGroups = groups;
 
         fillSportsmenLView(groups);
-        auto previousGroupsOrder = getSortedOrderByGroupsRange(groups);
+        QList<int> previousGroupsOrder = getSortedOrderByGroupsRange(groups);
         updateGroupsView(previousGroupsOrder, groups);
     }
 
@@ -55,6 +55,12 @@ public:
     void setSportsmanIconPath(QString imagePath)
     {
         this->sportsmanIconPath = imagePath;
+        sportsmenView->setPersIconPath(imagePath);
+    }
+
+    QList<Group> getGroups()
+    {
+        return this->currentGroups;
     }
 
 private:
@@ -124,7 +130,15 @@ private:
             }
         }
 
-        // arrange groups by rating
+        // in each group increase the trainers rating
+        // by difference between odl and new group condition
+        for (int g = 0; g < currentGroups.count(); g++)
+        {
+            int additional = currentGroups[g].getFullSportsmenRating()
+                    - oldGroups[g].getFullSportsmenRating();
+
+            currentGroups[g].increaseTrainersRating(additional);
+        }
 
         return currentGroups;
     }

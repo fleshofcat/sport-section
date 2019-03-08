@@ -135,6 +135,28 @@ public:
         return groups;
     }
 
+    Group getGroup(int id)
+    {
+        Group group = groupManager.getGroup(id);
+
+        QList<Person> trainersIds = group.trainers;
+        QList<Person> sportsmenIds = group.sportsmen;
+        group.trainers = {};
+        group.sportsmen = {};
+
+        for (Person trainerId : trainersIds)
+        {
+            group.trainers << trainersManager.getPerson(trainerId.id);
+        }
+
+        for (Person sportsmenId : sportsmenIds)
+        {
+            group.sportsmen << sportsmenManager.getPerson(sportsmenId.id);
+        }
+
+        return group;
+    }
+
     bool saveSchedule(Schedule sch)
     {
         return scheduleManager.saveSchedule(sch);
@@ -156,7 +178,7 @@ public:
 
             for (Group groupId : groupsIds)
             {
-                schedules[s].groups << groupManager.getGroup(groupId.id);
+                schedules[s].groups << getGroup(groupId.id);
             }
         }
 
@@ -167,13 +189,13 @@ public:
     {
         for (Person sportsmen : group.sportsmen)
         {
-            if(sportsmenManager.savePerson(sportsmen) == false)
+            if(saveSportsman(sportsmen) == false)
                 return false;
         }
 
         for (Person trainer : group.trainers)
         {
-            if (trainersManager.savePerson(trainer) == false)
+            if (saveTrainer(trainer) == false)
             {
                 return false;
             }

@@ -16,21 +16,14 @@ public:
     QList<Person> trainers;
     QList<Person> sportsmen;
 
-//    QList<int> trainers_ids;
-//    QList<int> sportsmen_ids;
-
-    // констуктор мгновенного создания полного объекта
     Group(QList<QString> property)
     {
         setInList(property);
     }
-
     Group(int id)
     {
         this->id = id;
     }
-
-    // конструктор создания пустого объекта
     Group() {}
 
     void setInList(QList<QString> property)
@@ -75,16 +68,16 @@ public:
     {
         if (!sportsmen.isEmpty())
         {
-            int sportsmenRating = Person::getPeopleRating(sportsmen);
+            int sportsmenRating = getFullSportsmenRating();
 
-//            float rating = (sportsmenRating / sportsmen.count())
-//                    + (sportsmenRating % sportsmen.count());
-
-            float rating = float(sportsmenRating) / float(sportsmen.count());
-
-            return rating;
+            return float(sportsmenRating) / float(sportsmen.count());;
         }
         return 0;
+    }
+
+    int getFullSportsmenRating()
+    {
+        return Person::getPeopleRating(sportsmen);
     }
 
     void updateSportsman(Person pers)
@@ -96,6 +89,14 @@ public:
                 sportsmen[i] = pers;
                 return;
             }
+        }
+    }
+
+    void increaseTrainersRating(int additionalRating)
+    {
+        for (int t = 0; t < trainers.count(); t++)
+        {
+            trainers[t].rating += additionalRating;
         }
     }
 
