@@ -13,6 +13,8 @@ class PreviewResultCalculation : public QWidget
     QList<Group> oldGroups;
     QList<Group> currentGroups;
 
+    QList<int> previousGroupsOrder;
+
     QString groupIconPath;
     QString trainersIconPath;
     QString sportsmanIconPath;
@@ -35,31 +37,9 @@ public:
         this->oldGroups = groups;
         this->currentGroups = groups;
 
-        fillArrangedSportsmenList(groups);
-
-        for (Group group : groups)
-        {
-            QListWidget *trainersView = new QListWidget;
-            trainersView->setIconSize(QSize(20, 20));
-
-            for (Person pers : group.trainers)
-            {
-                QString stringPers = pers.firstName
-                             + " " + pers.secondName
-                             + " " + pers.lastName
-                             + " ( " + QString::number(pers.rating)
-                             + " +0 )";
-
-                auto item = new QListWidgetItem(QIcon(trainersIconPath), stringPers, trainersView);
-                item->setData(Qt::UserRole, QVariant(pers.id));
-
-                trainersView->addItem(item);
-            }
-
-            groupsView->addItem(trainersView, QIcon(groupIconPath), group.groupName + " ( "
-                               + QString::number(double(group.getGroupRating())) + " +0 )");
-        }
-
+        fillSportsmenLView(groups);
+        auto previousGroupsOrder = getSortedOrderByGroupsRange(groups);
+        updateGroupsView(previousGroupsOrder, groups);
     }
 
     void setGroupIconPath(QString imagePath)
@@ -102,10 +82,15 @@ private:
     void setUpConnections()
     {
         connect(sportsmenView, &SportsmenViewForEventResult::sportsmenOrderChanged,
-            this, &PreviewResultCalculation::computeSportsmenResult);
+            [=] (QList<Person> sportsmen)
+        {
+            QList<Group> updatedGroups = computeSportsmenOrder(sportsmen);
+            auto groupsOrder = getSortedOrderByGroupsRange(updatedGroups);
+            updateGroupsView(groupsOrder, updatedGroups);
+        });
     }
 
-    void fillArrangedSportsmenList(QList<Group> groups)
+    void fillSportsmenLView(QList<Group> groups)
     {
         QList<Person> allSportsmen;
 
@@ -117,16 +102,17 @@ private:
         sportsmenView->setSportsmen(allSportsmen);
     }
 
-    void computeSportsmenResult(QList<Person> sportsmen)
+    QList<Group> computeSportsmenOrder(QList<Person> sportsmen)
     {
-        currentGroups = oldGroups;
+        QList<Group> currentGroups = oldGroups;
 
+        // convert person position to additional rating
         for (int i = 0; i < sportsmen.count(); i++)
         {
             sportsmen[i].rating += sportsmen.count() / (i + 1);
         }
 
-        // update the current groups
+        // update the sportsmen in the current groups
         for (int g = 0; g < currentGroups.count(); g++)
         {
             for (Person pers : sportsmen)
@@ -138,70 +124,112 @@ private:
             }
         }
 
-        updateGroupsView();
+        // arrange groups by rating
+
+        return currentGroups;
     }
 
-    void updateGroupsView()
+    QList<int> getSortedOrderByGroupsRange(QList<Group> groups)
     {
-        QList<QPair<float,int>> groupsPos;
-
-        for (int r = 0; r < currentGroups.count(); r++)
+        // arrange by rating
+        QList<QPair<float,int>> groupsRatingIndexes;
+        for (int r = 0; r < groups.count(); r++)
         {
-            groupsPos << QPair<float,int>(currentGroups[r].getGroupRating()
+            groupsRatingIndexes << QPair<float,int>(groups[r].getGroupRating()
                                - oldGroups[r].getGroupRating(), r);
         }
 
 sort_start:
-        for (int i = 0; i < groupsPos.count() - 1; i++)
+        for (int i = 0; i < groupsRatingIndexes.count() - 1; i++)
         {
-            if (groupsPos[i].first < groupsPos[i + 1].first)
+            if (groupsRatingIndexes[i].first < groupsRatingIndexes[i + 1].first)
             {
-                groupsPos.swap(i, i + 1);
+                groupsRatingIndexes.swap(i, i + 1);
                 goto sort_start;
             }
         }
 
-        repaintGroupsView(groupsPos);
+        QList<int> rangeOrderIndexes;
+        for (auto ratingIndex : groupsRatingIndexes)
+        {
+            rangeOrderIndexes << ratingIndex.second;
+        }
+
+        return rangeOrderIndexes;
     }
 
-    void repaintGroupsView(QList<QPair<float,int>> groupsPos)
+    void updateGroupsView(QList<int> groupsOrder, QList<Group> currentGroups)
     {
+        this->currentGroups = currentGroups;
+
+        int currentPageIndex = 0;
+        if (groupsView->currentIndex() != -1)
+        {
+            currentPageIndex = groupsOrder.indexOf(previousGroupsOrder.at(groupsView->currentIndex()));
+        }
+
+        this->previousGroupsOrder = groupsOrder;
+
         while (groupsView->count()) // drop the groupView state
         {
             groupsView->removeItem(0);
         }
 
-        for (auto index : groupsPos)
+        for (int index : groupsOrder)
         {
-            QListWidget *trainersView = new QListWidget;
-            trainersView->setIconSize(QSize(20, 20));
+            QListWidget *peopleView = new QListWidget;
+            peopleView->setIconSize(QSize(20, 20));
 
-            for (int p = 0; p < currentGroups.at(index.second).trainers.count(); p++)
+            for (int p = 0; p < currentGroups.at(index).trainers.count(); p++)
             {
-                QString stringPers = currentGroups.at(index.second).trainers.at(p).firstName
-                             + " " + currentGroups.at(index.second).trainers.at(p).secondName
-                             + " " + currentGroups.at(index.second).trainers.at(p).lastName
-                             + " ( " + QString::number(currentGroups.at(index.second).trainers.at(p).rating)
-                             + " +" + QString::number(currentGroups.at(index.second).trainers.at(p).rating
-                                                     - oldGroups.at(index.second).trainers.at(p).rating)
-                             + ")";
+                auto item = getPersonViewItem(currentGroups.at(index).trainers.at(p),
+                                          oldGroups.at(index).trainers.at(p),
+                                          trainersIconPath);
 
-                auto item = new QListWidgetItem(QIcon(trainersIconPath), stringPers, trainersView);
-                item->setData(Qt::UserRole, QVariant(currentGroups.at(index.second).trainers.at(p).id));
+                peopleView->addItem(item);
+            }
+            peopleView->addItem("");
 
-                trainersView->addItem(item);
+
+            for (int p = 0; p < currentGroups.at(index).sportsmen.count(); p++)
+            {
+                auto item = getPersonViewItem(currentGroups.at(index).sportsmen.at(p),
+                                          oldGroups.at(index).sportsmen.at(p),
+                                          sportsmanIconPath);
+
+                peopleView->addItem(item);
             }
 
 
             groupsView->addItem(
-                        trainersView, QIcon(groupIconPath),
-                        currentGroups[index.second].groupName + " - "
-                    + QString::number(double(currentGroups[index.second].getGroupRating()))
+                        peopleView, QIcon(groupIconPath),
+                        currentGroups[index].groupName + " - "
+                    + QString::number(double(currentGroups[index].getGroupRating()))
                     + " ( +"
-                    + QString::number(double(currentGroups[index.second].getGroupRating()
-                                      - oldGroups[index.second].getGroupRating()))
+                    + QString::number(double(currentGroups[index].getGroupRating()
+                                      - oldGroups[index].getGroupRating()))
                     + ")");
         }
+
+        groupsView->setCurrentIndex(currentPageIndex);
+    }
+
+    QListWidgetItem * getPersonViewItem(Person thePersonNow, Person thePersonEarlier, QString iconPath = "")
+    {
+        if (thePersonNow.id != thePersonEarlier.id)
+            return nullptr;
+
+        QString stringPers = thePersonNow.firstName
+                     + " " + thePersonNow.secondName
+                     + " " + thePersonNow.lastName
+                     + " - " + QString::number(double(thePersonNow.rating))
+                     + " ( +" + QString::number(double(thePersonNow.rating
+                                                - thePersonEarlier.rating)) + ")";
+
+        auto item = new QListWidgetItem(QIcon(iconPath), stringPers);
+        item->setData(Qt::UserRole, QVariant(thePersonNow.id));
+
+        return item;
     }
 
 };

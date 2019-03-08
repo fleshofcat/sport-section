@@ -178,7 +178,7 @@ private:
         }
 
         int row = RecordChooser::getChoosedRow(
-                    Person::toStringTable(peopleToShow), this);
+                    Person::toStringTable(peopleToShow), "Доступные люди" ,this);
 
         if (row >= 0)
         {

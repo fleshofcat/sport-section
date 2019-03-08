@@ -11,8 +11,7 @@ class ScheduleClose : public QWidget
 
     Schedule schedule;
 
-    QToolBox *toolBox;
-    QListWidget *listView;
+    PreviewResultCalculation *resultPrewiew;
 
 signals:
 
@@ -20,35 +19,32 @@ public:
     ScheduleClose(Schedule sch, QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        this->schedule = sch;
-
         setUpUi();
-
-        QStringList strs = {"one", "two", "three"};
-
-        for (QString str : strs)
-        {
-//            listView.
-//            toolBox->addItem(new QLabel(str), QIcon("../record/res/img/schedule.png"), str);
-        }
-
-//        toolBox->set
-
-//        toolBox->setM
+        setSchedule(sch);
     }
 
     ScheduleClose(QWidget *parent = nullptr)
         : ScheduleClose(Schedule(), parent) {}
 
+    void setSchedule(Schedule schedule)
+    {
+        this->schedule = schedule;
+
+
+    }
+
 private:
     void setUpUi()
     {
-//        toolBox = new QToolBox(this);
-        listView = new QListWidget(this);
-        QHBoxLayout *layout = new QHBoxLayout;
-//        layout->addWidget(toolBox);
-        layout->addWidget(listView);
-        setLayout(layout);
+        resultPrewiew = new PreviewResultCalculation;
+
+        resultPrewiew->setGroupIconPath("../record/res/img/group.png");
+        resultPrewiew->setTrainerIconPath("../record/res/img/trainer.png");
+        resultPrewiew->setSportsmanIconPath("../record/res/img/sportsman.png");
+
+        QVBoxLayout *basicLayout = new QVBoxLayout;
+        basicLayout->addWidget(resultPrewiew);
+        setLayout(basicLayout);
     }
 };
 

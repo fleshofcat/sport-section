@@ -31,14 +31,14 @@ public:
 
         // установка связей между запросами модуля пользовательского интерфейса
         // и обработчиков этих запросов
-        connect(&mw, &MainWindow::saveSportsman, [=] (Person pers)
+        connect(&mw, &MainWindow::needSaveSportsman, [=] (Person pers)
         {
             if (db.saveSportsman(pers))
             {
                 updateMainWindow();
             }
         });
-        connect(&mw, &MainWindow::removeSportsman, [=] (int id)
+        connect(&mw, &MainWindow::needRemoveSportsman, [=] (int id)
         {
             if (db.removeSportsman(id))
             {
@@ -46,14 +46,14 @@ public:
             }
         });
 
-        connect(&mw, &MainWindow::saveTrainer, this, [=] (Person pers)
+        connect(&mw, &MainWindow::needSaveTrainer, this, [=] (Person pers)
         {
             if (db.saveTrainer(pers))
             {
                 updateMainWindow();
             }
         });
-        connect(&mw, &MainWindow::removeTrainer, this, [=] (int id)
+        connect(&mw, &MainWindow::needRemoveTrainer, this, [=] (int id)
         {
             if (db.removeTrainer(id))
             {
@@ -62,14 +62,14 @@ public:
         });
 
 
-        connect(&mw, &MainWindow::saveGroup, [=] (Group group)
+        connect(&mw, &MainWindow::needSaveGroup, [=] (Group group)
         {
             if (db.saveGroup(group))
             {
                 updateMainWindow();
             }
         });
-        connect(&mw, &MainWindow::removeGroup, [=] (int id)
+        connect(&mw, &MainWindow::needRemoveGroup, [=] (int id)
         {
             if (db.removeGroup(id))
             {
@@ -78,14 +78,14 @@ public:
         });
 
 
-        connect(&mw, &MainWindow::saveSchedule, [=] (Schedule sch)
+        connect(&mw, &MainWindow::needSaveSchedule, [=] (Schedule sch)
         {
             if (db.saveSchedule(sch))
             {
                 updateMainWindow();
             }
         });
-        connect(&mw, &MainWindow::removeSchedule, [=] (int id)
+        connect(&mw, &MainWindow::needRemoveSchedule, [=] (int id)
         {
             if (db.removeSchedule(id))
             {

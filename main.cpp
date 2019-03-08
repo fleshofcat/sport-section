@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
     QString img_path = "/home/fleshofcat/Projects/sandbox/record/record/res/img/schedule.png";
 
-#if 1 // переключатель режима запуска тестов или программы
+#if 0 // переключатель режима запуска тестов или программы
 
     QApplication app(argc, argv);
 
@@ -26,7 +26,12 @@ int main(int argc, char *argv[])
 #else // manually test
     QApplication app(argc, argv);
 
-    PreviewResultCalculation resultPreview; // ("../record/res/img/sportsman.png")
+//    DbManager db("../record/res/sport_people.db");
+
+//    ScheduleClose closer(db.getSchedules().at(0));
+//    closer.show();
+
+    PreviewResultCalculation resultPreview;
     resultPreview.show();
 
     DbManager db("../record/res/sport_people.db");

@@ -15,19 +15,22 @@ class RecordChooser : public QDialog
     int *result;
 
 public:
-    RecordChooser(QList<QList<QString>> stringTable, int *result,
+    RecordChooser(QList<QList<QString>> stringTable,
+                  int *result, QString title = "",
                   QWidget *parent = nullptr) : QDialog(parent)
     {
         this->result = result;
 
-        setUpUi(stringTable);
+        setUpUi(stringTable, title);
     }
 
     static int getChoosedRow(QList<QList<QString>> stringTable,
+                             QString windowTitle = "",
                              QWidget *parent = nullptr)
     {
         int row = -1;
-        RecordChooser chooseDialog(stringTable, &row, parent);
+
+        RecordChooser chooseDialog(stringTable, &row, windowTitle, parent);
 
         if (chooseDialog.exec() == QDialog::Accepted)
         {
@@ -38,8 +41,10 @@ public:
     }
 
 private:
-    void setUpUi(QList<QList<QString>> stringTable)
+    void setUpUi(QList<QList<QString>> stringTable, QString title)
     {
+        setWindowTitle(title);
+
         table = new RecordsViewer(stringTable, this);
 
         QVBoxLayout *layout = new QVBoxLayout;

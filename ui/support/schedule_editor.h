@@ -156,7 +156,7 @@ private:
             }
 
             int row = RecordChooser::getChoosedRow(
-                        Group::toStringTable(groupsToShow), this);
+                        Group::toStringTable(groupsToShow), "Доступные группы", this);
 
             if (row >= 0)
             {

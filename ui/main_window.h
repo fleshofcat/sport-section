@@ -29,17 +29,17 @@ class MainWindow : public QWidget
     QList<Schedule> schedules;
 
 signals:
-    void saveSportsman(Person pers);
-    void removeSportsman(int id);
+    void needSaveSportsman(Person pers);
+    void needRemoveSportsman(int id);
 
-    void saveTrainer(Person pers);
-    void removeTrainer(int id);
+    void needSaveTrainer(Person pers);
+    void needRemoveTrainer(int id);
 
-    void saveGroup(Group group);
-    void removeGroup(int id);
+    void needSaveGroup(Group group);
+    void needRemoveGroup(int id);
 
-    void saveSchedule(Schedule chedule);
-    void removeSchedule(int id);
+    void needSaveSchedule(Schedule chedule);
+    void needRemoveSchedule(int id);
 
 public:
     // код который будет выполняться при создании объекта от этого класса
@@ -73,6 +73,8 @@ public:
 private:
     void setUpUi()
     {
+        setWindowTitle(" ");
+
         this->resize(800, 400);
 
         sportsmenTab = new PeoplePresenter("../record/res/img/sportsman.png");
@@ -98,11 +100,26 @@ private:
 
     void setUpConnections()
     {
-        connect(sportsmenTab, &PeoplePresenter::savePerson, this, &MainWindow::saveSportsman);
-        connect(trainersTab, &PeoplePresenter::savePerson, this, &MainWindow::saveTrainer);
-        connect(groupTab, &GroupsPresenter::needSave, this, &MainWindow::saveGroup);
-        connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::saveSchedule);
-        connect(scheduleTab, &SchedulePresenter::needRemove, this, &MainWindow::removeSchedule);
+        connect(sportsmenTab, &PeoplePresenter::savePerson, this, &MainWindow::needSaveSportsman);
+        connect(trainersTab, &PeoplePresenter::savePerson, this, &MainWindow::needSaveTrainer);
+        connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::needSaveSchedule);
+        connect(scheduleTab, &SchedulePresenter::needRemove, this, &MainWindow::needRemoveSchedule);
+        connect(groupTab, &GroupsPresenter::needSave, this, &MainWindow::needSaveGroup);
+
+//        connect(groupTab, &GroupsPresenter::needSave, [=] (Group group)
+//        {
+//            for (auto sportsmanId : group.getSportsmenIds())
+//            {
+//                for (auto anotherGroup : groups)
+//                {
+//                    if (anotherGroup.getSportsmenIds().contains(sportsmanId)
+//                            && anotherGroup.id != group.id)
+//                    {
+//                        // trying add added pers
+//                    }
+//                }
+//            }
+//        });
 
         connect(sportsmenTab, &PeoplePresenter::removePerson, [=] (int id)
         {
@@ -116,7 +133,7 @@ private:
                     return;
                 }
             }
-             emit removeSportsman(id);
+             emit needRemoveSportsman(id);
         });
 
         connect(trainersTab, &PeoplePresenter::removePerson, [=] (int id)
@@ -131,7 +148,7 @@ private:
                     return;
                 }
             }
-             emit removeTrainer(id);
+             emit needRemoveTrainer(id);
         });
 
         connect(groupTab, &GroupsPresenter::needRemove, [=] (int id)
@@ -146,7 +163,7 @@ private:
                     return;
                 }
             }
-             emit removeGroup(id);
+             emit needRemoveGroup(id);
         });
     }
 
