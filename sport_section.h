@@ -92,63 +92,28 @@ public:
                 updateMainWindow();
             }
         });
-    }
 
-private slots:
-    // обработчик запроса добавления и обновления человека в бд
-    void on_saveSportsmanInDb(Person pers)
-    {
-        if (db.saveSportsman(pers)) // попытка добавить человека в бд
+        connect(&mw, &MainWindow::needMakeDoneSchedule, [=] (Schedule sch)
         {
-            updateMainWindow(); // обновление интерфейса
-        }
-    }
-
-    void on_saveTrainerInDb(Person pers)
-    {
-        if (db.saveTrainer(pers)) // попытка добавить человека в бд
+            if (db.hardSaveSchedule(sch))
+            {
+                if (db.saveClosedSchedule(sch))
+                {
+                    if (db.removeSchedule(sch.id))
+                    {
+                        updateMainWindow();
+                    }
+                }
+            }
+        });
+        connect(&mw, &MainWindow::needRemoveDoneSchedule, [=] (int id)
         {
-            updateMainWindow(); // обновление интерфейса
-        }
+            if (db.removeClosedSchedule(id))
+            {
+
+            }
+        });
     }
-
-
-    // обработчик запроса удаления человека из бд
-    void on_removeSportsmanInDb(int id)
-    {
-        if (db.removeSportsman(id)) // попытка удалить человека из бд
-        {
-            updateMainWindow();     // обновление интерфейса
-        }
-    }
-
-    void on_removeTrainerInDb(int id)
-    {
-        if (db.removeTrainer(id)) // попытка удалить человека из бд
-        {
-            updateMainWindow();     // обновление интерфейса
-        }
-    }
-
-    // обработчик запроса добавления и обновления человека в бд
-    void on_saveGroupInDb(Group group)
-    {
-        if (db.saveGroup(group)) // попытка добавить человека в бд
-        {
-            updateMainWindow(); // обновление интерфейса
-        }
-    }
-
-
-    // обработчик запроса удаления человека из бд
-    void on_removeGroupInDb(int id)
-    {
-        if (db.removeGroup(id)) // попытка удалить человека из бд
-        {
-            updateMainWindow();     // обновление интерфейса
-        }
-    }
-
 
 private:
     // обновление главного окна пользовательского интерфейса
@@ -158,11 +123,13 @@ private:
         auto trainers = db.getTrainers();
         auto groups = db.getGroups();
         auto schedules = db.getSchedules();
+        auto closedSchedules = db.getClosedSchedule();
 
         mw.updateContent(sportsmen,
                          trainers,
                          groups,
-                         schedules);
+                         schedules,
+                         closedSchedules);
     }
 
 };

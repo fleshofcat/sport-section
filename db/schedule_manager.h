@@ -37,7 +37,7 @@ public:
 
     bool saveSchedule(Schedule sch)
     {
-        if (sch.id < 1)
+        if (!isRecordExist(sch.id))
             return addSchedule(sch);
         else
             return updateSchedule(sch);
@@ -174,6 +174,20 @@ private:
                 return false;
         }
         return true;
+    }
+
+    bool isRecordExist(int id)
+    {
+        QSqlQuery query(QString("SELECT * FROM %1 "
+                           " WHERE id = %2 ")
+                        .arg(scheduleTable)
+                        .arg(QString::number(id)));
+
+        if (query.next())
+        {
+            return true;
+        }
+        return false;
     }
 
     static int getMaxIdFromTable(QString table) // возвращает -1 при неудаче

@@ -41,6 +41,9 @@ signals:
     void needSaveSchedule(Schedule chedule);
     void needRemoveSchedule(int id);
 
+    void needMakeDoneSchedule(Schedule chedule);
+    void needRemoveDoneSchedule(int id);
+
 public:
     // код который будет выполняться при создании объекта от этого класса
     // имеет 1 не обязательный системный параметр
@@ -57,7 +60,8 @@ public:
     void updateContent(QList<Person> sportsmen,
                        QList<Person> trainers,
                        QList<Group> groups,
-                       QList<Schedule> schedules)
+                       QList<Schedule> schedules,
+                       QList<Schedule> closedSchedules)
     {
         this->sportsmen = sportsmen;
         this->trainers = trainers;
@@ -67,7 +71,7 @@ public:
         sportsmenTab->updateContent(sportsmen);
         trainersTab->updateContent(trainers);
         groupTab->updateContent(sportsmen, trainers, groups);
-        scheduleTab->updateContent(schedules, groups);
+        scheduleTab->updateContent(schedules, closedSchedules, groups);
     }
 
 private:
@@ -80,10 +84,9 @@ private:
         sportsmenTab = new PeoplePresenter("../record/res/img/sportsman.png");
         trainersTab = new PeoplePresenter("../record/res/img/trainer.png");
         groupTab = new GroupsPresenter("../record/res/img/group.png");
-        scheduleTab = new SchedulePresenter("../record/res/img/schedule.png");
+        scheduleTab = new SchedulePresenter("../record/res/img/schedule.png", "../record/res/img/closed_schedule.png");
 
         tabs = new QTabWidget(this);
-
 
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
@@ -102,24 +105,7 @@ private:
     {
         connect(sportsmenTab, &PeoplePresenter::savePerson, this, &MainWindow::needSaveSportsman);
         connect(trainersTab, &PeoplePresenter::savePerson, this, &MainWindow::needSaveTrainer);
-        connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::needSaveSchedule);
-        connect(scheduleTab, &SchedulePresenter::needRemove, this, &MainWindow::needRemoveSchedule);
         connect(groupTab, &GroupsPresenter::needSave, this, &MainWindow::needSaveGroup);
-
-//        connect(groupTab, &GroupsPresenter::needSave, [=] (Group group)
-//        {
-//            for (auto sportsmanId : group.getSportsmenIds())
-//            {
-//                for (auto anotherGroup : groups)
-//                {
-//                    if (anotherGroup.getSportsmenIds().contains(sportsmanId)
-//                            && anotherGroup.id != group.id)
-//                    {
-//                        // trying add added pers
-//                    }
-//                }
-//            }
-//        });
 
         connect(sportsmenTab, &PeoplePresenter::removePerson, [=] (int id)
         {
@@ -165,6 +151,11 @@ private:
             }
              emit needRemoveGroup(id);
         });
+
+        connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::needSaveSchedule);
+        connect(scheduleTab, &SchedulePresenter::needRemove, this, &MainWindow::needRemoveSchedule);
+        connect(scheduleTab, &SchedulePresenter::needMakeDone, this, &MainWindow::needMakeDoneSchedule);
+        connect(scheduleTab, &SchedulePresenter::needRemoveDoneSchedule, this, &MainWindow::needRemoveDoneSchedule);
     }
 
 public:

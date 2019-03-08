@@ -5,43 +5,64 @@
 #include <QStandardItemModel>
 
 #include "ui/support/schedule_editor.h"
+#include "ui/support/schedule_close.h"
 
 class SchedulePresenter : public QWidget
 {
     Q_OBJECT
     friend class TestSchedulePresenter;
 
-    QString icon_path;
+    QString scheduleIconPath;
+    QString closedScheduleIconPath;
+
     QList<Schedule> schedules;
+    QList<Schedule> closedSchedules;
     QList<Group> groups;
 
-    RecordsViewer *scheduleViewer;
-    QPushButton *createButton;
     QStackedWidget *widgetStack;
+    QPushButton *createButton;
+
+    QPushButton *showClosedScheduleButton;
+    QPushButton *showOpenScheduleButton;
+
+    RecordsViewer *scheduleViewer;
+    RecordsViewer *closedScheduleViewer;
     ScheduleEditor *scheduleEditor;
+    ScheduleClose *scheduleCloser;
 
 signals:
+    void needMakeDone(Schedule schedule);
+    void needRemoveDoneSchedule(int id); // TODO дописать запрос на удаление при щелчке на закрытое расписание (так же в эот момент может придти запрос на восстановление)
     void needSave(Schedule schedule);
     void needRemove(int id);
 
 public:
     SchedulePresenter(QWidget *parent = nullptr)
-        : SchedulePresenter("", parent) { }
+        : SchedulePresenter("", "", parent) { }
 
-    SchedulePresenter(QString icon_path, QWidget *parent = nullptr)
+    SchedulePresenter(QString scheduleIconPath, QString closedScheduleIconPath, QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        this->icon_path = icon_path;
+        this->scheduleIconPath = scheduleIconPath;
+        this->closedScheduleIconPath = closedScheduleIconPath;
+
         setUpUi();
         setUpConnections();
     }
 
     void updateContent(QList<Schedule> schedules, QList<Group> groups)
     {
+        updateContent(schedules, {}, groups);
+    }
+
+    void updateContent(QList<Schedule> schedules, QList<Schedule> closedShedules, QList<Group> groups)
+    {
         this->groups = groups;
         this->schedules = schedules;
+        this->closedSchedules = closedShedules;
 
         scheduleViewer->updateContent(Schedule::toStringTable(schedules), Schedule::pattern());
+        closedScheduleViewer->updateContent(Schedule::toStringTable(closedShedules), Schedule::pattern());
 
         if (widgetStack->currentIndex() == 1)
         {
@@ -53,22 +74,44 @@ private:
     void setUpUi()
     {
         createButton = new QPushButton("+");
+        showClosedScheduleButton = new QPushButton(QIcon(closedScheduleIconPath), "/");
+        showOpenScheduleButton = new QPushButton(QIcon(scheduleIconPath), "/");
 
         scheduleViewer = new RecordsViewer;
-        scheduleViewer->setIconPath(icon_path);
+        scheduleViewer->setIconPath(scheduleIconPath);
 
         QVBoxLayout *viewerLayout = new QVBoxLayout;
         viewerLayout->addWidget(createButton);
         viewerLayout->addWidget(scheduleViewer);
+        viewerLayout->addWidget(showClosedScheduleButton);
 
         QWidget *viewerWidget = new QWidget;
         viewerWidget->setLayout(viewerLayout);
 
+
+        QLabel *closedScheduleTitle = new QLabel("Прошедшие события");
+        closedScheduleViewer = new RecordsViewer;
+        closedScheduleViewer->setIconPath(closedScheduleIconPath);
+
+        QVBoxLayout *closedScheduleLayout = new QVBoxLayout;
+        closedScheduleLayout->addWidget(closedScheduleTitle);
+        closedScheduleLayout->addWidget(closedScheduleViewer);
+        closedScheduleLayout->addWidget(showOpenScheduleButton);
+        closedScheduleLayout->setAlignment(closedScheduleTitle,
+                        Qt::Alignment(Qt::AlignmentFlag::AlignCenter));
+
+        QWidget *viewClosedScheduleWidget = new QWidget;
+        viewClosedScheduleWidget->setLayout(closedScheduleLayout);
+
         scheduleEditor = new ScheduleEditor;
+
+        scheduleCloser = new ScheduleClose;
 
         widgetStack = new QStackedWidget(this);
         widgetStack->addWidget(viewerWidget);
         widgetStack->addWidget(scheduleEditor);
+        widgetStack->addWidget(scheduleCloser);
+        widgetStack->addWidget(viewClosedScheduleWidget);
     }
 
     void setUpConnections()
@@ -87,6 +130,10 @@ private:
             showSchedules();
             emit needSave(sch);
         });
+        connect(scheduleEditor, &ScheduleEditor::needMakeDone, [=] (Schedule sch)
+        {
+            showScheduleCloser(sch);
+        });
         connect(scheduleEditor, &ScheduleEditor::needRemove, [=] (int id)
         {
             showSchedules();
@@ -94,6 +141,17 @@ private:
         });
         connect(scheduleEditor, &ScheduleEditor::needExit,
                 this, &SchedulePresenter::showSchedules);
+
+        connect(scheduleCloser, &ScheduleClose::needExit,
+                this, &SchedulePresenter::showSchedules);
+        connect(scheduleCloser, &ScheduleClose::needMakeDone, [=] (Schedule sch)
+        {
+            showSchedules();
+            emit needMakeDone(sch);
+        });
+
+        connect(showClosedScheduleButton, &QPushButton::clicked, this, &SchedulePresenter::showDoneSchedules);
+        connect(showOpenScheduleButton, &QPushButton::clicked, this, &SchedulePresenter::showSchedules);
     }
 
     void updateSchedule(QList<Schedule> schedules, QList<Group> groups)
@@ -121,16 +179,28 @@ private:
 
 
 private slots:
+    void showSchedules()
+    {
+        scheduleEditor->showData(Schedule(), {});
+        scheduleCloser->setSchedule(Schedule());
+        widgetStack->setCurrentIndex(0);
+    }
+
     void showEditor(Schedule sched = Schedule())
     {
         scheduleEditor->showData(sched, groups);
         widgetStack->setCurrentIndex(1);
     }
 
-    void showSchedules()
+    void showScheduleCloser(Schedule sched) // TODO
     {
-        scheduleEditor->showData(Schedule(), {});
-        widgetStack->setCurrentIndex(0);
+         scheduleCloser->setSchedule(sched);
+         widgetStack->setCurrentIndex(2);
+    }
+
+    void showDoneSchedules()
+    {
+        widgetStack->setCurrentIndex(3);
     }
 
 public:

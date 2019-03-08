@@ -23,6 +23,7 @@ class ScheduleEditor : public QWidget
     QList<Group> allGroups;
 
     QPushButton *saveButton;
+    QPushButton *makeDoneButton;
     QPushButton *removeButton;
     QPushButton *exitButton;
 
@@ -35,6 +36,7 @@ class ScheduleEditor : public QWidget
     RecordsViewer *groupsViewer;
 
 signals:
+    void needMakeDone(Schedule schedule);
     void needSave(Schedule schedule);
     void needRemove(int id);
     void needExit();
@@ -95,7 +97,7 @@ private:
         dateEdit->setDisplayFormat("yyyy.MM.dd");
 
         eventEdit = new QComboBox;
-        eventEdit->addItem("Сбор");
+//        eventEdit->addItem("Сбор");
         eventEdit->addItem("Тренировка");
         eventEdit->addItem("Соревнования");
 
@@ -115,10 +117,12 @@ private:
 
         // standart buttons
         saveButton = new QPushButton("Сохранить");
+        makeDoneButton = new QPushButton("Закрыть ведомость");
         removeButton = new QPushButton("Удалить");
         exitButton = new QPushButton("Выйти");
         QHBoxLayout *buttonLayout = new QHBoxLayout;
         buttonLayout->addWidget(saveButton);
+        buttonLayout->addWidget(makeDoneButton);
         buttonLayout->addWidget(removeButton);
         buttonLayout->addWidget(exitButton);
 
@@ -136,6 +140,10 @@ private:
         connect(saveButton, &QPushButton::clicked, [=] ()
         {
             emit needSave(currentSchedule());
+        });
+        connect(makeDoneButton, &QPushButton::clicked, [=] ()
+        {
+            emit needMakeDone(currentSchedule());
         });
         connect(removeButton, &QPushButton::clicked, [=] ()
         {
@@ -191,7 +199,7 @@ private:
         else
             dateEdit->setDate(QDate::fromString(sch.date));
 
-        eventEdit->setCurrentIndex(int(sch.event));
+        eventEdit->setCurrentIndex(int(sch.event) - 1);
         sportTypeEdit->setText(sch.sportType);
     }
 };

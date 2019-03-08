@@ -100,6 +100,11 @@ public:
         }
     }
 
+    static QList<QString> pattern()
+    {
+        return {"Группа", "Спорт"};
+    }
+
     static QList<Person>
     getFreePeople(QList<Group> groups,
                   QList<Person> allPeople,
@@ -129,11 +134,6 @@ public:
         return freePeople;
     }
 
-    static QList<QString> pattern()
-    {
-        return {"Группа", "Спорт"};
-    }
-
     static QList<QList<QString>>
     toStringTable(QList<Group> groups)
     {
@@ -144,6 +144,18 @@ public:
         }
 
         return stringTable;
+    }
+
+    static QList<Person> getAllSportsmen(QList<Group> groups)
+    {
+        QList<Person> allSportsmen;
+
+        for (auto group : groups)
+        {
+            allSportsmen << group.sportsmen;
+        }
+
+        return allSportsmen;
     }
 
     friend bool operator== (const Group &g1, const Group &g2);

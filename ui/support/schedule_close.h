@@ -4,6 +4,7 @@
 #include <QPushButton>
 
 #include "common/schedule.h"
+#include "ui/support/sportsmen_view_for_event_result.h"
 #include "ui/support/preview_result_calculation.h"
 
 class ScheduleClose : public QWidget
@@ -14,6 +15,8 @@ class ScheduleClose : public QWidget
 
     QLabel *scheduleTitle;
     PreviewResultCalculation *resultView;
+    SportsmenViewForEventResult *sportsmenView;
+
     QPushButton *makeDoneButton;
     QPushButton *exitButton;
 
@@ -52,6 +55,14 @@ private:
         resultView->setTrainerIconPath("../record/res/img/trainer.png");
         resultView->setSportsmanIconPath("../record/res/img/sportsman.png");
 
+        sportsmenView = new SportsmenViewForEventResult;
+        sportsmenView->setPersIconPath("../record/res/img/sportsman.png");
+        sportsmenView->setDescribeLabel("Передвиньте спортсменов в нужном порядке");
+
+        QHBoxLayout *resultEditLayout = new QHBoxLayout;
+        resultEditLayout->addWidget(resultView);
+        resultEditLayout->addWidget(sportsmenView);
+
         makeDoneButton = new QPushButton("Закрыть ведомость");
         exitButton = new QPushButton("Выйти");
 
@@ -61,7 +72,7 @@ private:
 
         QVBoxLayout *basicLayout = new QVBoxLayout;
         basicLayout->addWidget(scheduleTitle);
-        basicLayout->addWidget(resultView);
+        basicLayout->addLayout(resultEditLayout);
         basicLayout->addLayout(buttonLayout);
 
         basicLayout->setAlignment(scheduleTitle, Qt::Alignment(Qt::AlignmentFlag::AlignCenter));
@@ -71,6 +82,16 @@ private:
 
     void setUpConnections()
     {
+        connect(resultView, &PreviewResultCalculation::needUpdateShowesSportsmen,
+                sportsmenView, &SportsmenViewForEventResult::setSportsmen);
+
+        connect(sportsmenView, &SportsmenViewForEventResult::sportsmenOrderChanged,
+            [=] (QList<Person> sportsmen)
+        {
+            QList<Group> updatedGroups = computeSportsmenOrder(sportsmen);
+            resultView->updateGroupsView(updatedGroups);
+        });
+
         connect(makeDoneButton, &QPushButton::clicked, [=] ()
         {
             schedule.groups = resultView->getGroups();
@@ -79,6 +100,51 @@ private:
         connect(exitButton, &QPushButton::clicked, this, &ScheduleClose::needExit);
     }
 
+    QList<Group> computeSportsmenOrder(QList<Person> sportsmen)
+    {
+        QList<Group> oldGroups = schedule.groups;
+        QList<Group> currentGroups = schedule.groups;
+
+        // convert person position to additional rating
+        if (schedule.event == Schedule::Event::COMPETITION)
+        {
+            for (int i = 0; i < sportsmen.count(); i++)
+            {
+                sportsmen[i].rating += sportsmen.count() / (i + 1);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < sportsmen.count(); i++)
+            {
+                sportsmen[i].rating += 1;
+            }
+        }
+
+        // update the sportsmen in the current groups
+        for (int g = 0; g < currentGroups.count(); g++)
+        {
+            for (Person pers : sportsmen)
+            {
+                if (currentGroups[g].getSportsmenIds().contains(pers.id))
+                {
+                    currentGroups[g].updateSportsman(pers);
+                }
+            }
+        }
+
+        // in each group increase the trainers rating
+        // by difference between odl and new group condition
+        for (int g = 0; g < currentGroups.count(); g++)
+        {
+            int additional = currentGroups[g].getFullSportsmenRating()
+                    - oldGroups[g].getFullSportsmenRating();
+
+            currentGroups[g].increaseTrainersRating(additional);
+        }
+
+        return currentGroups;
+    }
 };
 
 // При хождение на 1 тренировку спортсмену начисляются +1 к опыту и + 1 к мероприятиям

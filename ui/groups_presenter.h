@@ -101,15 +101,11 @@ private:
 private slots:
     void editGroup(Group group = Group())
     {
-        QList<Person> availableTrainrs
-                = Group::getFreePeople(groups, trainers, true);
-        availableTrainrs << group.trainers;
-
         QList<Person> availableSportsmen
                 = Group::getFreePeople(groups, sportsmen, false);
         availableSportsmen << group.sportsmen;
 
-        groupEditor->updateContent(availableTrainrs, availableSportsmen, group);
+        groupEditor->updateContent(trainers, availableSportsmen, group);
         widgetStack->setCurrentIndex(1);
     }
 

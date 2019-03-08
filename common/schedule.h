@@ -68,7 +68,7 @@ public:
 
     static QList<QString> pattern()
     {
-        return {"Событие", "Дата", "Вид спорта"};
+        return {"Событие", "Дата проведения", "Вид спорта"};
     }
 
     static QList<QList<QString>>

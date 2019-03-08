@@ -1,10 +1,11 @@
 #pragma once
 
+#include <QLabel>
 #include <QToolBox>
-#include <QPair>
+#include <QListWidget>
+#include <QVBoxLayout>
 
 #include "common/group.h"
-#include "ui/support/sportsmen_view_for_event_result.h"
 
 class PreviewResultCalculation : public QWidget
 {
@@ -22,7 +23,8 @@ class PreviewResultCalculation : public QWidget
     QLabel *groupsLabel;
     QToolBox *groupsView;
 
-    SportsmenViewForEventResult *sportsmenView;
+signals:
+    void needUpdateShowesSportsmen(QList<Person> allSportsmen);
 
 public:
     PreviewResultCalculation(QWidget *parent = nullptr)
@@ -37,9 +39,10 @@ public:
         this->oldGroups = groups;
         this->currentGroups = groups;
 
-        fillSportsmenLView(groups);
-        QList<int> previousGroupsOrder = getSortedOrderByGroupsRange(groups);
-        updateGroupsView(previousGroupsOrder, groups);
+        emit needUpdateShowesSportsmen(Group::getAllSportsmen(groups));
+
+        QList<int> previousGroupsOrder = getSortedOrderByGroupsRange(groups); // TODO test to rm
+        updateGroupsView(groups);
     }
 
     void setGroupIconPath(QString imagePath)
@@ -55,12 +58,70 @@ public:
     void setSportsmanIconPath(QString imagePath)
     {
         this->sportsmanIconPath = imagePath;
-        sportsmenView->setPersIconPath(imagePath);
     }
 
     QList<Group> getGroups()
     {
         return this->currentGroups;
+    }
+
+public slots:
+    void updateGroupsView(QList<Group> currentGroups)
+    {
+        QList<int> groupsOrder = getSortedOrderByGroupsRange(currentGroups);
+
+        this->currentGroups = currentGroups;
+
+        int currentPageIndex = 0;
+        if (groupsView->currentIndex() != -1)
+        {
+            currentPageIndex = groupsOrder.indexOf(previousGroupsOrder.at(groupsView->currentIndex()));
+        }
+
+        this->previousGroupsOrder = groupsOrder;
+
+        while (groupsView->count()) // drop the groupView state
+        {
+            groupsView->removeItem(0);
+        }
+
+        for (int index : groupsOrder)
+        {
+            QListWidget *peopleView = new QListWidget;
+            peopleView->setIconSize(QSize(20, 20));
+
+            for (int p = 0; p < currentGroups.at(index).trainers.count(); p++)
+            {
+                auto item = getPersonViewItem(currentGroups.at(index).trainers.at(p),
+                                          oldGroups.at(index).trainers.at(p),
+                                          trainersIconPath);
+
+                peopleView->addItem(item);
+            }
+            peopleView->addItem("");
+
+
+            for (int p = 0; p < currentGroups.at(index).sportsmen.count(); p++)
+            {
+                auto item = getPersonViewItem(currentGroups.at(index).sportsmen.at(p),
+                                          oldGroups.at(index).sportsmen.at(p),
+                                          sportsmanIconPath);
+
+                peopleView->addItem(item);
+            }
+
+
+            groupsView->addItem(
+                        peopleView, QIcon(groupIconPath),
+                        currentGroups[index].groupName + " - "
+                    + QString::number(double(currentGroups[index].getGroupRating()))
+                    + " ( +"
+                    + QString::number(double(currentGroups[index].getGroupRating()
+                                      - oldGroups[index].getGroupRating()))
+                    + ")");
+        }
+
+        groupsView->setCurrentIndex(currentPageIndex);
     }
 
 private:
@@ -70,42 +131,16 @@ private:
         groupsView = new QToolBox;
         groupsView->setStyleSheet("QToolBox{ icon-size: 25px; }");
 
-        QVBoxLayout *groupsLayout = new QVBoxLayout;
-        groupsLayout->addWidget(groupsLabel);
-        groupsLayout->addWidget(groupsView);
-
-        sportsmenView = new SportsmenViewForEventResult;
-        sportsmenView->setPersIconPath(sportsmanIconPath);
-        sportsmenView->setDescribeLabel("Передвиньте спортсменов в нужном порядке");
-
-        QHBoxLayout *basicLayout = new QHBoxLayout;
-        basicLayout->addLayout(groupsLayout);
-        basicLayout->addWidget(sportsmenView);
+        QVBoxLayout *basicLayout = new QVBoxLayout;
+        basicLayout->addWidget(groupsLabel);
+        basicLayout->addWidget(groupsView);
 
         setLayout(basicLayout);
     }
 
     void setUpConnections()
     {
-        connect(sportsmenView, &SportsmenViewForEventResult::sportsmenOrderChanged,
-            [=] (QList<Person> sportsmen)
-        {
-            QList<Group> updatedGroups = computeSportsmenOrder(sportsmen);
-            auto groupsOrder = getSortedOrderByGroupsRange(updatedGroups);
-            updateGroupsView(groupsOrder, updatedGroups);
-        });
-    }
 
-    void fillSportsmenLView(QList<Group> groups)
-    {
-        QList<Person> allSportsmen;
-
-        for (auto group : groups)
-        {
-            allSportsmen << group.sportsmen;
-        }
-
-        sportsmenView->setSportsmen(allSportsmen);
     }
 
     QList<Group> computeSportsmenOrder(QList<Person> sportsmen)
@@ -170,62 +205,6 @@ sort_start:
         }
 
         return rangeOrderIndexes;
-    }
-
-    void updateGroupsView(QList<int> groupsOrder, QList<Group> currentGroups)
-    {
-        this->currentGroups = currentGroups;
-
-        int currentPageIndex = 0;
-        if (groupsView->currentIndex() != -1)
-        {
-            currentPageIndex = groupsOrder.indexOf(previousGroupsOrder.at(groupsView->currentIndex()));
-        }
-
-        this->previousGroupsOrder = groupsOrder;
-
-        while (groupsView->count()) // drop the groupView state
-        {
-            groupsView->removeItem(0);
-        }
-
-        for (int index : groupsOrder)
-        {
-            QListWidget *peopleView = new QListWidget;
-            peopleView->setIconSize(QSize(20, 20));
-
-            for (int p = 0; p < currentGroups.at(index).trainers.count(); p++)
-            {
-                auto item = getPersonViewItem(currentGroups.at(index).trainers.at(p),
-                                          oldGroups.at(index).trainers.at(p),
-                                          trainersIconPath);
-
-                peopleView->addItem(item);
-            }
-            peopleView->addItem("");
-
-
-            for (int p = 0; p < currentGroups.at(index).sportsmen.count(); p++)
-            {
-                auto item = getPersonViewItem(currentGroups.at(index).sportsmen.at(p),
-                                          oldGroups.at(index).sportsmen.at(p),
-                                          sportsmanIconPath);
-
-                peopleView->addItem(item);
-            }
-
-
-            groupsView->addItem(
-                        peopleView, QIcon(groupIconPath),
-                        currentGroups[index].groupName + " - "
-                    + QString::number(double(currentGroups[index].getGroupRating()))
-                    + " ( +"
-                    + QString::number(double(currentGroups[index].getGroupRating()
-                                      - oldGroups[index].getGroupRating()))
-                    + ")");
-        }
-
-        groupsView->setCurrentIndex(currentPageIndex);
     }
 
     QListWidgetItem * getPersonViewItem(Person thePersonNow, Person thePersonEarlier, QString iconPath = "")

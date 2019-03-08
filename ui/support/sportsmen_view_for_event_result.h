@@ -59,6 +59,7 @@ public:
         return rangetSportsmen;
     }
 
+public slots:
     void setSportsmen(QList<Person> sportsmen)
     {
         rangeView->clear();

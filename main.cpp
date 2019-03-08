@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
     QString img_path = "/home/fleshofcat/Projects/sandbox/record/record/res/img/schedule.png";
 
-#if 0 // переключатель режима запуска тестов или программы
+#if 1 // переключатель режима запуска тестов или программы
 
     QApplication app(argc, argv);
 

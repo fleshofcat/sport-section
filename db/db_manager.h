@@ -13,11 +13,13 @@ class DbManager : public QObject
     QString trainersTable = "trainers";
     QString sportsmenTable = "sportsmen";
     QString scheduleTable = "schedule";
+    QString closedScheduleTable = "closed_schedule";
 
     PeopleManager sportsmenManager;
     PeopleManager trainersManager;
     GroupManager groupManager;
     DbSchedule scheduleManager;
+    DbSchedule closedScheduleManager;
 
 public:
     DbManager(QObject *parent = nullptr) : QObject(parent) {}
@@ -43,6 +45,7 @@ public:
                 trainersManager.touchManager(trainersTable);
                 groupManager.touchManager(groupsTable, trainersTable, sportsmenTable);
                 scheduleManager.touchManager(scheduleTable, groupsTable);
+                closedScheduleManager.touchManager(closedScheduleTable, groupsTable);
             }
             else
             {
@@ -183,6 +186,34 @@ public:
         }
 
         return schedules;
+    }
+
+    bool saveClosedSchedule(Schedule sch)
+    {
+        return closedScheduleManager.saveSchedule(sch);
+    }
+
+    bool removeClosedSchedule(int id)
+    {
+        return closedScheduleManager.removeSchedule(id);
+    }
+
+    QList<Schedule> getClosedSchedule()
+    {
+        QList<Schedule> closedSchedules = closedScheduleManager.getSchedules();
+
+        for (int s = 0; s < closedSchedules.count(); s++)
+        {
+            QList<Group> groupsIds = closedSchedules[s].groups;
+            closedSchedules[s].groups = {};
+
+            for (Group groupId : groupsIds)
+            {
+                closedSchedules[s].groups << getGroup(groupId.id);
+            }
+        }
+
+        return closedSchedules;
     }
 
     bool hardSaveGroup(Group group)
