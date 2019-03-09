@@ -100,8 +100,9 @@ private:
         viewerWidget->setLayout(viewerLayout);
 
 
-        QLabel *closedScheduleTitle = new QLabel("Прошедшие события");
-        closedScheduleViewer = new RecordsViewer;\
+        QPushButton *closedScheduleTitle = new QPushButton("Прошедшие события");
+        closedScheduleTitle->setFlat(true);
+        closedScheduleViewer = new RecordsViewer;
 
         QVBoxLayout *closedScheduleLayout = new QVBoxLayout;
         closedScheduleLayout->addWidget(closedScheduleTitle);
@@ -166,14 +167,15 @@ private:
 
     void updateSchedule(QList<Schedule> schedules, QList<Group> groups)
     {
-        if (schedules.contains(scheduleEditor->oldSchedule()))
+        if (schedules.contains(scheduleEditor->oldSchedule())
+                || scheduleEditor->oldSchedule().id == 0)
         {
             scheduleEditor->updateGroups(groups);
         }
         else
         {
             int result = QMessageBox::question(this, " ",
-                    "Данное расписание было изменено извне. "
+                    "Редактируемое расписание было изменено извне. "
                     "Продолжить редактирование?");
             if (result == QMessageBox::Ok)
             {
@@ -198,7 +200,16 @@ private slots:
 
     void showEditor(Schedule sched = Schedule())
     {
-        scheduleEditor->showData(sched, groups);
+        QList<Group> availableGroups;
+        for (Group group : groups)
+        {
+            if (group.trainers.count() > 0)
+            {
+                availableGroups << group;
+            }
+        }
+
+        scheduleEditor->showData(sched, availableGroups);
         widgetStack->setCurrentIndex(1);
     }
 

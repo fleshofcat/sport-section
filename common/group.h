@@ -13,7 +13,7 @@ public:
     QString groupName;
     QString sportType;
 
-    int eventNumber;
+    int eventNumber = 0;
 
     QList<Person> trainers;
     QList<Person> sportsmen;

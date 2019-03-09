@@ -170,7 +170,8 @@ private:
             QList<Group> groupsToShow;
             for (Group group : this->allGroups)
             {
-                if (!schedule.groups.contains(group))
+                if (!schedule.groups.contains(group)
+                        && group.trainers.count() > 0)
                 {
                     groupsToShow << group;
                 }
