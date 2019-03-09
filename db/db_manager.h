@@ -18,8 +18,8 @@ class DbManager : public QObject
     PeopleManager sportsmenManager;
     PeopleManager trainersManager;
     GroupManager groupManager;
-    DbSchedule scheduleManager;
-    DbSchedule closedScheduleManager;
+    ScheduleManager scheduleManager;
+    ScheduleManager closedScheduleManager;
 
 public:
     DbManager(QObject *parent = nullptr) : QObject(parent) {}
@@ -188,11 +188,6 @@ public:
         return schedules;
     }
 
-    bool saveClosedSchedule(Schedule sch)
-    {
-        return closedScheduleManager.saveSchedule(sch);
-    }
-
     bool removeClosedSchedule(int id)
     {
         return closedScheduleManager.removeSchedule(id);
@@ -235,7 +230,7 @@ public:
         return groupManager.saveGroup(group);
     }
 
-    bool hardSaveSchedule(Schedule schedule)
+    bool hardSaveClosedSchedule(Schedule schedule)
     {
         for (Group group : schedule.groups)
         {
@@ -243,7 +238,7 @@ public:
                 return false;
         }
 
-        return scheduleManager.saveSchedule(schedule);
+        return closedScheduleManager.saveSchedule(schedule);
     }
 
     ~DbManager()

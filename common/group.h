@@ -13,6 +13,8 @@ public:
     QString groupName;
     QString sportType;
 
+    int eventNumber;
+
     QList<Person> trainers;
     QList<Person> sportsmen;
 
@@ -28,7 +30,7 @@ public:
 
     void setInList(QList<QString> property)
     {
-        if (property.count() == Group::pattern().count())
+        if (property.count() == Group::getPattern().count())
         {
             groupName = property.at(0);
             sportType = property.at(1);
@@ -38,6 +40,31 @@ public:
     QList<QString> getInList()
     {
         return {groupName, sportType};
+    }
+
+    static QList<QString> getPattern()
+    {
+        return {"Группа", "Спорт"};
+    }
+
+    void setFullList(QList<QString> property)
+    {
+        if (property.count() == getFullList().count())
+        {
+            groupName   = property.takeFirst();
+            sportType   = property.takeFirst();
+            eventNumber = property.takeFirst().toInt();
+        }
+    }
+
+    QList<QString> getFullList()
+    {
+        return {groupName, sportType, QString::number(eventNumber)};
+    }
+
+    static QList<QString> getFullPattern()
+    {
+        return {"Группа", "Спорт", "Количество мероприятий"};
     }
 
     QList<int> getTrainersIds()
@@ -64,13 +91,13 @@ public:
         return sportsmen_ids;
     }
 
-    float getGroupRating()
+    double getGroupRating() // was float TODO
     {
         if (!sportsmen.isEmpty())
         {
             int sportsmenRating = getFullSportsmenRating();
 
-            return float(sportsmenRating) / float(sportsmen.count());;
+            return double(sportsmenRating) / double(sportsmen.count());;
         }
         return 0;
     }
@@ -90,19 +117,6 @@ public:
                 return;
             }
         }
-    }
-
-    void increaseTrainersRating(int additionalRating)
-    {
-        for (int t = 0; t < trainers.count(); t++)
-        {
-            trainers[t].rating += additionalRating;
-        }
-    }
-
-    static QList<QString> pattern()
-    {
-        return {"Группа", "Спорт"};
     }
 
     static QList<Person>

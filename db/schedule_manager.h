@@ -5,7 +5,7 @@
 #include "common/schedule.h"
 #include "db/relations_in_db.h"
 
-class DbSchedule : public QObject
+class ScheduleManager : public QObject
 {
     Q_OBJECT
 
@@ -14,11 +14,11 @@ class DbSchedule : public QObject
     RelationsInDb refsToGroups;
 
 public:
-    DbSchedule(QObject *parent = nullptr)
+    ScheduleManager(QObject *parent = nullptr)
         : QObject(parent) {}
 
 
-    DbSchedule(QString scheduleTable,
+    ScheduleManager(QString scheduleTable,
                QString groupTable,
                  QObject *parent = nullptr)
         : QObject(parent)
@@ -70,7 +70,7 @@ public:
             {
                 QList<QString> scheduleInList;
 
-                for (int i = 0; i < Schedule::pattern().count(); i++)
+                for (int i = 0; i < Schedule::getEditPattern().count(); i++)
                 {
                     scheduleInList << query.record().value(i + 1).toString();
                 }
@@ -104,8 +104,8 @@ private:
 
             QSqlQuery query;
             query.prepare(QString("INSERT INTO %1 "
-                                  " (id, event, date, sport_type) "
-                                  " VALUES  (?, ?, ?, ?) ")
+                                  " (id, title, event, date, sport_type) "
+                                  " VALUES  (?, ?, ?, ?, ?) ")
                           .arg(scheduleTable));
 
             query.addBindValue(sch.id);
@@ -130,6 +130,7 @@ private:
     {
         QSqlQuery query;
         query.prepare(" UPDATE " + scheduleTable + " SET   \n" +
+                      "     title = (:title),              \n"
                       "     event = (:event),              \n"
                       "     date = (:date),                \n"
                       "     sport_type = (:sport_type)     \n"
@@ -163,6 +164,7 @@ private:
         {
             query.exec("CREATE TABLE IF NOT EXISTS " + schedule + " ( \n" +
                        " id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,   \n"
+                       " title TEXT NOT NULL,                           \n"
                        " event TEXT NOT NULL,                           \n"
                        " date TEXT NOT NULL,                            \n"
                        " sport_type TEXT NOT NULL                       \n"

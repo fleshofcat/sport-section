@@ -14,15 +14,17 @@ public:
     };
 
     int id = 0;
-    Event event = Event::EMPTY;
+    Event event_int = Event::TRAINING;
+    QString title;
     QString date;
     QString sportType;
 
     QList<Group> groups;
 
-    Schedule(Event event, QString date, QString sportType)
+    Schedule(QString title, Event event, QString date, QString sportType)
     {
-        this->event = event;
+        this->title = title;
+        this->event_int = event;
         this->date = date;
         this->sportType = sportType;
     }
@@ -41,17 +43,59 @@ public:
 
     void setInList(QList<QString> property)
     {
-        if (property.count() == pattern().count())
+        if (property.count() == getEditPattern().count())
         {
-            event = Event(property.takeFirst().toInt());
+            title = property.takeFirst();
+            event_int = Event(property.takeFirst().toInt());
             date = property.takeFirst();
             sportType = property.takeFirst();
         }
     }
 
+    static QList<QString> getEditPattern()
+    {
+        return {"Заголовок", "Событие", "Дата проведения", "Вид спорта"};
+    }
+
     QList<QString> getInList()
     {
-        return {QString::number(int(event)), date, sportType};
+        return {title, QString::number(int(event_int)), date, sportType};
+    }
+
+    QList<QString> getPreviewList()
+    {
+        return {title, getEvent(), date};
+    }
+
+    static QList<QString> getPreviewPattern()
+    {
+        return {"Событие", "Вид события", "Дата проведения"};
+    }
+
+    // TODO make full lists, and replace this in DbManager
+
+    Schedule::Event getEventNumber()
+    {
+        return this->event_int;
+    }
+
+    QString getEvent()
+    {
+        if (event_int == Event::TRAINING)
+        {
+            return "Тренировка";
+        }
+        if (event_int == Event::COMPETITION)
+        {
+            return "Соревнование";
+        }
+
+        return "";
+    }
+
+    void setEvent(Schedule::Event event)
+    {
+        this->event_int = event;
     }
 
     QList<int> getGroupsIds()
@@ -66,33 +110,13 @@ public:
         return groupsIds;
     }
 
-    static QList<QString> pattern()
-    {
-        return {"Событие", "Дата проведения", "Вид спорта"};
-    }
-
     static QList<QList<QString>>
     toStringTable(QList<Schedule> schedules)
     {
         QList<QList<QString>> stringTable;
         for (Schedule sch : schedules)
         {
-            auto inList = sch.getInList();
-
-            if (inList.first().toInt() == int(Event::EMPTY))
-            {
-                inList.first() = "Сбор";
-            }
-            else if (inList.first().toInt() == int(Event::TRAINING))
-            {
-                inList.first() = "Тренировка";
-            }
-            else if (inList.first().toInt() == int(Event::COMPETITION))
-            {
-                inList.first() = "Соревнование";
-            }
-
-            stringTable << inList;
+            stringTable << sch.getPreviewList();
         }
 
         return stringTable;

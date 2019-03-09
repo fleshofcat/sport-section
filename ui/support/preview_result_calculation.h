@@ -31,7 +31,6 @@ public:
         : QWidget(parent)
     {
         setUpUi();
-        setUpConnections();
     }
 
     void setGroups(QList<Group> groups)
@@ -138,53 +137,13 @@ private:
         setLayout(basicLayout);
     }
 
-    void setUpConnections()
-    {
-
-    }
-
-    QList<Group> computeSportsmenOrder(QList<Person> sportsmen)
-    {
-        QList<Group> currentGroups = oldGroups;
-
-        // convert person position to additional rating
-        for (int i = 0; i < sportsmen.count(); i++)
-        {
-            sportsmen[i].rating += sportsmen.count() / (i + 1);
-        }
-
-        // update the sportsmen in the current groups
-        for (int g = 0; g < currentGroups.count(); g++)
-        {
-            for (Person pers : sportsmen)
-            {
-                if (currentGroups[g].getSportsmenIds().contains(pers.id))
-                {
-                    currentGroups[g].updateSportsman(pers);
-                }
-            }
-        }
-
-        // in each group increase the trainers rating
-        // by difference between odl and new group condition
-        for (int g = 0; g < currentGroups.count(); g++)
-        {
-            int additional = currentGroups[g].getFullSportsmenRating()
-                    - oldGroups[g].getFullSportsmenRating();
-
-            currentGroups[g].increaseTrainersRating(additional);
-        }
-
-        return currentGroups;
-    }
-
     QList<int> getSortedOrderByGroupsRange(QList<Group> groups)
     {
         // arrange by rating
-        QList<QPair<float,int>> groupsRatingIndexes;
+        QList<QPair<double,int>> groupsRatingIndexes;
         for (int r = 0; r < groups.count(); r++)
         {
-            groupsRatingIndexes << QPair<float,int>(groups[r].getGroupRating()
+            groupsRatingIndexes << QPair<double,int>(groups[r].getGroupRating()
                                - oldGroups[r].getGroupRating(), r);
         }
 

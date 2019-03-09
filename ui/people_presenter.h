@@ -46,7 +46,7 @@ public:
     {
         this->people = people;
 
-        peopleViewer->updateContent(Person::toStringTable(people), Person::pattern());
+        peopleViewer->updateContent(Person::toPreviewStringTable(people), Person::getPreviewPattern());
     }
 
     void showWarning(QString warning)

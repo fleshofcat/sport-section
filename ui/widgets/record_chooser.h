@@ -10,27 +10,27 @@ class RecordChooser : public QDialog
 {
     Q_OBJECT
 
-    RecordsViewer *table;
+    RecordsViewer *viewer;
     QPushButton *rejectButton = new QPushButton("Отмена");
     int *result;
 
 public:
     RecordChooser(QList<QList<QString>> stringTable,
-                  int *result, QString title = "",
-                  QWidget *parent = nullptr) : QDialog(parent)
+                  int *result, QWidget *parent = nullptr,
+                  QString title = "", QString rowIconPath = "") : QDialog(parent)
     {
         this->result = result;
 
-        setUpUi(stringTable, title);
+        setUpUi(stringTable, title, rowIconPath);
     }
 
     static int getChoosedRow(QList<QList<QString>> stringTable,
-                             QString windowTitle = "",
-                             QWidget *parent = nullptr)
+                             QWidget *parent = nullptr,
+                             QString windowTitle = "", QString rowIconPath = "")
     {
         int row = -1;
 
-        RecordChooser chooseDialog(stringTable, &row, windowTitle, parent);
+        RecordChooser chooseDialog(stringTable, &row, parent, windowTitle, rowIconPath);
 
         if (chooseDialog.exec() == QDialog::Accepted)
         {
@@ -41,21 +41,21 @@ public:
     }
 
 private:
-    void setUpUi(QList<QList<QString>> stringTable, QString title)
+    void setUpUi(QList<QList<QString>> stringTable, QString title, QString rowIconPath)
     {
         setWindowTitle(title);
 
-        table = new RecordsViewer(stringTable, this);
+        viewer = new RecordsViewer(this);
+        viewer->setIconPath(rowIconPath);
+        viewer->updateContent(stringTable);
 
         QVBoxLayout *layout = new QVBoxLayout;
-        layout->addWidget(table);
+        layout->addWidget(viewer);
         layout->addWidget(rejectButton);
         setLayout(layout);
 
-
         connect(rejectButton, &QPushButton::pressed, this, &QDialog::reject);
-        connect(table, &RecordsViewer::rowIsActivated, this, &RecordChooser::on_tablePressed);
-//        connect(table, &QTableWidget::cellPressed, this, &RecordChooser::on_tablePressed);
+        connect(viewer, &RecordsViewer::rowIsActivated, this, &RecordChooser::on_tablePressed);
     }
 
 private slots:

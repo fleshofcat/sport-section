@@ -17,6 +17,12 @@ class MainWindow : public QWidget
 {
     Q_OBJECT
 
+    QString sportsmanIconPath = "../record/res/img/sportsman.png";
+    QString trainerIconPath = "../record/res/img/trainer.png";
+    QString groupIconPath = "../record/res/img/group.png";
+    QString scheduleIconPath = "../record/res/img/schedule.png";
+    QString closedScheduleIconPath = "../record/res/img/closed_schedule.png";
+
     QTabWidget *tabs;
     PeoplePresenter *sportsmenTab;
     PeoplePresenter *trainersTab;
@@ -81,10 +87,13 @@ private:
 
         this->resize(800, 400);
 
-        sportsmenTab = new PeoplePresenter("../record/res/img/sportsman.png");
-        trainersTab = new PeoplePresenter("../record/res/img/trainer.png");
-        groupTab = new GroupsPresenter("../record/res/img/group.png");
-        scheduleTab = new SchedulePresenter("../record/res/img/schedule.png", "../record/res/img/closed_schedule.png");
+        sportsmenTab = new PeoplePresenter(sportsmanIconPath);
+        trainersTab = new PeoplePresenter(trainerIconPath);
+        groupTab = new GroupsPresenter;
+        groupTab->setIconsPaths(groupIconPath, trainerIconPath, sportsmanIconPath);
+
+        scheduleTab = new SchedulePresenter;
+        scheduleTab->setIconsPaths(scheduleIconPath, closedScheduleIconPath, groupIconPath);
 
         tabs = new QTabWidget(this);
 

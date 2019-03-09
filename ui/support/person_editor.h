@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QPushButton>
+#include <QLabel>
+#include <QFormLayout>
 
 #include "common/person.h"
 #include "ui/widgets/editors_box.h"
@@ -10,6 +12,9 @@ class PersonEditor : public QWidget
     Q_OBJECT
 
     Person person;
+
+    QLabel *ratingView;
+    QLabel *eventsNumberView;
 
     QPushButton *saveButton = new QPushButton("Сохранить");
     QPushButton *removeButton = new QPushButton("Удалить");
@@ -42,12 +47,15 @@ public:
     void updateContent(Person person = Person())
     {
         this->person = person;
-        editorsBox->updateContent(Person::pattern(), person.getInList());
+
+        editorsBox->updateContent(Person::getEditablePattern(), person.getEditableList());
+        ratingView->setText(QString::number(person.rating));
+        eventsNumberView->setText(QString::number(person.eventsNumber));
     }
 
-    Person getPerson()
+    Person currentPerson()
     {
-        person.setInList(editorsBox->getInList());
+        person.setEditableList(editorsBox->getInList());
         return person;
     }
 
@@ -56,7 +64,15 @@ private:
     {
         editorsBox = new EditorsBox;
 
+        ratingView = new QLabel;
+        eventsNumberView = new QLabel;
+
+        QFormLayout *formLayout = new QFormLayout;
+        formLayout->addRow("Рейтинг",     ratingView);
+        formLayout->addRow("Мероприятий", eventsNumberView);
+
         QHBoxLayout *buttonLayout = new QHBoxLayout;
+
         buttonLayout->addWidget(saveButton);
         buttonLayout->addWidget(removeButton);
         buttonLayout->addWidget(exitButton);
@@ -64,6 +80,7 @@ private:
 
         QVBoxLayout *basicLayout = new QVBoxLayout;
         basicLayout->addWidget(editorsBox);
+        basicLayout->addLayout(formLayout);
         basicLayout->addItem(buttonLayout);
 
         setLayout(basicLayout);
@@ -72,8 +89,7 @@ private:
 private slots:
     void on_save()
     {
-        person.setInList(editorsBox->getInList());
-        emit needSave(person);
+        emit needSave(currentPerson());
     }
 
     void on_remove()

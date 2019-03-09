@@ -9,7 +9,6 @@ class GroupsPresenter : public QWidget
 {
     Q_OBJECT
 
-    QString icon_path;
     QList<Person> sportsmen;     // объект для хранения детей
     QList<Person> trainers;     // объект для хранения тренеров
     QList<Group> groups;
@@ -24,16 +23,31 @@ signals:
     void needRemove(int group_id);
 
 public:
-    GroupsPresenter(QString icon_path, QWidget *parent = nullptr)
+    GroupsPresenter(QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        this->icon_path = icon_path;
         setUpUi();
         setUpConnections();
     }
 
-    GroupsPresenter(QWidget *parent = nullptr)
-        : GroupsPresenter("", parent) { }
+    void setIconsPaths(QString groupIconPath = "",
+                       QString trainerIconPath = "",
+                       QString sportsmanIconPath = "")
+    {
+        if (groupIconPath != "")
+        {
+            groupsViewer->setIconPath(groupIconPath);
+        }
+        if (trainerIconPath != "")
+        {
+            groupEditor->setTrainerIconPath(trainerIconPath);
+        }
+        if (sportsmanIconPath != "")
+        {
+            groupEditor->setSportsmanIconPath(sportsmanIconPath);
+        }
+
+    }
 
     void updateContent(QList<Person> sportsmen,
                        QList<Person> trainers,
@@ -44,7 +58,7 @@ public:
         this->groups = groups;
 
         groupsViewer->updateContent(Group::toStringTable(groups),
-                            Group::pattern());
+                            Group::getPattern());
 
         if (widgetStack->currentIndex() == 1)
         {
@@ -57,7 +71,6 @@ private:
     {
         createButton = new QPushButton("+");
         groupsViewer = new RecordsViewer;
-        groupsViewer->setIconPath(icon_path);
 
         QVBoxLayout *viewerLayout = new QVBoxLayout;
         viewerLayout->addWidget(createButton);

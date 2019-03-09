@@ -57,11 +57,14 @@ public:
 
     bool updateLinks(int mainTable_id, QList<int> secondaryTable_ids)
     {
-        if (isIdsValid(mainTable_id, secondaryTable_ids))
+        bool idsValid = isIdsValid(mainTable_id, secondaryTable_ids);
+        if (idsValid)
         {
-            if (removeMainLinks(mainTable_id))
+            bool rm_success = removeMainLinks(mainTable_id);
+            if (rm_success)
             {
-                return addLinks(mainTable_id, secondaryTable_ids);
+                bool add_success = addLinks(mainTable_id, secondaryTable_ids);
+                return add_success;
             }
         }
         return false;
@@ -139,16 +142,20 @@ private:
         {
             for (int id : secondaryIds)
             {
-                QSqlQuery query(QString("SELECT %1 FROM %2 "
-                                   " WHERE %3 = %4 ")
-                        .arg(main_id)
-                        .arg(relations)
-                        .arg(secondary_id)
-                        .arg(QString::number(id)));
+                QString str = QString("SELECT %1 FROM %2 "
+                                      " WHERE %3 = %4 ")
+                           .arg(main_id)
+                           .arg(relations)
+                           .arg(secondary_id)
+                           .arg(QString::number(id));
+
+                QSqlQuery query(str);
+
 
                 if (query.next())
                 {
-                    if (query.record().value(main_id).toInt() != mainId)
+                    int result = query.record().value(0).toInt();
+                    if (result != mainId)
                         return false;
                 }
 

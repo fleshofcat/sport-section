@@ -18,7 +18,7 @@ private:
     QList<Group> testGroups()
     {
         Group q({"q", "q"});
-        Group gr(Group::pattern());
+        Group gr(Group::getPattern());
         Group gr_2({"Группа мошеннег", "мошенник"});
 
         q.id = 1;
@@ -30,12 +30,12 @@ private:
 
     QList<Schedule> testSchedules()
     {
-        Schedule q(Schedule::Event::EMPTY, "00.00.0000", "q");
+        Schedule q("title", Schedule::Event::EMPTY, "00.00.0000", "q");
 
-        Schedule sh(Schedule::Event::TRAINING, "10.02.1997", "climbing");
+        Schedule sh("title", Schedule::Event::TRAINING, "10.02.1997", "climbing");
         sh.groups << Group(1) << Group(2);
 
-        Schedule sh_2(Schedule::Event::EMPTY, "12.12.2023", "the");
+        Schedule sh_2("title", Schedule::Event::EMPTY, "12.12.2023", "the");
         sh_2.groups << Group(3);
 
         return {q, sh, sh_2};

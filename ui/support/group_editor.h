@@ -18,6 +18,9 @@ class GroupEditor : public QWidget
 
     friend class TestGroupEditor;
 
+    QString trainerIconPath;
+    QString sportsmanIconPath;
+
     // data
     QList<Person> sportsmen;
     QList<Person> trainers;
@@ -31,6 +34,9 @@ class GroupEditor : public QWidget
     // editors
     QLineEdit *groupNameField;
     QLineEdit *sportTypeField;
+    // not editable
+    QLineEdit *ratingField;
+    QLineEdit *eventCountField;
 
     // people in group
     QPushButton *addTrainerButton;
@@ -58,6 +64,18 @@ public:
         updateContent(trainers, sportsmen, group);
     }
 
+    void setTrainerIconPath(QString trainerIconPath)
+    {
+        this->trainerIconPath = trainerIconPath;
+        trainersViewer->setIconPath(trainerIconPath);
+    }
+
+    void setSportsmanIconPath(QString sportsmanIconPath)
+    {
+        this->sportsmanIconPath = sportsmanIconPath;
+        sportsmenViewer->setIconPath(sportsmanIconPath);
+    }
+
     void updateContent(QList<Person> trainers,
                        QList<Person> sportsmen,
                        Group group = Group())
@@ -66,6 +84,9 @@ public:
 
         groupNameField->setText(group.groupName);
         sportTypeField->setText(group.sportType);
+
+        ratingField->setText(QString::number(double(group.getGroupRating())));
+        eventCountField->setText(QString::number(group.eventNumber));
 
         updateWhenRunning(trainers, sportsmen);
     }
@@ -76,10 +97,10 @@ public:
         this->trainers = trainers;
         this->sportsmen = sportsmen;
 
-        trainersViewer->updateContent(Person::toStringTable(group.trainers),
-                                      Person::pattern());
-        sportsmenViewer->updateContent(Person::toStringTable(group.sportsmen),
-                                       Person::pattern());
+        trainersViewer->updateContent(Person::toPreviewStringTable(group.trainers),
+                                      Person::getPreviewPattern());
+        sportsmenViewer->updateContent(Person::toPreviewStringTable(group.sportsmen),
+                                       Person::getPreviewPattern());
     }
 
     Group currentGroup()
@@ -94,20 +115,24 @@ public:
 private:
     void setUpUi()
     {
-        saveButton = new QPushButton("Сохранить");
-        removeButton = new QPushButton("Удалить");
-        exitButton = new QPushButton("Выйти");
-
         groupNameField = new QLineEdit;
         sportTypeField = new QLineEdit;
+
+        ratingField = new QLineEdit;
+        ratingField->setReadOnly(true);
+        eventCountField = new QLineEdit;
+        eventCountField->setReadOnly(true);
 
         QFormLayout *editors = new QFormLayout;
         editors->addRow("Имя группы", groupNameField);
         editors->addRow("Вид спорта", sportTypeField);
+        editors->addRow("Рейтинг", ratingField);
+        editors->addRow("Мероприятий", eventCountField);
 
         addTrainerButton = new QPushButton("+");
         addSportsmanButton = new QPushButton("+");
         trainersViewer = new RecordsViewer;
+
         sportsmenViewer = new RecordsViewer;
 
         QGridLayout *peopleViever = new QGridLayout;
@@ -118,6 +143,10 @@ private:
         peopleViever->addWidget(trainersViewer, 2, 0);
         peopleViever->addWidget(sportsmenViewer, 2, 1);
 
+
+        saveButton = new QPushButton("Сохранить");
+        removeButton = new QPushButton("Удалить");
+        exitButton = new QPushButton("Выйти");
 
         QHBoxLayout *buttonLayout = new QHBoxLayout;
         buttonLayout->addWidget(saveButton);
@@ -148,7 +177,7 @@ private:
 
         connect(addSportsmanButton, &QPushButton::clicked, [=] ()
         {
-            addPersonToPreview(sportsmen, &group.sportsmen);
+            addPersonToPreview(sportsmen, &group.sportsmen, sportsmanIconPath);
         });
         connect(sportsmenViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
@@ -157,7 +186,7 @@ private:
 
         connect(addTrainerButton, &QPushButton::clicked, [=] ()
         {
-            addPersonToPreview(trainers, &group.trainers);
+            addPersonToPreview(trainers, &group.trainers, trainerIconPath);
         });
         connect(trainersViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
@@ -165,7 +194,7 @@ private:
         });
     }
 
-    void addPersonToPreview(QList<Person> all_people, QList<Person> *existing_people)
+    void addPersonToPreview(QList<Person> all_people, QList<Person> *existing_people, QString iconPath = "")
     {
         QList<Person> peopleToShow;
         for (Person pers : all_people)
@@ -178,7 +207,7 @@ private:
         }
 
         int row = RecordChooser::getChoosedRow(
-                    Person::toStringTable(peopleToShow), "Доступные люди" ,this);
+                    Person::toPreviewStringTable(peopleToShow), this, "Доступные люди", iconPath);
 
         if (row >= 0)
         {

@@ -8,7 +8,6 @@
 #include <QDateTimeEdit>
 
 #include "common/schedule.h"
-#include "common/group.h"
 
 #include "ui/widgets/records_viewer.h"
 #include "ui/widgets/record_chooser.h"
@@ -17,6 +16,8 @@ class ScheduleEditor : public QWidget
 {
     Q_OBJECT
     friend class TestScheduleEditor;
+
+    QString groupIconPath;
 
     Schedule schedule;
     Schedule old_schedule;
@@ -27,6 +28,7 @@ class ScheduleEditor : public QWidget
     QPushButton *removeButton;
     QPushButton *exitButton;
 
+    QLineEdit *titleEdit;
     QComboBox *eventEdit;
     QDateTimeEdit *dateEdit;
     QLineEdit *sportTypeEdit;
@@ -55,6 +57,12 @@ public:
     ScheduleEditor(QWidget *parent = nullptr)
         : ScheduleEditor(Schedule(), {} , parent) { }
 
+    void setGroupIconPath(QString groupIconPath)
+    {
+        this->groupIconPath = groupIconPath;
+        groupsViewer->setIconPath(groupIconPath);
+    }
+
     void showData(Schedule schedule,
                   QList<Group> allGroups)
     {
@@ -68,7 +76,8 @@ public:
     Schedule currentSchedule()
     {
         QList<QString> scheduleInList;
-        scheduleInList << QString::number(eventEdit->currentIndex());
+        scheduleInList << titleEdit->text();
+        scheduleInList << QString::number(eventEdit->currentIndex() + 1);
         scheduleInList << dateEdit->text();
         scheduleInList << sportTypeEdit->text();
 
@@ -96,17 +105,21 @@ private:
         dateEdit->setCalendarPopup(true);
         dateEdit->setDisplayFormat("yyyy.MM.dd");
 
+        titleEdit = new QLineEdit;
+
         eventEdit = new QComboBox;
-//        eventEdit->addItem("Сбор");
         eventEdit->addItem("Тренировка");
         eventEdit->addItem("Соревнования");
 
         sportTypeEdit = new QLineEdit;
 
         QFormLayout *editors = new QFormLayout;
-        editors->addRow("Дата проведения", dateEdit);
-        editors->addRow("Вид события", eventEdit);
-        editors->addRow("Вид спорта", sportTypeEdit);
+        auto titlesList = Schedule::getEditPattern();
+
+        editors->addRow(titlesList.takeFirst(), titleEdit);
+        editors->addRow(titlesList.takeFirst(), eventEdit);
+        editors->addRow(titlesList.takeFirst(), dateEdit);
+        editors->addRow(titlesList.takeFirst(), sportTypeEdit);
 
         // group viewer
         addGroupButton = new QPushButton("+");
@@ -164,7 +177,7 @@ private:
             }
 
             int row = RecordChooser::getChoosedRow(
-                        Group::toStringTable(groupsToShow), "Доступные группы", this);
+                        Group::toStringTable(groupsToShow), this, "Доступные группы", groupIconPath);
 
             if (row >= 0)
             {
@@ -189,17 +202,27 @@ private:
     void updateGroupsViewer()
     {
         groupsViewer->updateContent(Group::toStringTable(schedule.groups),
-                                    Group::pattern());
+                                    Group::getPattern());
     }
 
     void setEditors(Schedule sch)
     {
+        titleEdit->setText(sch.title);
+
         if (sch.date.isEmpty())
             dateEdit->setDate(QDate::currentDate());
         else
             dateEdit->setDate(QDate::fromString(sch.date));
 
-        eventEdit->setCurrentIndex(int(sch.event) - 1);
+        if (sch.getEventNumber() == Schedule::Event::TRAINING)
+        {
+            eventEdit->setCurrentIndex(0);
+        }
+        else if (sch.getEventNumber() == Schedule::Event::COMPETITION)
+        {
+            eventEdit->setCurrentIndex(1);
+        }
+
         sportTypeEdit->setText(sch.sportType);
     }
 };

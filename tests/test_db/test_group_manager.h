@@ -30,12 +30,18 @@ private slots:
         PeopleManager trainersManager(trainers);
         PeopleManager sportsmenManager(sportsmen);
 
-        Group gr(Group({"testGroupName", "testSportType"}));
-        gr.trainers << sportsmenManager.getPerson(2);
-        gr.sportsmen << sportsmenManager.getPerson(2);
+        Group fullGroup(Group({"fullGroupName", "fullGroupSportType"}));
+        fullGroup.trainers << trainersManager.getPerson(2);
+        fullGroup.sportsmen << sportsmenManager.getPerson(3);
 
-        QVERIFY(grs.addGroup(gr));                         // test full group
-        QVERIFY(grs.addGroup(Group({"empty", "group"})));  // test empty group
+        Group wrongSportsmanGroup(Group({"testGroupName", "testSportType"}));
+        wrongSportsmanGroup.trainers << trainersManager.getPerson(2);
+        wrongSportsmanGroup.sportsmen << sportsmenManager.getPerson(2);
+
+
+        QVERIFY(grs.addGroup(fullGroup));                   // test full group
+        QCOMPARE(grs.addGroup(wrongSportsmanGroup), false); // test group with repitable sportsman
+        QVERIFY(grs.addGroup(Group({"empty", "group"})));   // test empty group
     }
 
     void test_updateGroup()
@@ -48,7 +54,7 @@ private slots:
 
         Group basicGroup(Group({"testGroupName", "testSportType"}));
         basicGroup.trainers << sportsmenManager.getPerson(1);
-        basicGroup.sportsmen << sportsmenManager.getPerson(1);
+        basicGroup.sportsmen << sportsmenManager.getPerson(3);
 
         basicGroup.id = grs.getMaxIdFromTable(groups);
         QVERIFY(basicGroup.id > 0);
@@ -104,8 +110,12 @@ private:
         dropDbState();
 
 
-        Person artem({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание"});
-        Person oleg({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник"});
+        Person artem;
+        artem.setEditableList({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание", "+7xxx"});
+        Person oleg;
+        oleg.setEditableList({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник", "+7xxx"});
+        Person mihail;
+        mihail.setEditableList({"Михаил", "Владимирович", "Черников", "18.09.1997", "макбук", "+7xxx"});
 
         PeopleManager sportsmenManager(sportsmen);
         sportsmenManager.savePerson(artem);
@@ -114,9 +124,14 @@ private:
         sportsmenManager.savePerson(oleg);
         oleg.id = 2; //  now oleg's id = 2
 
+        sportsmenManager.savePerson(mihail);
+        mihail.id = 3; //  now mihail's id = 3
 
-        Person ivan({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание"});
-        Person vadim({"Вадим", "Александрович", "Сурков", "26.03.1997", "плавание"});
+
+        Person ivan;
+        ivan.setEditableList({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание", "+7xxx"});
+        Person vadim;
+        vadim.setEditableList({"Вадим", "Александрович", "Сурков", "26.03.1997", "плавание", "+7xxx"});
 
 
         PeopleManager trainersManager(trainers);
@@ -127,7 +142,7 @@ private:
         vadim.id = 2; // now vadim's id = 2
 
 
-        Group gr(Group::pattern());
+        Group gr(Group::getPattern());
         gr.trainers << ivan;
         gr.sportsmen << artem;
 

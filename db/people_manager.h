@@ -41,7 +41,10 @@ public:
                         " second_name TEXT,                                \n"
                         " last_name TEXT NOT NULL,                         \n"
                         " birthday TEXT NOT NULL,                          \n"
-                        " sport_type TEXT NOT NULL                         \n"
+                        " sport_type TEXT NOT NULL,                        \n"
+                        " phone_number TEXT,                               \n"
+                        " rating TEXT NOT NULL,                            \n"
+                        " events TEXT NOT NULL                             \n"
                         " )                                                \n");
 
             // вывод отладочной информации что таблица в бд была создана
@@ -84,13 +87,13 @@ public:
             {
                 QList<QString> persInList;
 
-                for (int c = 0; c < Person::pattern().count(); c++)
+                for (int c = 0; c < Person::getFullPattern().count(); c++)
                 {
                     persInList << sqlModel.record(r).value(c + 1).toString();
                 }
 
-                Person pers(persInList);
-
+                Person pers;
+                pers.setFullList(persInList);
                 pers.id = sqlModel.record(r).value("id").toInt();
 
                 people << pers;
@@ -114,12 +117,13 @@ public:
             {
                 QList<QString> persInList;
 
-                for (int c = 0; c < Person::pattern().count(); c++)
+                for (int c = 0; c < Person::getFullPattern().count(); c++)
                 {
                     persInList << query.record().value(c + 1).toString();
                 }
 
-                Person pers(persInList);
+                Person pers;
+                pers.setFullList(persInList);
                 pers.id = query.record().value("id").toInt();
 
                 return pers;
@@ -137,15 +141,30 @@ private:
         QSqlQuery query;
         query.prepare(
                     "INSERT INTO " + tableName +
-                    "   (first_name, second_name, last_name, birthday, sport_type)               "
-                    "   VALUES (:first_name, :second_name, :last_name, :birthday, :sport_type)   ");
+                    " (first_name,              "
+                    "  second_name,             "
+                    "  last_name,               "
+                    "  birthday,                "
+                    "  sport_type,              "
+                    "  phone_number,            "
+                    "  rating,                  "
+                    "  events)                  "
+                    "   VALUES                  "
+                    " (:first_name,             "
+                    "  :second_name,            "
+                    "  :last_name,              "
+                    "  :birthday,               "
+                    "  :sport_type,             "
+                    "  :phone_number,           "
+                    "  :rating,                 "
+                    "  :events)                 ");
 
-        for (QString field : person.getInList())
+        for (QString field : person.getFullList())
         {
             query.addBindValue(field);
         }
 
-        bool ok = query.exec();
+        bool ok = query.exec(); // TODO rm the rubbish
         QString err = query.lastError().text();
         auto dd = err;
         return ok;
@@ -158,18 +177,21 @@ private:
         // создается и исполняется sql запрос
         // на обновление человека в бд по id
         QSqlQuery query;
-        query.prepare(" UPDATE " + tableName + " SET    " +
-                      "     first_name = (:first_name), "
-                      "     second_name = (:second_name), "
-                      "     last_name = (:last_name),   "
-                      "     birthday = (:birthday),     "
-                      "     sport_type = (:sport_type)  "
-                      " WHERE id = (:id)                ");
+        query.prepare(" UPDATE " + tableName + " SET        " +
+                      "     first_name = (:first_name),     "
+                      "     second_name = (:second_name),   "
+                      "     last_name = (:last_name),       "
+                      "     birthday = (:birthday),         "
+                      "     sport_type = (:sport_type),     "
+                      "     phone_number = (:phone_number), "
+                      "     rating = (:rating),             "
+                      "     events = (:events)              "
+                      " WHERE id = (:id)                    ");
 
 
         query.bindValue(":id", person.id);
 
-        for (QString field : person.getInList())
+        for (QString field : person.getFullList())
         {
             query.addBindValue(field);
         }

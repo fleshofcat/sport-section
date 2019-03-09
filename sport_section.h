@@ -95,15 +95,10 @@ public:
 
         connect(&mw, &MainWindow::needMakeDoneSchedule, [=] (Schedule sch)
         {
-            if (db.hardSaveSchedule(sch))
+            if (db.hardSaveClosedSchedule(sch))
             {
-                if (db.saveClosedSchedule(sch))
-                {
-                    if (db.removeSchedule(sch.id))
-                    {
-                        updateMainWindow();
-                    }
-                }
+                db.removeSchedule(sch.id);
+                updateMainWindow();
             }
         });
         connect(&mw, &MainWindow::needRemoveDoneSchedule, [=] (int id)

@@ -84,7 +84,7 @@ public:
     {
         QSqlQuery query("SELECT * FROM " + groupTable);
 
-        QList<Group> groups;
+        QList<Group> groupsWithoutARealPeople;
 
         if (!query.lastError().isValid())
         {
@@ -92,12 +92,14 @@ public:
             {
                 QList<QString> groupInList;
 
-                for (int i = 0; i < Group::pattern().count(); i++)
+                for (int i = 0; i < Group::getFullPattern().count(); i++)
                 {
                     groupInList << query.record().value(i + 1).toString();
                 }
 
-                Group group(groupInList);
+                Group group;
+                group.setFullList(groupInList);
+
                 group.id = query.record().value("id").toInt();
 
 
@@ -110,13 +112,13 @@ public:
                     group.sportsmen << Person(id);
                 }
 
-                groups << group;
+                groupsWithoutARealPeople << group;
             }
 
         } else
             qWarning() << query.lastError().text();
 
-        return groups;
+        return groupsWithoutARealPeople;
     }
 
     Group getGroup(int id)
@@ -131,12 +133,13 @@ public:
             {
                 QList<QString> groupInList;
 
-                for (int i = 0; i < Group::pattern().count(); i++)
+                for (int i = 0; i < Group::getFullPattern().count(); i++)
                 {
                     groupInList << query.record().value(i + 1).toString();
                 }
 
-                Group group(groupInList);
+                Group group;
+                group.setFullList(groupInList);
                 group.id = query.record().value("id").toInt();
 
 
@@ -168,17 +171,19 @@ private:
 
             QSqlQuery query;
             query.prepare("INSERT INTO " + groupTable +
-                          "         (id, group_name, sport_type)    "
-                          " VALUES  (:id, :group_name, :sport_type) ");
+                          "         (id, group_name, sport_type, event_number)     "
+                          " VALUES  (:id, :group_name, :sport_type, :event_number) ");
 
             query.addBindValue(group.id);
-            bindValueList(query, group.getInList());
+            bindValueList(query, group.getFullList());
 
             if (query.exec())
             {
-                if (refsToTrainers.updateLinks(group.id, group.getTrainersIds()))
+                bool trainerRefs = refsToTrainers.updateLinks(group.id, group.getTrainersIds());
+                if (trainerRefs)
                 {
-                    if (refsToSportsmen.updateLinks(group.id, group.getSportsmenIds()))
+                    bool sportRefs = refsToSportsmen.updateLinks(group.id, group.getSportsmenIds());
+                    if (sportRefs)
                     {
                         return true;
                     }
@@ -195,14 +200,15 @@ private:
     bool updateGroup(Group group)
     {
         QSqlQuery query;
-        query.prepare(" UPDATE " + groupTable + " SET   \n" +
-                      "     group_name = (:group_name), \n"
-                      "     sport_type = (:sport_type)  \n"
-                      " WHERE id = (:id)                \n");
+        query.prepare(" UPDATE " + groupTable + " SET       \n" +
+                      "     group_name   = (:group_name),   \n"
+                      "     sport_type   = (:sport_type),   \n"
+                      "     event_number = (:event_number)  \n"
+                      " WHERE id = (:id)                    \n");
 
 
         query.bindValue(":id", group.id);
-        bindValueList(query, group.getInList());
+        bindValueList(query, group.getFullList());
 
         if (query.exec())
         {
@@ -232,7 +238,8 @@ private:
             query.exec("CREATE TABLE IF NOT EXISTS " + groupTable + " ( \n" +
                        " id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,   \n"
                        " group_name TEXT NOT NULL,                      \n"
-                       " sport_type TEXT NOT NULL                       \n"
+                       " sport_type TEXT NOT NULL,                      \n"
+                       " event_number TEXT NOT NULL                     \n"
                        ")                                                 ");
 
             if (query.lastError().isValid() == false)

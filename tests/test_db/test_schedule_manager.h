@@ -23,10 +23,10 @@ private slots:
         setDefaultState();
         DbManager db(db_path);
 
-        Schedule sch(Schedule::Event::TRAINING, "10.02.1997", "climbing");
+        Schedule sch("title", Schedule::Event::TRAINING, "10.02.1997", "climbing");
         sch.groups << Group(1);
 
-        DbSchedule sm(schedule, groups);
+        ScheduleManager sm(schedule, groups);
 
         QVERIFY(sm.saveSchedule(sch));
 
@@ -41,7 +41,7 @@ private slots:
         setDefaultState();
         DbManager db(db_path);
 
-        DbSchedule sh(schedule, groups);
+        ScheduleManager sh(schedule, groups);
         QVERIFY(sh.removeSchedule(1));
     }
 
@@ -50,10 +50,10 @@ private slots:
         setDefaultState();
         DbManager db(db_path);
 
-        DbSchedule sh(schedule, groups);
+        ScheduleManager sh(schedule, groups);
         QList<Schedule> schs = sh.getSchedules();
 
-        QCOMPARE(schs.at(0).event, Schedule::Event::COMPETITION);
+        QCOMPARE(schs[0].getEventNumber(), Schedule::Event::COMPETITION);
         QCOMPARE(schs.at(0).sportType, "смотреть");
     }
 
@@ -69,8 +69,11 @@ private:
             db.saveGroup(group);
         }
 
-        DbSchedule s(schedule, groups);
-        s.saveSchedule(Schedule({Schedule::Event::COMPETITION, "пондельник, 18:30", "смотреть"}));
+        Schedule sch;
+        sch.setInList({"Тестовое расписание", QString::number(int(Schedule::Event::COMPETITION)), "пондельник, 18:30", "смотреть"});
+
+        ScheduleManager s(schedule, groups);
+        s.saveSchedule(sch);
     }
 
     void dropDbState()
@@ -90,7 +93,7 @@ private:
     QList<Group> testGroups()
     {
         Group q({"q", "q"});
-        Group gr(Group::pattern());
+        Group gr(Group::getPattern());
         Group gr_2({"Группа мошеннег", "мошенник"});
 
         return {q, gr, gr_2};

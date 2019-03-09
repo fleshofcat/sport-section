@@ -12,9 +12,6 @@ class SchedulePresenter : public QWidget
     Q_OBJECT
     friend class TestSchedulePresenter;
 
-    QString scheduleIconPath;
-    QString closedScheduleIconPath;
-
     QList<Schedule> schedules;
     QList<Schedule> closedSchedules;
     QList<Group> groups;
@@ -38,16 +35,31 @@ signals:
 
 public:
     SchedulePresenter(QWidget *parent = nullptr)
-        : SchedulePresenter("", "", parent) { }
-
-    SchedulePresenter(QString scheduleIconPath, QString closedScheduleIconPath, QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        this->scheduleIconPath = scheduleIconPath;
-        this->closedScheduleIconPath = closedScheduleIconPath;
-
         setUpUi();
         setUpConnections();
+    }
+
+    void setIconsPaths(QString scheduleIconPath = "",
+                       QString closedScheduleIconPath = "",
+                       QString groupIconPath = "")
+    {
+        if (scheduleIconPath != "")
+        {
+            showOpenScheduleButton->setIcon(QIcon(scheduleIconPath));
+            scheduleViewer->setIconPath(scheduleIconPath);
+        }
+        if (closedScheduleIconPath != "")
+        {
+            showClosedScheduleButton->setIcon(QIcon(closedScheduleIconPath));
+            closedScheduleViewer->setIconPath(closedScheduleIconPath);
+        }
+        if (groupIconPath != "")
+        {
+            scheduleEditor->setGroupIconPath(groupIconPath);
+        }
+
     }
 
     void updateContent(QList<Schedule> schedules, QList<Group> groups)
@@ -61,8 +73,8 @@ public:
         this->schedules = schedules;
         this->closedSchedules = closedShedules;
 
-        scheduleViewer->updateContent(Schedule::toStringTable(schedules), Schedule::pattern());
-        closedScheduleViewer->updateContent(Schedule::toStringTable(closedShedules), Schedule::pattern());
+        scheduleViewer->updateContent(Schedule::toStringTable(schedules), Schedule::getPreviewPattern());
+        closedScheduleViewer->updateContent(Schedule::toStringTable(closedShedules), Schedule::getEditPattern());
 
         if (widgetStack->currentIndex() == 1)
         {
@@ -74,11 +86,10 @@ private:
     void setUpUi()
     {
         createButton = new QPushButton("+");
-        showClosedScheduleButton = new QPushButton(QIcon(closedScheduleIconPath), "/");
-        showOpenScheduleButton = new QPushButton(QIcon(scheduleIconPath), "/");
+        showClosedScheduleButton = new QPushButton("Показать завершенные");
+        showOpenScheduleButton = new QPushButton("Показать не завершенные");
 
         scheduleViewer = new RecordsViewer;
-        scheduleViewer->setIconPath(scheduleIconPath);
 
         QVBoxLayout *viewerLayout = new QVBoxLayout;
         viewerLayout->addWidget(createButton);
@@ -90,8 +101,7 @@ private:
 
 
         QLabel *closedScheduleTitle = new QLabel("Прошедшие события");
-        closedScheduleViewer = new RecordsViewer;
-        closedScheduleViewer->setIconPath(closedScheduleIconPath);
+        closedScheduleViewer = new RecordsViewer;\
 
         QVBoxLayout *closedScheduleLayout = new QVBoxLayout;
         closedScheduleLayout->addWidget(closedScheduleTitle);

@@ -106,11 +106,12 @@ private:
         QList<Group> currentGroups = schedule.groups;
 
         // convert person position to additional rating
-        if (schedule.event == Schedule::Event::COMPETITION)
+        if (schedule.getEventNumber() == Schedule::Event::COMPETITION)
         {
             for (int i = 0; i < sportsmen.count(); i++)
             {
                 sportsmen[i].rating += sportsmen.count() / (i + 1);
+                sportsmen[i].eventsNumber += 1;
             }
         }
         else
@@ -118,12 +119,14 @@ private:
             for (int i = 0; i < sportsmen.count(); i++)
             {
                 sportsmen[i].rating += 1;
+                sportsmen[i].eventsNumber += 1;
             }
         }
 
         // update the sportsmen in the current groups
         for (int g = 0; g < currentGroups.count(); g++)
         {
+            currentGroups[g].eventNumber += 1;
             for (Person pers : sportsmen)
             {
                 if (currentGroups[g].getSportsmenIds().contains(pers.id))
@@ -140,7 +143,11 @@ private:
             int additional = currentGroups[g].getFullSportsmenRating()
                     - oldGroups[g].getFullSportsmenRating();
 
-            currentGroups[g].increaseTrainersRating(additional);
+            for (int t = 0; t < currentGroups[g].trainers.count(); t++)
+            {
+                currentGroups[g].trainers[t].rating += additional;
+                currentGroups[g].trainers[t].eventsNumber += 1;
+            }
         }
 
         return currentGroups;

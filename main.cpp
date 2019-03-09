@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     SportSection sect;  // сама программа
 
     return app.exec();
-#elif 0 // auto tests
+#elif 1 // auto tests
     QApplication app(argc, argv);
 
     MainTest::runAllTests(argc, argv);

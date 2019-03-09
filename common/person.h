@@ -10,7 +10,7 @@ public:
     int id = 0;             // id в конечном итоге должна устанавливать сама бд
 
     int rating = 0;
-    int events = 0;
+    int eventsNumber = 0;
 
     QString firstName;      // имя
     QString secondName;     // Отчество
@@ -19,9 +19,9 @@ public:
     QString sportType;      // вид спорта
     QString phoneNumber;    // TODO now is not influence
 
-    Person(QList<QString> personData)
+    Person(QList<QString> fullPersonData)
     {
-        setInList(personData);
+        setFullList(fullPersonData);
     }
     Person(int id)
     {
@@ -29,35 +29,68 @@ public:
     }
     Person() {}
 
-    void setInList(QList<QString> personData)
+    QList<QString> getPreviewList()
     {
-        if (personData.count() == pattern().count())
+        return {firstName, secondName, lastName, sportType};
+    }
+    static QList<QString> getPreviewPattern()
+    {
+        return {"Имя", "Отчество", "Фамилия", "Спорт"};
+    }
+
+    void setEditableList(QList<QString> personData)
+    {
+        if (personData.count() == getEditablePattern().count())
         {
             firstName   = personData.takeFirst();
             secondName  = personData.takeFirst();
             lastName    = personData.takeFirst();
             birthday    = personData.takeFirst();
             sportType   = personData.takeFirst();
+            phoneNumber = personData.takeFirst();
         }
     }
-
-    QList<QString> getInList()
+    QList<QString> getEditableList()
     {
-        return {firstName, secondName, lastName, birthday, sportType};
+        return {firstName, secondName, lastName, birthday, sportType, phoneNumber};
+    }
+    static QList<QString> getEditablePattern()
+    {
+        return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт", "Номер телефона"};
     }
 
-    static QList<QString> pattern()
+    void setFullList(QList<QString> personData)
     {
-        return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт"};
+        if (personData.count() == getFullPattern().count())
+        {
+            firstName   = personData.takeFirst();
+            secondName  = personData.takeFirst();
+            lastName    = personData.takeFirst();
+            birthday    = personData.takeFirst();
+            sportType   = personData.takeFirst();
+            phoneNumber = personData.takeFirst();
+            rating      = personData.takeFirst().toInt();
+            eventsNumber = personData.takeFirst().toInt();
+        }
+    }
+    QList<QString> getFullList()
+    {
+        return {firstName, secondName, lastName, birthday, sportType, phoneNumber,
+                    QString::number(rating), QString::number(eventsNumber)};
+    }
+    static QList<QString> getFullPattern()
+    {
+        return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт", "Номер телефона",
+            "Рейтинг", "Количество мероприятий"};
     }
 
     static QList<QList<QString>>
-    toStringTable(QList<Person> people)
+    toPreviewStringTable(QList<Person> people)
     {
         QList<QList<QString>> stringTable;
         for (Person pers : people)
         {
-            stringTable << pers.getInList();
+            stringTable << pers.getPreviewList();
         }
 
         return stringTable;
