@@ -12,6 +12,7 @@ class PersonEditor : public QWidget
     Q_OBJECT
 
     Person person;
+    Person oldPerson;
 
     QLabel *ratingView;
     QLabel *eventsNumberView;
@@ -47,16 +48,22 @@ public:
     void updateContent(Person person = Person())
     {
         this->person = person;
+        this->oldPerson = person;
 
         editorsBox->updateContent(Person::getEditablePattern(), person.getEditableList());
         ratingView->setText(QString::number(person.rating));
         eventsNumberView->setText(QString::number(person.eventsNumber));
     }
 
-    Person currentPerson()
+    Person getCurrentPerson()
     {
         person.setEditableList(editorsBox->getInList());
         return person;
+    }
+
+    Person getOldPerson()
+    {
+        return oldPerson;
     }
 
 private:
@@ -89,7 +96,7 @@ private:
 private slots:
     void on_save()
     {
-        emit needSave(currentPerson());
+        emit needSave(getCurrentPerson());
     }
 
     void on_remove()

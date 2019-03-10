@@ -30,23 +30,19 @@ public:
         setUpConnections();
     }
 
-    void setIconsPaths(QString groupIconPath = "",
-                       QString trainerIconPath = "",
-                       QString sportsmanIconPath = "")
+    void setGroupIconPath(QString groupIconPath)
     {
-        if (groupIconPath != "")
-        {
-            groupsViewer->setIconPath(groupIconPath);
-        }
-        if (trainerIconPath != "")
-        {
-            groupEditor->setTrainerIconPath(trainerIconPath);
-        }
-        if (sportsmanIconPath != "")
-        {
-            groupEditor->setSportsmanIconPath(sportsmanIconPath);
-        }
+        groupsViewer->setIconPath(groupIconPath);
+    }
 
+    void setTrainerIconPath(QString trainerIconPath)
+    {
+        groupEditor->setTrainerIconPath(trainerIconPath);
+    }
+
+    void setSportsmanIconPath(QString sportsmanIconPath)
+    {
+        groupEditor->setSportsmanIconPath(sportsmanIconPath);
     }
 
     void updateContent(QList<Person> sportsmen,
@@ -62,7 +58,7 @@ public:
 
         if (widgetStack->currentIndex() == 1)
         {
-            groupEditor->updateWhenRunning(trainers, sportsmen);
+            updateRunningEditor(sportsmen, trainers, groups);
         }
     }
 
@@ -90,11 +86,11 @@ private:
     {
         connect(createButton, &QPushButton::clicked, [=] ()
         {
-            editGroup();
+            showEditor();
         });
         connect(groupsViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            editGroup(groups.at(row));
+            showEditor(groups.at(row));
         });
 
         connect(groupEditor, &GroupEditor::needSave, [=] (Group group)
@@ -107,15 +103,31 @@ private:
             showGroups();
             emit needRemove(id);
         });
-        connect(groupEditor, &GroupEditor::needExit,
-                this, &GroupsPresenter::showGroups);
+        connect(groupEditor, &GroupEditor::needExit, [=] ()
+        {
+            auto inputGroup  = groupEditor->getOldGroup();
+            auto outputGroup = groupEditor->getCurrentGroup();
+
+            if (inputGroup != outputGroup)
+            {
+                auto result = QMessageBox::question(this, " ",
+                                "У вас есть несохраненные изменения:\n"
+                                "Сохранить?");
+
+                if (result == QMessageBox::Yes)
+                {
+                    showGroups();
+                    emit needSave(outputGroup);
+                }
+            }
+            showGroups();
+        });
     }
 
 private slots:
-    void editGroup(Group group = Group())
+    void showEditor(Group group = Group())
     {
-        QList<Person> availableSportsmen
-                = Group::getFreePeople(groups, sportsmen, false);
+        QList<Person> availableSportsmen = Person::getFreePeople(sportsmen, group.sportsmen);
         availableSportsmen << group.sportsmen;
 
         groupEditor->updateContent(trainers, availableSportsmen, group);
@@ -126,6 +138,35 @@ private slots:
     {
         groupEditor->updateContent(QList<Person>(), QList<Person>(), Group());
         widgetStack->setCurrentIndex(0);
+    }
+
+    void updateRunningEditor(QList<Person> sportsmen,
+                      QList<Person> trainers,
+                      QList<Group> groups)
+    {
+        if (groups.contains(groupEditor->getOldGroup())
+                || groupEditor->getOldGroup().id == 0)
+        {
+            groupEditor->updateTrainers(trainers);
+            groupEditor->updateSportsmen(sportsmen);
+        }
+        else
+        {
+            int result = QMessageBox::question(this, " ",
+                    "Редактируемая группа была изменена извне:\n"
+                    "'" + groupEditor->getCurrentGroup().getInList().join(" ") + "'\n"
+                    "Продолжить редактирование?");
+
+            if (result == QMessageBox::Ok)
+            {
+                groupEditor->updateTrainers(trainers);
+                groupEditor->updateSportsmen(sportsmen);
+            }
+            else if (result == QMessageBox::No)
+            {
+                 showGroups();
+            }
+        }
     }
 
 public:

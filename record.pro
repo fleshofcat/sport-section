@@ -18,7 +18,6 @@ HEADERS +=                          \
     tests/test_db/test_group_links.h \
     tests/test_db/test_schedule_manager.h \
     tests/test_ui/test_schedule_editor.h \
-    tests/test_ui/test_schedule_presenter.h \
                                         \
     db/db_manager.h                 \
     db/people_manager.h             \
@@ -41,7 +40,8 @@ HEADERS +=                          \
     ui/widgets/records_viewer.h \
     ui/widgets/list_view.h \
     ui/support/preview_result_calculation.h \
-    ui/support/schedule_close.h
+    ui/support/schedule_closer.h \
+    ui/setting_presenter.h
 
 SOURCES += \
     main.cpp \

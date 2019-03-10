@@ -15,7 +15,7 @@ private slots:
 
     void test_saveButton()
     {
-        Schedule sch("title", Schedule::Event::EMPTY, "", "climbing");
+        Schedule sch("title", Schedule::Event::EMPTY, QDate(), "climbing");
         sch.groups << Group(1) << Group(2);
 
         ScheduleEditor editor(sch, testGroups());
@@ -49,7 +49,7 @@ private slots:
 public:
     void test_removeGroup() // manualy test
     {
-        Schedule sch("title", Schedule::Event::EMPTY, "", "climbing");
+        Schedule sch("title", Schedule::Event::EMPTY, QDate(), "climbing");
         sch.groups << Group(1);
 
         ScheduleEditor editor(sch, testGroups());
@@ -71,7 +71,7 @@ public:
 
     void test_addGroup() // manual testing
     {
-        Schedule sch("title", Schedule::Event::EMPTY, "", "climbing");
+        Schedule sch("title", Schedule::Event::EMPTY, QDate(), "climbing");
         sch.groups << Group(1);
 
         ScheduleEditor editor(sch, testGroups());

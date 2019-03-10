@@ -23,17 +23,19 @@ private slots:
         setDefaultState();
         DbManager db(db_path);
 
-        Schedule sch("title", Schedule::Event::TRAINING, "10.02.1997", "climbing");
+        Schedule sch("title", Schedule::Event::TRAINING, QDate::fromString("10.02.1997", "yyyy.MM.dd"), "climbing");
         sch.groups << Group(1);
 
         ScheduleManager sm(schedule, groups);
 
         QVERIFY(sm.saveSchedule(sch));
 
-        sch.date = "new date";
+        auto currentDate = QDate::currentDate();
+
+        sch.setDate(currentDate);
         sch.id = 1;
         QVERIFY(sm.saveSchedule(sch));
-        QCOMPARE(sm.getSchedules().at(0).date, "new date");
+        QCOMPARE(sm.getSchedules().first().getDate(), currentDate);
     }
 
     void test_removeSchedule()
@@ -70,7 +72,7 @@ private:
         }
 
         Schedule sch;
-        sch.setInList({"Тестовое расписание", QString::number(int(Schedule::Event::COMPETITION)), "пондельник, 18:30", "смотреть"});
+        sch.setFullList({"Тестовое расписание", QString::number(int(Schedule::Event::COMPETITION)), "пондельник, 18:30", "смотреть"});
 
         ScheduleManager s(schedule, groups);
         s.saveSchedule(sch);

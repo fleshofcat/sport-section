@@ -70,7 +70,7 @@ public:
             {
                 QList<QString> scheduleInList;
 
-                for (int i = 0; i < Schedule::getEditPattern().count(); i++)
+                for (int i = 0; i < Schedule::getFullPattern().count(); i++)
                 {
                     scheduleInList << query.record().value(i + 1).toString();
                 }
@@ -109,7 +109,7 @@ private:
                           .arg(scheduleTable));
 
             query.addBindValue(sch.id);
-            bindValueList(query, sch.getInList());
+            bindValueList(query, sch.getFullList());
 
             if (query.exec())
             {
@@ -138,7 +138,7 @@ private:
 
 
         query.bindValue(":id", sch.id);
-        bindValueList(query, sch.getInList());
+        bindValueList(query, sch.getFullList());
 
         if (query.exec())
         {

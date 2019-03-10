@@ -6,6 +6,10 @@
 
 class Schedule
 {
+
+
+    QDate date;
+
 public:
     enum class Event {
         EMPTY,
@@ -16,12 +20,41 @@ public:
     int id = 0;
     Event event_int = Event::TRAINING;
     QString title;
-    QString date;
     QString sportType;
 
     QList<Group> groups;
 
-    Schedule(QString title, Event event, QString date, QString sportType)
+    Schedule(QString title, Event event, QDate date, QString sportType)
+    {
+        setFullFielsd(title, event, date, sportType);
+    }
+    Schedule(QList<QString> property)
+    {
+        setFullList(property);
+    }
+    Schedule(int id)
+    {
+        this->id = id;
+    }
+    Schedule() {}
+
+    QString getStringDate()
+    {
+        return date.toString("yyyy.MM.dd");
+    }
+
+    QDate getDate()
+    {
+        return date;
+    }
+
+    void setDate(QDate inputDate)
+    {
+        date = inputDate;
+    }
+
+    void setFullFielsd(QString title, Event event,
+                         QDate date, QString sportType)
     {
         this->title = title;
         this->event_int = event;
@@ -29,42 +62,30 @@ public:
         this->sportType = sportType;
     }
 
-    Schedule(QList<QString> property)
+    void setFullList(QList<QString> property)
     {
-        setInList(property);
-    }
-
-    Schedule(int id)
-    {
-        this->id = id;
-    }
-
-    Schedule() {}
-
-    void setInList(QList<QString> property)
-    {
-        if (property.count() == getEditPattern().count())
+        if (property.count() == getFullPattern().count())
         {
             title = property.takeFirst();
             event_int = Event(property.takeFirst().toInt());
-            date = property.takeFirst();
+            setDate(QDate::fromString(property.takeFirst(), "yyyy.MM.dd"));
             sportType = property.takeFirst();
         }
     }
 
-    static QList<QString> getEditPattern()
+    static QList<QString> getFullPattern()
     {
         return {"Заголовок", "Событие", "Дата проведения", "Вид спорта"};
     }
 
-    QList<QString> getInList()
+    QList<QString> getFullList()
     {
-        return {title, QString::number(int(event_int)), date, sportType};
+        return {title, QString::number(int(event_int)), getStringDate(), sportType};
     }
 
     QList<QString> getPreviewList()
     {
-        return {title, getEvent(), date};
+        return {title, getEvent(), getStringDate()};
     }
 
     static QList<QString> getPreviewPattern()

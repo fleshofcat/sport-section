@@ -22,8 +22,8 @@ class PeoplePresenter : public QWidget
     QPushButton *createButton;
 
     RecordsViewer *peopleViewer;
-    PersonEditor *editor;
-    QStackedWidget *widgets;
+    PersonEditor *personEditor;
+    QStackedWidget *widgetStack;
 
 
 signals:
@@ -47,6 +47,11 @@ public:
         this->people = people;
 
         peopleViewer->updateContent(Person::toPreviewStringTable(people), Person::getPreviewPattern());
+
+        if (widgetStack->currentIndex() == 1)
+        {
+            updateRunningEditor(people);
+        }
     }
 
     void showWarning(QString warning)
@@ -69,56 +74,91 @@ private:
         QWidget *viewer_w = new QWidget;
         viewer_w->setLayout(viewerLayout);
 
-        editor = new PersonEditor;
+        personEditor = new PersonEditor;
 
-        widgets = new QStackedWidget(this);
-        widgets->addWidget(viewer_w);
-        widgets->addWidget(editor);
+        widgetStack = new QStackedWidget(this);
+        widgetStack->addWidget(viewer_w);
+        widgetStack->addWidget(personEditor);
 
 
         connect(createButton, &QPushButton::clicked, this, [=] ()
         {
-            setEditMode();
+            showEditor();
         });
         connect(peopleViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
             if (row >= 0)
             {
-                setEditMode(people.at(row));
+                showEditor(people.at(row));
             }
         });
 
-        connect(editor, &PersonEditor::needSave, [=] (Person pers)
+        connect(personEditor, &PersonEditor::needSave, [=] (Person pers)
         {
-            setViewMode();
+            showPeople();
             emit savePerson(pers);
         });
-        connect(editor, &PersonEditor::needRemove, [=] (int id)
+        connect(personEditor, &PersonEditor::needRemove, [=] (int id)
         {
-            setViewMode();
+            showPeople();
             emit removePerson(id);
         });
-        connect(editor, &PersonEditor::needExit,
-                this, &PeoplePresenter::setViewMode);
+        connect(personEditor, &PersonEditor::needExit, [=] ()
+        {
+            auto inputPers = personEditor->getOldPerson();
+            auto outputPers = personEditor->getCurrentPerson();
+
+            if (inputPers != outputPers)
+            {
+                auto result = QMessageBox::question(this, " ",
+                                "У вас есть несохраненные изменения:\n"
+                                "Сохранить?");
+
+                if (result == QMessageBox::Yes)
+                {
+                    showPeople();
+                    emit savePerson(outputPers);
+                }
+            }
+
+            showPeople();
+        });
     }
 
 private slots:
-    void setEditMode(Person pers = Person())
+    void showEditor(Person pers = Person())
     {
-        editor->updateContent(pers);
-        widgets->setCurrentIndex(1);
+        personEditor->updateContent(pers);
+        widgetStack->setCurrentIndex(1);
     }
 
-    void setViewMode()
+    void showPeople()
     {
-        editor->updateContent();
-        widgets->setCurrentIndex(0);
+//        personEditor->updateContent();
+        widgetStack->setCurrentIndex(0);
+    }
+
+    void updateRunningEditor(QList<Person> people)
+    {
+        if (!people.contains(personEditor->getOldPerson()) // if edited person is not exist
+                && personEditor->getOldPerson().id != 0)   // and he is not new person
+        {
+            int result = QMessageBox::question(this, " ",
+                    "Редактируемый человек был изменен извне:\n"
+                    "'" + personEditor->getCurrentPerson().getPreviewList().join(" ") + "'\n"
+                    "Продолжить редактирование?");
+
+            if (result == QMessageBox::No)
+            {
+                 showPeople();
+            }
+        }
     }
 
 public:
     void resizeEvent(QResizeEvent *resizeEvent)
     {
-        widgets->resize(resizeEvent->size());
+        widgetStack->resize(resizeEvent->size());
     }
 };
 

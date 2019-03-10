@@ -118,6 +118,19 @@ public:
         return summRating;
     }
 
+    static QList<Person> getFreePeople(QList<Person> allPeople, QList<Person> existingPeople)
+    {
+        QList<Person> freePeople;
+        for (Person pers : allPeople)
+        {
+            if (!existingPeople.contains(pers))
+                freePeople << pers;
+        }
+
+        return freePeople;
+    }
+
+
     friend bool operator== (const Person &p1, const Person &p2);
     friend bool operator!= (const Person &p1, const Person &p2);
 };

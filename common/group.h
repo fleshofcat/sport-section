@@ -119,35 +119,6 @@ public:
         }
     }
 
-    static QList<Person>
-    getFreePeople(QList<Group> groups,
-                  QList<Person> allPeople,
-                  bool isTrainers)
-    {
-        QList<Person> freePeople;
-
-        for (auto pers : allPeople)
-        {
-            for (Group group : groups)
-            {
-                if (isTrainers)
-                {
-                    if (group.getTrainersIds().contains(pers.id))
-                        goto skip;
-                }
-                else
-                {
-                    if (group.getSportsmenIds().contains(pers.id))
-                        goto skip;
-                }
-            }
-            freePeople << pers;
-
-            skip:;
-        }
-        return freePeople;
-    }
-
     static QList<QList<QString>>
     toStringTable(QList<Group> groups)
     {

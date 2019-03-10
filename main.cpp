@@ -3,7 +3,7 @@
 #include "tests/main_test.h" // тесты
 #include "sport_section.h"   // главный класс программы (SportSection)
 
-#include "ui/support/schedule_close.h"
+#include "ui/support/schedule_closer.h"
 
 // точка входа программы
 int main(int argc, char *argv[])

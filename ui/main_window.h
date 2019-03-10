@@ -89,11 +89,16 @@ private:
 
         sportsmenTab = new PeoplePresenter(sportsmanIconPath);
         trainersTab = new PeoplePresenter(trainerIconPath);
+
         groupTab = new GroupsPresenter;
-        groupTab->setIconsPaths(groupIconPath, trainerIconPath, sportsmanIconPath);
+        groupTab->setGroupIconPath(groupIconPath);
+        groupTab->setTrainerIconPath(trainerIconPath);
+        groupTab->setSportsmanIconPath(sportsmanIconPath);
 
         scheduleTab = new SchedulePresenter;
-        scheduleTab->setIconsPaths(scheduleIconPath, closedScheduleIconPath, groupIconPath);
+        scheduleTab->setScheduleIconPath(scheduleIconPath);
+        scheduleTab->setClosedScheduleIconPath(closedScheduleIconPath);
+        scheduleTab->setGroupIconPath(groupIconPath);
 
         tabs = new QTabWidget(this);
 
@@ -104,10 +109,10 @@ private:
         tabs->setSizePolicy(sizePolicy);
         tabs->setMovable(true);
 
-        tabs->addTab(scheduleTab, QIcon("../record/res/img/schedule.png"),   "Расписания");
-        tabs->addTab(groupTab, QIcon("../record/res/img/group.png"),         "Группы");
-        tabs->addTab(trainersTab, QIcon("../record/res/img/trainer.png"),    "Тренеры");
-        tabs->addTab(sportsmenTab, QIcon("../record/res/img/sportsman.png"), "Спортсмены");
+        tabs->addTab(scheduleTab, QIcon(scheduleIconPath),   "Расписания");
+        tabs->addTab(groupTab, QIcon(groupIconPath),         "Группы");
+        tabs->addTab(trainersTab, QIcon(trainerIconPath),    "Тренеры");
+        tabs->addTab(sportsmenTab, QIcon(sportsmanIconPath), "Спортсмены");
     }
 
     void setUpConnections()

@@ -20,7 +20,7 @@ class ScheduleEditor : public QWidget
     QString groupIconPath;
 
     Schedule schedule;
-    Schedule old_schedule;
+    Schedule oldSchedule;
     QList<Group> allGroups;
 
     QPushButton *saveButton;
@@ -67,27 +67,27 @@ public:
                   QList<Group> allGroups)
     {
         this->schedule = schedule;
-        this->old_schedule = schedule;
+        this->oldSchedule = schedule;
 
         setEditors(schedule);
         updateGroups(allGroups);
     }
 
-    Schedule currentSchedule()
+    Schedule getCurrentSchedule()
     {
-        QList<QString> scheduleInList;
-        scheduleInList << titleEdit->text();
-        scheduleInList << QString::number(eventEdit->currentIndex() + 1);
-        scheduleInList << dateEdit->text();
-        scheduleInList << sportTypeEdit->text();
+        schedule.setFullFielsd(
+                    titleEdit->text(),
+                    Schedule::Event(eventEdit->currentIndex() + 1),
+                    dateEdit->date(),
+                    sportTypeEdit->text()
+                    );
 
-        schedule.setInList(scheduleInList);
         return schedule;
     }
 
-    Schedule oldSchedule()
+    Schedule getOldSchedule()
     {
-        return this->old_schedule;
+        return this->oldSchedule;
     }
 
     void updateGroups(QList<Group> allGroups)
@@ -114,7 +114,7 @@ private:
         sportTypeEdit = new QLineEdit;
 
         QFormLayout *editors = new QFormLayout;
-        auto titlesList = Schedule::getEditPattern();
+        auto titlesList = Schedule::getFullPattern();
 
         editors->addRow(titlesList.takeFirst(), titleEdit);
         editors->addRow(titlesList.takeFirst(), eventEdit);
@@ -152,11 +152,11 @@ private:
     {
         connect(saveButton, &QPushButton::clicked, [=] ()
         {
-            emit needSave(currentSchedule());
+            emit needSave(getCurrentSchedule());
         });
         connect(makeDoneButton, &QPushButton::clicked, [=] ()
         {
-            emit needMakeDone(currentSchedule());
+            emit needMakeDone(getCurrentSchedule());
         });
         connect(removeButton, &QPushButton::clicked, [=] ()
         {
@@ -170,8 +170,7 @@ private:
             QList<Group> groupsToShow;
             for (Group group : this->allGroups)
             {
-                if (!schedule.groups.contains(group)
-                        && group.trainers.count() > 0)
+                if (!schedule.groups.contains(group))
                 {
                     groupsToShow << group;
                 }
@@ -210,10 +209,12 @@ private:
     {
         titleEdit->setText(sch.title);
 
-        if (sch.date.isEmpty())
-            dateEdit->setDate(QDate::currentDate());
-        else
-            dateEdit->setDate(QDate::fromString(sch.date));
+//        if (sch.getStringDate().isEmpty())
+//            dateEdit->setDate(QDate::currentDate());
+//        else
+//        {
+            dateEdit->setDate(sch.getDate());
+//        }
 
         if (sch.getEventNumber() == Schedule::Event::TRAINING)
         {

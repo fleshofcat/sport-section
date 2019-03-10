@@ -22,8 +22,9 @@ class GroupEditor : public QWidget
     QString sportsmanIconPath;
 
     // data
-    QList<Person> sportsmen;
-    QList<Person> trainers;
+    QList<Person> allSportsmen;
+    QList<Person> allTrainers;
+    Group oldGroup;
     Group group;
 
     // standart buttons
@@ -81,6 +82,7 @@ public:
                        Group group = Group())
     {
         this->group = group;
+        this->oldGroup = group;
 
         groupNameField->setText(group.groupName);
         sportTypeField->setText(group.sportType);
@@ -88,28 +90,36 @@ public:
         ratingField->setText(QString::number(double(group.getGroupRating())));
         eventCountField->setText(QString::number(group.eventNumber));
 
-        updateWhenRunning(trainers, sportsmen);
+        updateTrainers(trainers);
+        updateSportsmen(sportsmen);
     }
 
-    void updateWhenRunning(QList<Person> trainers,
-                           QList<Person> sportsmen)
+    void updateTrainers(QList<Person> trainers)
     {
-        this->trainers = trainers;
-        this->sportsmen = sportsmen;
-
+        this->allTrainers = trainers;
         trainersViewer->updateContent(Person::toPreviewStringTable(group.trainers),
                                       Person::getPreviewPattern());
+    }
+
+    void updateSportsmen(QList<Person> sportsmen)
+    {
+        this->allSportsmen = sportsmen;
         sportsmenViewer->updateContent(Person::toPreviewStringTable(group.sportsmen),
                                        Person::getPreviewPattern());
     }
 
-    Group currentGroup()
+    Group getCurrentGroup()
     {
         QString groupName = groupNameField->text();
         QString sportType = sportTypeField->text();
 
         group.setInList({groupName, sportType});
         return group;
+    }
+
+    Group getOldGroup()
+    {
+        return oldGroup;
     }
 
 private:
@@ -166,7 +176,7 @@ private:
     {
         connect(saveButton, &QPushButton::clicked, [=] ()
         {
-            emit needSave(currentGroup());
+            emit needSave(getCurrentGroup());
         });
         connect(removeButton, &QPushButton::clicked, [=] ()
         {
@@ -177,59 +187,72 @@ private:
 
         connect(addSportsmanButton, &QPushButton::clicked, [=] ()
         {
-            addPersonToPreview(sportsmen, &group.sportsmen, sportsmanIconPath);
+            QList<Person> aviableSportsmen = Person::getFreePeople(allSportsmen, group.sportsmen);
+            auto choosenPerson = choosePerson(aviableSportsmen, sportsmanIconPath);
+
+            if (choosenPerson.id > 0)
+            {
+                group.sportsmen << choosenPerson;
+                updateSportsmen(group.sportsmen);
+            }
         });
         connect(sportsmenViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            removePersonFromPreview(row, &group.sportsmen, "Удалить спортсмена из группы?");
+            bool result = askQuestion("Удалить спортсмена '"
+                                      + group.sportsmen.at(row).firstName
+                                      + "' из группы?");
+            if (result)
+            {
+                group.sportsmen.removeAt(row);
+                updateSportsmen(group.sportsmen);
+            }
         });
 
         connect(addTrainerButton, &QPushButton::clicked, [=] ()
         {
-            addPersonToPreview(trainers, &group.trainers, trainerIconPath);
+            QList<Person> aviableTrainers = Person::getFreePeople(allTrainers, group.trainers);
+            auto choosenPerson = choosePerson(aviableTrainers, trainerIconPath);
+
+            if (choosenPerson.id > 0)
+            {
+                group.trainers << choosenPerson;
+                updateTrainers(group.trainers);
+            }
         });
         connect(trainersViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
-            removePersonFromPreview(row, &group.trainers, "Удалить тренера из группы?");
+            bool result = askQuestion("Удалить тренера '"
+                                      + group.trainers.at(row).firstName
+                                      + "' из группы?");
+            if (result)
+            {
+                group.trainers.removeAt(row);
+                updateTrainers(group.trainers);
+            }
         });
     }
 
-    void addPersonToPreview(QList<Person> all_people, QList<Person> *existing_people, QString iconPath = "")
+    Person choosePerson(QList<Person> peopleToShow, QString iconPath)
     {
-        QList<Person> peopleToShow;
-        for (Person pers : all_people)
-        {
-            if (!existing_people->contains(pers)
-                    /*&& group.sportType == pers.sportType*/)
-            {
-                peopleToShow << pers;
-            }
-        }
-
         int row = RecordChooser::getChoosedRow(
                     Person::toPreviewStringTable(peopleToShow), this, "Доступные люди", iconPath);
 
         if (row >= 0)
         {
-            *existing_people << peopleToShow.at(row);
-
-            updateWhenRunning(trainers, sportsmen);
+            return peopleToShow.at(row);
         }
+        return Person();
     }
 
-    void removePersonFromPreview(int row, QList<Person> *existingPeople, QString question = "")
+    bool askQuestion(QString question)
     {
-        if (question != "")
-        {
-            int result = QMessageBox::question(this, " ", question);
+        int result = QMessageBox::question(this, " ", question);
 
-            if (result != QMessageBox::Yes)
-            {
-                return;
-            }
+        if (result == QMessageBox::Yes)
+        {
+            return true;
         }
-        existingPeople->removeAt(row);
-        updateWhenRunning(trainers, sportsmen);
+        return false;
     }
 };
 

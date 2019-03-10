@@ -7,7 +7,7 @@
 #include "ui/support/sportsmen_view_for_event_result.h"
 #include "ui/support/preview_result_calculation.h"
 
-class ScheduleClose : public QWidget
+class ScheduleCloser : public QWidget
 {
     Q_OBJECT
 
@@ -25,7 +25,7 @@ signals:
     void needExit();
 
 public:
-    ScheduleClose(Schedule sch, QWidget *parent = nullptr)
+    ScheduleCloser(Schedule sch, QWidget *parent = nullptr)
         : QWidget(parent)
     {
         setUpUi();
@@ -33,21 +33,21 @@ public:
         setSchedule(sch);
     }
 
-    ScheduleClose(QWidget *parent = nullptr)
-        : ScheduleClose(Schedule(), parent) {}
+    ScheduleCloser(QWidget *parent = nullptr)
+        : ScheduleCloser(Schedule(), parent) {}
 
     void setSchedule(Schedule schedule)
     {
         this->schedule = schedule;
 
-        scheduleTitle->setText(schedule.date);
+        scheduleTitle->setText(schedule.getPreviewList().join(" "));
         resultView->setGroups(schedule.groups);
     }
 
 private:
     void setUpUi()
     {
-        scheduleTitle = new QLabel(schedule.date);
+        scheduleTitle = new QLabel();
 
         resultView = new PreviewResultCalculation;
 
@@ -97,7 +97,7 @@ private:
             schedule.groups = resultView->getGroups();
             emit needMakeDone(schedule);
         });
-        connect(exitButton, &QPushButton::clicked, this, &ScheduleClose::needExit);
+        connect(exitButton, &QPushButton::clicked, this, &ScheduleCloser::needExit);
     }
 
     QList<Group> computeSportsmenOrder(QList<Person> sportsmen)
