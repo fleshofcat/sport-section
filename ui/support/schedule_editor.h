@@ -209,12 +209,10 @@ private:
     {
         titleEdit->setText(sch.title);
 
-//        if (sch.getStringDate().isEmpty())
-//            dateEdit->setDate(QDate::currentDate());
-//        else
-//        {
+        if (sch.getStringDate().isEmpty())
+            dateEdit->setDate(QDate::currentDate());
+        else
             dateEdit->setDate(sch.getDate());
-//        }
 
         if (sch.getEventNumber() == Schedule::Event::TRAINING)
         {

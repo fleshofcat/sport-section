@@ -37,7 +37,7 @@ public:
 
     bool saveSchedule(Schedule sch)
     {
-        if (!isRecordExist(sch.id))
+        if (sch.id <= 0)
             return addSchedule(sch);
         else
             return updateSchedule(sch);

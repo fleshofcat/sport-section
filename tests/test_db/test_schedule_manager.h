@@ -1,36 +1,47 @@
 #pragma once
 
 #include <QtTest/QtTest>
-#include "db/db_manager.h"
 #include "db/schedule_manager.h"
+#include "db/group_manager.h"
+#include "db/people_manager.h"
 
 class TestScheduleManager : public QObject
 {
     Q_OBJECT
 
-    QString db_path = "../record/tests/test_res/test_schedule.db";
+    QString db_path = "../record/tests/test_res/sport_people.db";
 
     QString schedule = "schedule";
     QString groups = "groups";
     QString trainers = "trainers";
     QString sportsmen = "sportsmen";
 
-//    DbManager *db = new DbManager(db_path, this);
-
 private slots:
+    void initTestCase()
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName(db_path);
+        QVERIFY(db.open());
+    }
+
     void test_addSchedule()
     {
         setDefaultState();
-        DbManager db(db_path);
 
-        Schedule sch("title", Schedule::Event::TRAINING, QDate::fromString("10.02.1997", "yyyy.MM.dd"), "climbing");
-        sch.groups << Group(1);
+        QDate currentDate = QDate::currentDate();
+
+        Schedule sch("title", Schedule::Event::TRAINING,
+                     currentDate, "climbing");
+
+        GroupManager gm(groups, trainers, sportsmen);
+        auto justForAdd = gm.getGroups().first();
+
+        sch.groups << justForAdd;
 
         ScheduleManager sm(schedule, groups);
-
         QVERIFY(sm.saveSchedule(sch));
 
-        auto currentDate = QDate::currentDate();
+        currentDate = currentDate.addDays(1);
 
         sch.setDate(currentDate);
         sch.id = 1;
@@ -41,7 +52,6 @@ private slots:
     void test_removeSchedule()
     {
         setDefaultState();
-        DbManager db(db_path);
 
         ScheduleManager sh(schedule, groups);
         QVERIFY(sh.removeSchedule(1));
@@ -50,38 +60,45 @@ private slots:
     void test_getSchedules()
     {
         setDefaultState();
-        DbManager db(db_path);
 
         ScheduleManager sh(schedule, groups);
         QList<Schedule> schs = sh.getSchedules();
 
-        QCOMPARE(schs[0].getEventNumber(), Schedule::Event::COMPETITION);
-        QCOMPARE(schs.at(0).sportType, "смотреть");
+        QCOMPARE(schs.first().getEventNumber(), Schedule::Event::COMPETITION);
+        QCOMPARE(schs.first().sportType, "смотреть");
     }
 
+    void cleanUpTestCase()
+    {
+        {
+            QSqlDatabase db = QSqlDatabase::database("qt_sql_default_connection");
+            db.close();
+        }
+        QSqlDatabase::removeDatabase("qt_sql_default_connection");
+    }
 
 private:
     void setDefaultState()
     {
         dropDbState();
 
-        DbManager db(db_path);
+        GroupManager gm(groups, trainers, sportsmen);
         for (auto group : testGroups())
         {
-            db.saveGroup(group);
+            gm.saveGroup(group);
         }
 
-        Schedule sch;
-        sch.setFullList({"Тестовое расписание", QString::number(int(Schedule::Event::COMPETITION)), "пондельник, 18:30", "смотреть"});
+        Schedule sch("Тестовое расписание",
+                         Schedule::Event::COMPETITION,
+                         QDate::currentDate().addDays(-1),
+                         "смотреть");
 
-        ScheduleManager s(schedule, groups);
-        s.saveSchedule(sch);
+        ScheduleManager sm(schedule, groups);
+        sm.saveSchedule(sch);
     }
 
     void dropDbState()
     {
-        DbManager d(db_path);
-
         QSqlQuery query;    
         query.exec("DROP TABLE IF EXISTS " + schedule + "_" + groups);
         query.exec("DROP TABLE IF EXISTS " + schedule);
@@ -90,6 +107,13 @@ private:
         query.exec("DROP TABLE IF EXISTS " + groups);
         query.exec("DROP TABLE IF EXISTS " + sportsmen);
         query.exec("DROP TABLE IF EXISTS " + trainers);
+
+        // for correct work
+        // the tables in db need to be exist
+        PeopleManager tm(trainers);
+        PeopleManager sm(sportsmen);
+        GroupManager gm(groups, trainers, sportsmen);
+        ScheduleManager(schedule, groups);
     }
 
     QList<Group> testGroups()

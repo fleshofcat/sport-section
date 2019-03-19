@@ -48,7 +48,6 @@ signals:
     void needRemoveSchedule(int id);
 
     void needMakeDoneSchedule(Schedule chedule);
-    void needRemoveDoneSchedule(int id);
 
 public:
     // код который будет выполняться при создании объекта от этого класса
@@ -169,7 +168,6 @@ private:
         connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::needSaveSchedule);
         connect(scheduleTab, &SchedulePresenter::needRemove, this, &MainWindow::needRemoveSchedule);
         connect(scheduleTab, &SchedulePresenter::needMakeDone, this, &MainWindow::needMakeDoneSchedule);
-        connect(scheduleTab, &SchedulePresenter::needRemoveDoneSchedule, this, &MainWindow::needRemoveDoneSchedule);
     }
 
 public:

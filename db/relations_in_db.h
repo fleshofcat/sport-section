@@ -129,7 +129,8 @@ private:
 
             if (query.exec() == false)
             {
-                qWarning() << query.lastError().text();
+                qWarning() << "RelationsInDb::addLinks()"
+                           << query.lastError().text();
                 return false;
             }
         }

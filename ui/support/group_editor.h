@@ -90,18 +90,18 @@ public:
         ratingField->setText(QString::number(double(group.getGroupRating())));
         eventCountField->setText(QString::number(group.eventNumber));
 
-        updateTrainers(trainers);
-        updateSportsmen(sportsmen);
+        updateTrainersView(trainers);
+        updateSportsmenView(sportsmen);
     }
 
-    void updateTrainers(QList<Person> trainers)
+    void updateTrainersView(QList<Person> trainers)
     {
         this->allTrainers = trainers;
         trainersViewer->updateContent(Person::toPreviewStringTable(group.trainers),
                                       Person::getPreviewPattern());
     }
 
-    void updateSportsmen(QList<Person> sportsmen)
+    void updateSportsmenView(QList<Person> sportsmen)
     {
         this->allSportsmen = sportsmen;
         sportsmenViewer->updateContent(Person::toPreviewStringTable(group.sportsmen),
@@ -193,7 +193,7 @@ private:
             if (choosenPerson.id > 0)
             {
                 group.sportsmen << choosenPerson;
-                updateSportsmen(group.sportsmen);
+                updateSportsmenView(allSportsmen);
             }
         });
         connect(sportsmenViewer, &RecordsViewer::rowIsActivated, [=] (int row)
@@ -204,7 +204,7 @@ private:
             if (result)
             {
                 group.sportsmen.removeAt(row);
-                updateSportsmen(group.sportsmen);
+                updateSportsmenView(allSportsmen);
             }
         });
 
@@ -216,7 +216,7 @@ private:
             if (choosenPerson.id > 0)
             {
                 group.trainers << choosenPerson;
-                updateTrainers(group.trainers);
+                updateTrainersView(allTrainers);
             }
         });
         connect(trainersViewer, &RecordsViewer::rowIsActivated, [=] (int row)
@@ -227,7 +227,7 @@ private:
             if (result)
             {
                 group.trainers.removeAt(row);
-                updateTrainers(group.trainers);
+                updateTrainersView(allTrainers);
             }
         });
     }

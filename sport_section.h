@@ -101,13 +101,6 @@ public:
                 updateMainWindow();
             }
         });
-        connect(&mw, &MainWindow::needRemoveDoneSchedule, [=] (int id)
-        {
-            if (db.removeClosedSchedule(id))
-            {
-
-            }
-        });
     }
 
 private:

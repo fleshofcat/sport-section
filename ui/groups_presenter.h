@@ -147,8 +147,8 @@ private slots:
         if (groups.contains(groupEditor->getOldGroup())
                 || groupEditor->getOldGroup().id == 0)
         {
-            groupEditor->updateTrainers(trainers);
-            groupEditor->updateSportsmen(sportsmen);
+            groupEditor->updateTrainersView(trainers);
+            groupEditor->updateSportsmenView(sportsmen);
         }
         else
         {
@@ -159,8 +159,8 @@ private slots:
 
             if (result == QMessageBox::Ok)
             {
-                groupEditor->updateTrainers(trainers);
-                groupEditor->updateSportsmen(sportsmen);
+                groupEditor->updateTrainersView(trainers);
+                groupEditor->updateSportsmenView(sportsmen);
             }
             else if (result == QMessageBox::No)
             {

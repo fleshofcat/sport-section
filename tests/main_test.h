@@ -10,7 +10,6 @@
 #include "test_ui/test_group_editor.h"
 #include "test_ui/test_editors_box.h"
 #include "test_ui/test_schedule_editor.h"
-#include "test_ui/test_schedule_presenter.h"
 
 class MainTest : QObject
 {
@@ -28,6 +27,5 @@ public:
         QTest::qExec(new TestGroupEditor, argc, argv);
         QTest::qExec(new TestEditorsBox, argc, argv);
         QTest::qExec(new TestScheduleEditor, argc, argv);
-        QTest::qExec(new TestSchedulePresenter, argc, argv);
     }
 };

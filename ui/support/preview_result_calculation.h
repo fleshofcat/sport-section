@@ -5,6 +5,8 @@
 #include <QListWidget>
 #include <QVBoxLayout>
 
+#include <QApplication> // TODO
+
 #include "common/group.h"
 
 class PreviewResultCalculation : public QWidget
@@ -13,7 +15,6 @@ class PreviewResultCalculation : public QWidget
 
     QList<Group> oldGroups;
     QList<Group> currentGroups;
-
     QList<int> previousGroupsOrder;
 
     QString groupIconPath;
@@ -37,10 +38,10 @@ public:
     {
         this->oldGroups = groups;
         this->currentGroups = groups;
+        this->previousGroupsOrder = {};
 
         emit needUpdateShowesSportsmen(Group::getAllSportsmen(groups));
 
-        QList<int> previousGroupsOrder = getSortedOrderByGroupsRange(groups); // TODO test to rm
         updateGroupsView(groups);
     }
 
@@ -69,20 +70,17 @@ public slots:
     {
         QList<int> groupsOrder = getSortedOrderByGroupsRange(currentGroups);
 
-        this->currentGroups = currentGroups;
-
         int currentPageIndex = 0;
-        if (groupsView->currentIndex() != -1)
+        if (groupsView->currentIndex() != -1 && !previousGroupsOrder.isEmpty())
         {
             currentPageIndex = groupsOrder.indexOf(previousGroupsOrder.at(groupsView->currentIndex()));
         }
 
         this->previousGroupsOrder = groupsOrder;
 
-        while (groupsView->count()) // drop the groupView state
-        {
-            groupsView->removeItem(0);
-        }
+        dropGroupsView();
+
+//        QApplication::processEvents(); // TODO it works
 
         for (int index : groupsOrder)
         {
@@ -164,6 +162,31 @@ sort_start:
         }
 
         return rangeOrderIndexes;
+    }
+
+    void dropGroupsView()
+    {
+        // works both
+
+        // first one hide groupsView offsprings
+        // instead of deleting
+
+//        while (groupsView->count()) // drop the groupView state
+//        {
+//            groupsView->widget(0)->hide();
+//            groupsView->removeItem(0);
+//        }
+
+        // second one realy like a shit
+        // it removing widget,
+        // recreate this
+        // and add to the .layout bottom
+        // supposing as groupView mast be there
+
+        delete groupsView;               // smells very bad
+        groupsView = new QToolBox;
+        groupsView->setStyleSheet("QToolBox{ icon-size: 25px; }");
+        layout()->addWidget(groupsView); // smells very bad
     }
 
     QListWidgetItem * getPersonViewItem(Person thePersonNow, Person thePersonEarlier, QString iconPath = "")

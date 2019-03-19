@@ -29,7 +29,6 @@ class SchedulePresenter : public QWidget
 
 signals:
     void needMakeDone(Schedule schedule);
-    void needRemoveDoneSchedule(int id); // TODO дописать запрос на удаление при щелчке на закрытое расписание (так же в эот момент может придти запрос на восстановление)
     void needSave(Schedule schedule);
     void needRemove(int id);
 

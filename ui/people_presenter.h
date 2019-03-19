@@ -25,7 +25,6 @@ class PeoplePresenter : public QWidget
     PersonEditor *personEditor;
     QStackedWidget *widgetStack;
 
-
 signals:
     void savePerson(Person person);
     void removePerson(int id);
