@@ -75,7 +75,7 @@ public:
 
     Schedule getCurrentSchedule()
     {
-        schedule.setFullFielsd(
+        schedule.setFullFields(
                     titleEdit->text(),
                     Schedule::Event(eventEdit->currentIndex() + 1),
                     dateEdit->date(),

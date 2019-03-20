@@ -37,10 +37,11 @@ public:
 
     bool saveSchedule(Schedule sch)
     {
-        if (sch.id <= 0)
-            return addSchedule(sch);
-        else
+//        if (sch.id > 0)
+        if (isRecordExist(sch.id))
             return updateSchedule(sch);
+        else
+            return addSchedule(sch);
     }
 
     bool removeSchedule(int id)
@@ -180,15 +181,19 @@ private:
 
     bool isRecordExist(int id)
     {
-        QSqlQuery query(QString("SELECT * FROM %1 "
+        if (id == 0)
+            return false;
+
+        QSqlQuery query(QString("SELECT id FROM %1 "
                            " WHERE id = %2 ")
                         .arg(scheduleTable)
                         .arg(QString::number(id)));
 
-        if (query.next())
-        {
+        query.next();
+
+        if (query.record().value(0).toInt() == id)
             return true;
-        }
+
         return false;
     }
 

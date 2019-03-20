@@ -30,18 +30,18 @@ private slots:
         PeopleManager trainersManager(trainers);
         PeopleManager sportsmenManager(sportsmen);
 
-        Group fullGroup(Group({"fullGroupName", "fullGroupSportType"}));
+        Group fullGroup(Group("fullGroupName"));
         fullGroup.trainers << trainersManager.getPerson(2);
         fullGroup.sportsmen << sportsmenManager.getPerson(3);
 
-        Group wrongSportsmanGroup(Group({"testGroupName", "testSportType"}));
+        Group wrongSportsmanGroup(Group("testGroupName"));
         wrongSportsmanGroup.trainers << trainersManager.getPerson(2);
         wrongSportsmanGroup.sportsmen << sportsmenManager.getPerson(2);
 
 
         QVERIFY(grs.addGroup(fullGroup));                   // test full group
         QCOMPARE(grs.addGroup(wrongSportsmanGroup), false); // test group with repitable sportsman
-        QVERIFY(grs.addGroup(Group({"empty", "group"})));   // test empty group
+        QVERIFY(grs.addGroup(Group("empty group")));        // test empty group
     }
 
     void test_updateGroup()
@@ -52,17 +52,19 @@ private slots:
         PeopleManager trainersManager(trainers);
         PeopleManager sportsmenManager(sportsmen);
 
-        Group basicGroup(Group({"testGroupName", "testSportType"}));
-        basicGroup.trainers << sportsmenManager.getPerson(1);
-        basicGroup.sportsmen << sportsmenManager.getPerson(3);
+        Group groupForUpdate(Group("for update"));
+        groupForUpdate.trainers << sportsmenManager.getPerson(1);
+        groupForUpdate.sportsmen << sportsmenManager.getPerson(3);
 
-        basicGroup.id = grs.getMaxIdFromTable(groups);
-        QVERIFY(basicGroup.id > 0);
+        groupForUpdate.id = grs.getMaxIdFromTable(groups);
+        QVERIFY(groupForUpdate.id > 0);
 
-        QVERIFY(grs.updateGroup(basicGroup));
+        QVERIFY(grs.updateGroup(groupForUpdate));
 
-        Group updatedGroup = grs.getGroup(basicGroup.id);
-        QCOMPARE(updatedGroup, basicGroup);
+        Group updatedGroup = grs.getGroup(groupForUpdate.id);
+        QCOMPARE(updatedGroup.getSaveableProperty(), groupForUpdate.getSaveableProperty());
+        QCOMPARE(updatedGroup.getSportsmenIds(), groupForUpdate.getSportsmenIds());
+        QCOMPARE(updatedGroup.getTrainersIds(), groupForUpdate.getTrainersIds());
     }
 
     void test_removeGroup()
@@ -87,11 +89,11 @@ private slots:
         auto groups = grs.getGroups();
 
         Group swimming = groups.at(0);
-        Group froad = groups.at(1);
+        Group fraud = groups.at(1);
 
         QCOMPARE(groups.count(), 2);
         QCOMPARE(swimming.id, 1);
-        QCOMPARE(froad.getInList().at(1), "мошенник");
+        QCOMPARE(fraud.getInList().first(), "Группа мошеннег");
     }
 
     void cleanUpTestCase()
@@ -113,7 +115,7 @@ private:
         Person artem;
         artem.setEditableList({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание", "+7xxx"});
         Person oleg;
-        oleg.setEditableList({"Олег", "Павлович", "Полушин", "чч.чч.1995", "мошенник", "+7xxx"});
+        oleg.setEditableList({"Олег", "Павлович", "Полушин", "01.01.1995", "мошенник", "+7xxx"});
         Person mihail;
         mihail.setEditableList({"Михаил", "Владимирович", "Черников", "18.09.1997", "макбук", "+7xxx"});
 
@@ -129,7 +131,7 @@ private:
 
 
         Person ivan;
-        ivan.setEditableList({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "плавание", "+7xxx"});
+        ivan.setEditableList({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "мошенник", "+7xxx"});
         Person vadim;
         vadim.setEditableList({"Вадим", "Александрович", "Сурков", "26.03.1997", "плавание", "+7xxx"});
 
@@ -142,11 +144,11 @@ private:
         vadim.id = 2; // now vadim's id = 2
 
 
-        Group gr(Group::getPattern());
+        Group gr(Group::getPattern().first());
         gr.trainers << ivan;
         gr.sportsmen << artem;
 
-        Group gr_2({"Группа мошеннег", "мошенник"});
+        Group gr_2("Группа мошеннег");
         gr_2.trainers << ivan;
         gr_2.sportsmen << oleg;
 

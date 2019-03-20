@@ -116,53 +116,28 @@ private:
 
     void setUpConnections()
     {
-        connect(sportsmenTab, &PeoplePresenter::savePerson, this, &MainWindow::needSaveSportsman);
-        connect(trainersTab, &PeoplePresenter::savePerson, this, &MainWindow::needSaveTrainer);
+        connect(sportsmenTab, &PeoplePresenter::needSave, this, &MainWindow::needSaveSportsman);
+        connect(sportsmenTab, &PeoplePresenter::needRemove, this, &MainWindow::needRemoveSportsman);
+        connect(sportsmenTab, &PeoplePresenter::needEdit, [=] (Person pers)
+        {
+            Group groupWithSportsman = Group::firstGroupWithSportsmen(groups, pers.id);
+            sportsmenTab->editPerson(pers, groupWithSportsman.groupName);
+        });
+
+        connect(trainersTab, &PeoplePresenter::needSave, this, &MainWindow::needSaveTrainer);
+        connect(trainersTab, &PeoplePresenter::needRemove, this, &MainWindow::needRemoveTrainer);
+        connect(trainersTab, &PeoplePresenter::needEdit, [=] (Person pers)
+        {
+           Group groupWithTrainer = Group::firstGroupWithTrainer(groups, pers.id);
+           trainersTab->editPerson(pers, groupWithTrainer.groupName);
+        });
+
         connect(groupTab, &GroupsPresenter::needSave, this, &MainWindow::needSaveGroup);
-
-        connect(sportsmenTab, &PeoplePresenter::removePerson, [=] (int id)
+        connect(groupTab, &GroupsPresenter::needRemove, this, &MainWindow::needRemoveGroup);
+        connect(groupTab, &GroupsPresenter::needEdit, [=] (Group group)
         {
-            for (Group group : groups)
-            {
-                if (group.getSportsmenIds().contains(id))
-                {
-                    QString groupName = group.getInList().at(0);
-                    sportsmenTab->showWarning("Пока этот спортсмен состоит в группе '" +
-                                              groupName + "' его нельзя удалить.");
-                    return;
-                }
-            }
-             emit needRemoveSportsman(id);
-        });
-
-        connect(trainersTab, &PeoplePresenter::removePerson, [=] (int id)
-        {
-            for (Group group : groups)
-            {
-                if (group.getTrainersIds().contains(id))
-                {
-                    QString groupName = group.getInList().at(0);
-                    trainersTab->showWarning("Пока этот тренер состоит в группе '" +
-                                             groupName + "' его нельзя удалить.");
-                    return;
-                }
-            }
-             emit needRemoveTrainer(id);
-        });
-
-        connect(groupTab, &GroupsPresenter::needRemove, [=] (int id)
-        {
-            for (Schedule sch : schedules)
-            {
-                if (sch.getGroupsIds().contains(id))
-                {
-                    QString scheduleName = QString::number(schedules.indexOf(sch) + 1);
-                    trainersTab->showWarning("Пока эта группа находится в расписании '" +
-                                             scheduleName + "' ее нельзя удалить.");
-                    return;
-                }
-            }
-             emit needRemoveGroup(id);
+            Schedule scheduleWithGroup = Schedule::firstScheduleWithGroup(schedules, group.id);
+            groupTab->editGroup(group, scheduleWithGroup.title);
         });
 
         connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::needSaveSchedule);

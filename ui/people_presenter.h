@@ -26,8 +26,9 @@ class PeoplePresenter : public QWidget
     QStackedWidget *widgetStack;
 
 signals:
-    void savePerson(Person person);
-    void removePerson(int id);
+    void needSave(Person person);
+    void needRemove(int id);
+    void needEdit(Person person);
 
 public:
     PeoplePresenter(QString icon_path, QWidget *parent = nullptr)
@@ -51,6 +52,11 @@ public:
         {
             updateRunningEditor(people);
         }
+    }
+
+    void editPerson(Person pers, QString personsGroup)
+    {
+        showEditor(pers, personsGroup);
     }
 
     void showWarning(QString warning)
@@ -80,27 +86,20 @@ private:
         widgetStack->addWidget(personEditor);
 
 
-        connect(createButton, &QPushButton::clicked, this, [=] ()
-        {
-            showEditor();
-        });
-        connect(peopleViewer, &RecordsViewer::rowIsActivated, [=] (int row)
-        {
-            if (row >= 0)
-            {
-                showEditor(people.at(row));
-            }
-        });
+        connect(createButton, &QPushButton::clicked,
+                [=] () { showEditor(); });
+        connect(peopleViewer, &RecordsViewer::rowIsActivated,
+                [=] (int row) { emit needEdit(people.at(row)); });
 
         connect(personEditor, &PersonEditor::needSave, [=] (Person pers)
         {
             showPeople();
-            emit savePerson(pers);
+            emit needSave(pers);
         });
         connect(personEditor, &PersonEditor::needRemove, [=] (int id)
         {
             showPeople();
-            emit removePerson(id);
+            emit needRemove(id);
         });
         connect(personEditor, &PersonEditor::needExit, [=] ()
         {
@@ -116,7 +115,7 @@ private:
                 if (result == QMessageBox::Yes)
                 {
                     showPeople();
-                    emit savePerson(outputPers);
+                    emit needSave(outputPers);
                 }
             }
 
@@ -125,9 +124,11 @@ private:
     }
 
 private slots:
-    void showEditor(Person pers = Person())
+    void showEditor(Person pers = Person(), QString personsGroupName = "")
     {
         personEditor->updateContent(pers);
+        personEditor->setGroupLimit(personsGroupName);
+
         widgetStack->setCurrentIndex(1);
     }
 

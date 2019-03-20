@@ -26,7 +26,7 @@ public:
 
     Schedule(QString title, Event event, QDate date, QString sportType)
     {
-        setFullFielsd(title, event, date, sportType);
+        setFullFields(title, event, date, sportType);
     }
     Schedule(QList<QString> property)
     {
@@ -40,7 +40,7 @@ public:
 
     QString getStringDate()
     {
-        return date.toString("yyyy.MM.dd");
+        return date.toString("dd.MM.yyyy");
     }
 
     QDate getDate()
@@ -53,7 +53,7 @@ public:
         date = inputDate;
     }
 
-    void setFullFielsd(QString title, Event event,
+    void setFullFields(QString title, Event event,
                          QDate date, QString sportType)
     {
         this->title = title;
@@ -68,7 +68,7 @@ public:
         {
             title = property.takeFirst();
             event_int = Event(property.takeFirst().toInt());
-            setDate(QDate::fromString(property.takeFirst(), "yyyy.MM.dd"));
+            setDate(QDate::fromString(property.takeFirst(), "dd.MM.yyyy"));
             sportType = property.takeFirst();
         }
     }
@@ -92,8 +92,6 @@ public:
     {
         return {"Событие", "Вид события", "Дата проведения"};
     }
-
-    // TODO make full lists, and replace this in DbManager
 
     Schedule::Event getEventNumber()
     {
@@ -141,6 +139,20 @@ public:
         }
 
         return stringTable;
+    }
+
+    static Schedule
+    firstScheduleWithGroup(QList<Schedule> schedules, int group_id)
+    {
+        for (Schedule sch : schedules)
+        {
+            if (sch.getGroupsIds().contains(group_id))
+            {
+                return sch;
+            }
+        }
+
+        return Schedule();
     }
 
     friend bool operator== (const Schedule &s1, const Schedule &s2);

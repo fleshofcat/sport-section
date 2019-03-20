@@ -94,9 +94,9 @@ public:
 private:
     QList<Group> testGroups()
     {
-        Group q({"q", "q"});
-        Group gr(Group::getPattern());
-        Group gr_2({"Группа мошеннег", "мошенник"});
+        Group q("q");
+        Group gr(Group::getPattern().first());
+        Group gr_2("Группа мошеннег");
 
         q.id = 1;
         gr.id = 2;

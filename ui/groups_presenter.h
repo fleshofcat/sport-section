@@ -21,6 +21,7 @@ class GroupsPresenter : public QWidget
 signals:
     void needSave(Group group);
     void needRemove(int group_id);
+    void needEdit(Group group);
 
 public:
     GroupsPresenter(QWidget *parent = nullptr)
@@ -62,6 +63,11 @@ public:
         }
     }
 
+    void editGroup(Group group, QString groupsScheduleName)
+    {
+        showEditor(group, groupsScheduleName);
+    }
+
 private:
     void setUpUi()
     {
@@ -84,14 +90,10 @@ private:
 
     void setUpConnections()
     {
-        connect(createButton, &QPushButton::clicked, [=] ()
-        {
-            showEditor();
-        });
-        connect(groupsViewer, &RecordsViewer::rowIsActivated, [=] (int row)
-        {
-            showEditor(groups.at(row));
-        });
+        connect(createButton, &QPushButton::clicked,
+                [=] () { showEditor(); });
+        connect(groupsViewer, &RecordsViewer::rowIsActivated,
+                [=] (int row) { emit needEdit(groups.at(row)); });
 
         connect(groupEditor, &GroupEditor::needSave, [=] (Group group)
         {
@@ -125,12 +127,14 @@ private:
     }
 
 private slots:
-    void showEditor(Group group = Group())
+    void showEditor(Group group = Group(), QString groupsScheduleName = "")
     {
-        QList<Person> availableSportsmen = Person::getFreePeople(sportsmen, group.sportsmen);
+        QList<Person> availableSportsmen = Group::getFreeSportsmen(groups, sportsmen);
         availableSportsmen << group.sportsmen;
 
         groupEditor->updateContent(trainers, availableSportsmen, group);
+        groupEditor->setScheduleLimit(groupsScheduleName);
+
         widgetStack->setCurrentIndex(1);
     }
 

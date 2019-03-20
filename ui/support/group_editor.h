@@ -34,10 +34,11 @@ class GroupEditor : public QWidget
 
     // editors
     QLineEdit *groupNameField;
-    QLineEdit *sportTypeField;
+
     // not editable
     QLineEdit *ratingField;
     QLineEdit *eventCountField;
+    QLineEdit *sportTypeField;
 
     // people in group
     QPushButton *addTrainerButton;
@@ -84,14 +85,31 @@ public:
         this->group = group;
         this->oldGroup = group;
 
-        groupNameField->setText(group.groupName);
-        sportTypeField->setText(group.sportType);
+        setScheduleLimit("");
 
-        ratingField->setText(QString::number(double(group.getGroupRating())));
+        groupNameField->setText(group.groupName);
+        sportTypeField->setText(group.getSportTypeByPeople());
+
+        ratingField->setText(QString::number(group.getGroupRating()));
         eventCountField->setText(QString::number(group.eventNumber));
 
         updateTrainersView(trainers);
         updateSportsmenView(sportsmen);
+    }
+
+    void setScheduleLimit(QString scheduleName = "")
+    {
+        removeButton->setEnabled(scheduleName.isEmpty());
+
+        if (!scheduleName.isEmpty())
+        {
+            removeButton->setToolTip("Группу нельзя удалить пока она находится "
+                                     "в расписании '" + scheduleName + "'");
+        }
+        else
+        {
+            removeButton->setToolTip("");
+        }
     }
 
     void updateTrainersView(QList<Person> trainers)
@@ -99,6 +117,8 @@ public:
         this->allTrainers = trainers;
         trainersViewer->updateContent(Person::toPreviewStringTable(group.trainers),
                                       Person::getPreviewPattern());
+
+        sportTypeField->setText(group.getSportTypeByPeople());
     }
 
     void updateSportsmenView(QList<Person> sportsmen)
@@ -106,14 +126,14 @@ public:
         this->allSportsmen = sportsmen;
         sportsmenViewer->updateContent(Person::toPreviewStringTable(group.sportsmen),
                                        Person::getPreviewPattern());
+
+        sportTypeField->setText(group.getSportTypeByPeople());
+        ratingField->setText(QString::number(group.getGroupRating()));
     }
 
     Group getCurrentGroup()
     {
-        QString groupName = groupNameField->text();
-        QString sportType = sportTypeField->text();
-
-        group.setInList({groupName, sportType});
+        group.groupName = groupNameField->text();
         return group;
     }
 
@@ -126,8 +146,10 @@ private:
     void setUpUi()
     {
         groupNameField = new QLineEdit;
-        sportTypeField = new QLineEdit;
 
+        sportTypeField = new QLineEdit;
+        sportTypeField->setReadOnly(true);
+        sportTypeField->setToolTip("Спорт группы определяется людьми в ней");
         ratingField = new QLineEdit;
         ratingField->setReadOnly(true);
         eventCountField = new QLineEdit;
@@ -187,7 +209,15 @@ private:
 
         connect(addSportsmanButton, &QPushButton::clicked, [=] ()
         {
-            QList<Person> aviableSportsmen = Person::getFreePeople(allSportsmen, group.sportsmen);
+            QList<Person> allSportsmenWithSportType = allSportsmen;
+            if (!group.getSportTypeByPeople().isEmpty())
+            {
+                allSportsmenWithSportType = Person::getBySportType(
+                            allSportsmen, group.getSportTypeByPeople());
+            }
+
+            QList<Person> aviableSportsmen = Person::getFreePeople(
+                        allSportsmenWithSportType, group.sportsmen);
             auto choosenPerson = choosePerson(aviableSportsmen, sportsmanIconPath);
 
             if (choosenPerson.id > 0)
@@ -210,7 +240,14 @@ private:
 
         connect(addTrainerButton, &QPushButton::clicked, [=] ()
         {
-            QList<Person> aviableTrainers = Person::getFreePeople(allTrainers, group.trainers);
+            QList<Person> allTrainersWithSportType = allTrainers;
+            if (!group.getSportTypeByPeople().isEmpty())
+            {
+                allTrainersWithSportType = Person::getBySportType(
+                            allTrainers, group.getSportTypeByPeople());
+            }
+
+            QList<Person> aviableTrainers = Person::getFreePeople(allTrainersWithSportType, group.trainers);
             auto choosenPerson = choosePerson(aviableTrainers, trainerIconPath);
 
             if (choosenPerson.id > 0)

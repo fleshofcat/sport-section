@@ -68,6 +68,8 @@ public:
 public slots:
     void updateGroupsView(QList<Group> currentGroups)
     {
+        this->currentGroups = currentGroups;
+
         QList<int> groupsOrder = getSortedOrderByGroupsRange(currentGroups);
 
         int currentPageIndex = 0;

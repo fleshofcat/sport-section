@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QList>
+#include <QDate>
 
 // класс Person/Человек
 // отвечает за хранение данных любого человека
@@ -15,7 +16,7 @@ public:
     QString firstName;      // имя
     QString secondName;     // Отчество
     QString lastName;       // фамилия
-    QString birthday;       // дата рождения
+    QDate   birthday;       // дата рождения
     QString sportType;      // вид спорта
     QString phoneNumber;    // TODO now is not influence
 
@@ -28,6 +29,41 @@ public:
         this->id = id;
     }
     Person() {}
+
+    void setFullData(QString firstName,
+                     QString secondName,
+                     QString lastName,
+                     QDate birthday,
+                     QString sportType,
+                     QString phoneNumber)
+    {
+        this->firstName = firstName;
+        this->secondName = secondName;
+        this->lastName = lastName;
+        setBirthday(birthday);
+        this->sportType = sportType;
+        this->phoneNumber = phoneNumber;
+    }
+
+    QDate getBirthdayDate()
+    {
+        return birthday;
+    }
+
+    QString getBirthdayString()
+    {
+        return this->birthday.toString("dd.MM.yyyy");
+    }
+
+    void setBirthday(QDate birthday)
+    {
+        this->birthday = birthday;
+    }
+
+    void setBirthday(QString birthday)
+    {
+        this->birthday = QDate::fromString(birthday, "dd.MM.yyyy");
+    }
 
     QList<QString> getPreviewList()
     {
@@ -45,14 +81,14 @@ public:
             firstName   = personData.takeFirst();
             secondName  = personData.takeFirst();
             lastName    = personData.takeFirst();
-            birthday    = personData.takeFirst();
+            setBirthday(personData.takeFirst());
             sportType   = personData.takeFirst();
             phoneNumber = personData.takeFirst();
         }
     }
     QList<QString> getEditableList()
     {
-        return {firstName, secondName, lastName, birthday, sportType, phoneNumber};
+        return {firstName, secondName, lastName, getBirthdayString(), sportType, phoneNumber};
     }
     static QList<QString> getEditablePattern()
     {
@@ -66,7 +102,7 @@ public:
             firstName   = personData.takeFirst();
             secondName  = personData.takeFirst();
             lastName    = personData.takeFirst();
-            birthday    = personData.takeFirst();
+            setBirthday(  personData.takeFirst());
             sportType   = personData.takeFirst();
             phoneNumber = personData.takeFirst();
             rating      = personData.takeFirst().toInt();
@@ -75,7 +111,7 @@ public:
     }
     QList<QString> getFullList()
     {
-        return {firstName, secondName, lastName, birthday, sportType, phoneNumber,
+        return {firstName, secondName, lastName, getBirthdayString(), sportType, phoneNumber,
                     QString::number(rating), QString::number(eventsNumber)};
     }
     static QList<QString> getFullPattern()
@@ -130,6 +166,17 @@ public:
         return freePeople;
     }
 
+    static QList<Person> getBySportType(QList<Person> allPeople, QString sport)
+    {
+        QList<Person> ret;
+        for (Person pers : allPeople)
+        {
+            if (pers.sportType == sport)
+                ret << pers;
+        }
+
+        return ret;
+    }
 
     friend bool operator== (const Person &p1, const Person &p2);
     friend bool operator!= (const Person &p1, const Person &p2);

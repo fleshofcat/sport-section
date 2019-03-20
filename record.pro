@@ -36,7 +36,6 @@ HEADERS +=                          \
     ui/support/sportsmen_view_for_event_result.h \
 \
     ui/widgets/record_chooser.h     \
-    ui/widgets/editors_box.h        \
     ui/widgets/records_viewer.h \
     ui/widgets/list_view.h \
     ui/support/preview_result_calculation.h \

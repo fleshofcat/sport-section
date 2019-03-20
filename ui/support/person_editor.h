@@ -3,9 +3,10 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QFormLayout>
+#include <QDateTimeEdit>
+#include <QLineEdit>
 
 #include "common/person.h"
-#include "ui/widgets/editors_box.h"
 
 class PersonEditor : public QWidget
 {
@@ -21,8 +22,14 @@ class PersonEditor : public QWidget
     QPushButton *removeButton = new QPushButton("Удалить");
     QPushButton *exitButton = new QPushButton("Выйти");
 
-    EditorsBox *editorsBox;
+    // editors
 
+    QLineEdit *firstNameEdit;
+    QLineEdit *secondNameEdit;
+    QLineEdit *lastNameEdit;
+    QDateEdit *birthdayEdit;
+    QLineEdit *sportTypeEdit;
+    QLineEdit *phoneNumberEdit;
 
 signals:
     void needSave(Person person);
@@ -50,14 +57,39 @@ public:
         this->person = person;
         this->oldPerson = person;
 
-        editorsBox->updateContent(Person::getEditablePattern(), person.getEditableList());
-        ratingView->setText(QString::number(person.rating));
-        eventsNumberView->setText(QString::number(person.eventsNumber));
+        setGroupLimit(""); // снимает лимит группы
+        updateEditorFields(person);
+    }
+
+    void setGroupLimit(QString groupName = "")
+    {
+        removeButton->setEnabled(groupName.isEmpty());
+        sportTypeEdit->setReadOnly(!groupName.isEmpty());
+
+        if (!groupName.isEmpty())
+        {
+            removeButton->setToolTip(
+                        "Человека нельзя удалить, пока он находится "
+                        "в группе '" + groupName + "'");
+
+            sportTypeEdit->setToolTip("Вид спорта нельзя изменять "
+                                      "пока человек находится в группе '" + groupName + "'");
+        }
+        else
+        {
+            removeButton->setToolTip("");
+            sportTypeEdit->setToolTip("");
+        }
     }
 
     Person getCurrentPerson()
     {
-        person.setEditableList(editorsBox->getInList());
+        person.setFullData(firstNameEdit->text(),
+                           secondNameEdit->text(),
+                           lastNameEdit->text(),
+                           birthdayEdit->date(),
+                           sportTypeEdit->text(),
+                           phoneNumberEdit->text());
         return person;
     }
 
@@ -69,28 +101,57 @@ public:
 private:
     void setUpUi()
     {
-        editorsBox = new EditorsBox;
+        birthdayEdit = new QDateEdit;
+        birthdayEdit->setCalendarPopup(true);
+        birthdayEdit->setDisplayFormat("dd.MM.yyyy");
+
+        firstNameEdit = new QLineEdit;
+        secondNameEdit = new QLineEdit;
+        lastNameEdit = new QLineEdit;
+        sportTypeEdit = new QLineEdit;
+        phoneNumberEdit = new QLineEdit;
 
         ratingView = new QLabel;
         eventsNumberView = new QLabel;
 
-        QFormLayout *formLayout = new QFormLayout;
-        formLayout->addRow("Рейтинг",     ratingView);
-        formLayout->addRow("Мероприятий", eventsNumberView);
+        QFormLayout *editorsLayout = new QFormLayout;
+        editorsLayout->addRow("Имя",            firstNameEdit);
+        editorsLayout->addRow("Отчество",       secondNameEdit);
+        editorsLayout->addRow("Фамилия",        lastNameEdit);
+        editorsLayout->addRow("День рождения",  birthdayEdit);
+        editorsLayout->addRow("Спорт",          sportTypeEdit);
+        editorsLayout->addRow("Номер телефона", phoneNumberEdit);
+
+        editorsLayout->addRow("Рейтинг",     ratingView);
+        editorsLayout->addRow("Мероприятий", eventsNumberView);
+
 
         QHBoxLayout *buttonLayout = new QHBoxLayout;
-
         buttonLayout->addWidget(saveButton);
         buttonLayout->addWidget(removeButton);
         buttonLayout->addWidget(exitButton);
 
 
         QVBoxLayout *basicLayout = new QVBoxLayout;
-        basicLayout->addWidget(editorsBox);
-        basicLayout->addLayout(formLayout);
+        basicLayout->addLayout(editorsLayout);
         basicLayout->addItem(buttonLayout);
 
         setLayout(basicLayout);
+    }
+
+    void updateEditorFields(Person pers)
+    {
+        firstNameEdit->setText(pers.firstName);
+        secondNameEdit->setText(pers.secondName);
+        lastNameEdit->setText(pers.lastName);
+        phoneNumberEdit->setText(pers.phoneNumber);
+        sportTypeEdit->setText(pers.sportType);
+
+        birthdayEdit->setDate(QDate());
+        birthdayEdit->setDate(pers.getBirthdayDate());
+
+        ratingView->setText(QString::number(pers.rating));
+        eventsNumberView->setText(QString::number(pers.eventsNumber));
     }
 
 private slots:

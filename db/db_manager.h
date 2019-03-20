@@ -109,7 +109,18 @@ public:
 
     bool removeGroup(int id)
     {
-        return groupManager.removeGroup(id);
+        if (!groupManager.removeGroup(id))
+        {
+            for (auto sch : closedScheduleManager.getSchedules())
+            {
+                if (sch.getGroupsIds().contains(id))
+                {
+                    closedScheduleManager.removeSchedule(sch.id);
+                }
+            }
+            return groupManager.removeGroup(id);
+        }
+        return true;
     }
 
 

@@ -118,9 +118,9 @@ private:
 
     QList<Group> testGroups()
     {
-        Group q({"q", "q"});
-        Group gr(Group::getPattern());
-        Group gr_2({"Группа мошеннег", "мошенник"});
+        Group q("q");
+        Group gr(Group::getPattern().first());
+        Group gr_2("Группа мошеннег");
 
         return {q, gr, gr_2};
     }

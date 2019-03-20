@@ -120,9 +120,10 @@ private:
         for (int id : secondaryTable_ids)
         {
             QSqlQuery query;
-            query.prepare(QString("INSERT INTO %1 (%2, %3)  "
+            QString str = QString("INSERT INTO %1 (%2, %3)  "
                                   "VALUES (?, ?)            ")
-                          .arg(relations).arg(main_id).arg(secondary_id));
+                          .arg(relations).arg(main_id).arg(secondary_id);
+            query.prepare(str);
 
             query.addBindValue(mainTable_id);
             query.addBindValue(id);

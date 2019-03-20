@@ -11,16 +11,14 @@ public:
     int id = 0;         // присваивается в бд
 
     QString groupName;
-    QString sportType;
-
     int eventNumber = 0;
 
     QList<Person> trainers;
     QList<Person> sportsmen;
 
-    Group(QList<QString> property)
+    Group(QString groupName)
     {
-        setInList(property);
+        this->groupName = groupName;
     }
     Group(int id)
     {
@@ -28,18 +26,9 @@ public:
     }
     Group() {}
 
-    void setInList(QList<QString> property)
-    {
-        if (property.count() == Group::getPattern().count())
-        {
-            groupName = property.at(0);
-            sportType = property.at(1);
-        }
-    }
-
     QList<QString> getInList()
     {
-        return {groupName, sportType};
+        return {groupName, getSportTypeByPeople()};
     }
 
     static QList<QString> getPattern()
@@ -47,24 +36,31 @@ public:
         return {"Группа", "Спорт"};
     }
 
-    void setFullList(QList<QString> property)
+    void setSaveableProperty(QList<QString> property)
     {
-        if (property.count() == getFullList().count())
+        if (property.count() == getSaveableProperty().count())
         {
             groupName   = property.takeFirst();
-            sportType   = property.takeFirst();
             eventNumber = property.takeFirst().toInt();
         }
     }
 
-    QList<QString> getFullList()
+    QList<QString> getSaveableProperty()
     {
-        return {groupName, sportType, QString::number(eventNumber)};
+        return {groupName, QString::number(eventNumber)};
     }
 
-    static QList<QString> getFullPattern()
+    static QList<QString> getSaveablePattern()
     {
-        return {"Группа", "Спорт", "Количество мероприятий"};
+        return {"Группа", "Количество мероприятий"};
+    }
+
+    QList<QString> getFullProperty()
+    {
+        return { groupName,
+                    getSportTypeByPeople(),
+                    QString::number(eventNumber),
+                    QString::number(getGroupRating()) };
     }
 
     QList<int> getTrainersIds()
@@ -89,6 +85,21 @@ public:
         }
 
         return sportsmen_ids;
+    }
+
+    QString getSportTypeByPeople()
+    {
+        QString sport;
+        if (!trainers.isEmpty())
+        {
+            sport = trainers.first().sportType;
+        }
+        else if (!sportsmen.isEmpty())
+        {
+            sport = sportsmen.first().sportType;
+        }
+
+        return sport;
     }
 
     double getGroupRating() // was float TODO
@@ -141,6 +152,45 @@ public:
         }
 
         return allSportsmen;
+    }
+
+    static QList<Person>
+    getFreeSportsmen(QList<Group> allGroups, QList<Person> allSportsmen)
+    {
+        for (Group group : allGroups)
+        {
+            allSportsmen = Person::getFreePeople(
+                        allSportsmen, group.sportsmen);
+        }
+        return allSportsmen;
+    }
+
+    static Group
+    firstGroupWithSportsmen(QList<Group> groups, int sportsmen_id)
+    {
+        for (Group group : groups)
+        {
+            if (group.getSportsmenIds().contains(sportsmen_id))
+            {
+                return group;
+            }
+        }
+
+        return Group();
+    }
+
+    static Group
+    firstGroupWithTrainer(QList<Group> groups, int trainer_id)
+    {
+        for (Group group : groups)
+        {
+            if (group.getTrainersIds().contains(trainer_id))
+            {
+                return group;
+            }
+        }
+
+        return Group();
     }
 
     friend bool operator== (const Group &g1, const Group &g2);
