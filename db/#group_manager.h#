@@ -33,6 +33,7 @@ public:
         touchManager(groupTable, trainerTable, sportsmanTable);
     }
 
+
     void touchManager(QString groupTable,
                       QString trainerTable,
                       QString sportsmanTable)

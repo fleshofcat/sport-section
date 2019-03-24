@@ -117,7 +117,7 @@ public:
     static QList<QString> getFullPattern()
     {
         return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт", "Номер телефона",
-            "Рейтинг", "Количество мероприятий"};
+            "Рейтинг", "Мероприятий"};
     }
 
     static QList<QList<QString>>
@@ -175,6 +175,35 @@ public:
                 ret << pers;
         }
 
+        return ret;
+    }
+
+    static QList<QList<QVariant>>
+    getStatsTable(QList<Person> people)
+    {
+        QList<QList<QVariant>> ret;
+
+        for (auto pers : people)
+        {
+            QList<QVariant> stats;
+            for (QString field : pers.getPreviewList())
+            {
+                stats << QVariant(field);
+            }
+            stats << QVariant(pers.rating);
+            stats << QVariant(pers.eventsNumber);
+
+            ret << stats;
+        }
+        return ret;
+    }
+
+    static QList<QString>
+    getStatsPattern()
+    {
+        auto ret = Person::getPreviewPattern();
+        ret << "Рейтинг";
+        ret << "Мероприятий";
         return ret;
     }
 

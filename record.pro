@@ -15,32 +15,32 @@ HEADERS +=                          \
     tests/test_db/test_group_manager.h  \
     tests/test_ui/test_group_editor.h   \
     tests/test_ui/test_editors_box.h    \
-    tests/test_db/test_group_links.h \
-    tests/test_db/test_schedule_manager.h \
-    tests/test_ui/test_schedule_editor.h \
-                                        \
+    tests/test_db/test_group_links.h    \
+    tests/test_db/test_schedule_manager.h   \
+    tests/test_ui/test_schedule_editor.h    \
+                                            \
     db/db_manager.h                 \
     db/people_manager.h             \
     db/group_manager.h              \
-    db/schedule_manager.h \
-    db/relations_in_db.h \
+    db/schedule_manager.h           \
+    db/relations_in_db.h            \
                                     \
     ui/main_window.h                \
-    ui/schedule_presenter.h \
-    ui/groups_presenter.h \
-    ui/people_presenter.h \
-\
-    ui/support/schedule_editor.h \
-    ui/support/group_editor.h               \
-    ui/support/person_editor.h \
-    ui/support/sportsmen_view_for_event_result.h \
-\
+    ui/schedule_presenter.h         \
+    ui/groups_presenter.h           \
+    ui/people_presenter.h           \
+    ui/stats_widget.h               \
+                                    \
+    ui/support/schedule_editor.h    \
+    ui/support/group_editor.h       \
+    ui/support/person_editor.h      \
+    ui/support/sportsmen_view_for_event_result.h    \
+    ui/support/preview_result_calculation.h         \
+    ui/support/schedule_closer.h    \
+                                    \
     ui/widgets/record_chooser.h     \
-    ui/widgets/records_viewer.h \
-    ui/widgets/list_view.h \
-    ui/support/preview_result_calculation.h \
-    ui/support/schedule_closer.h \
-    ui/setting_presenter.h
+    ui/widgets/records_viewer.h     \
+    ui/widgets/list_view.h
 
 SOURCES += \
     main.cpp \

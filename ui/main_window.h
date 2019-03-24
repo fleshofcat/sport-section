@@ -6,6 +6,7 @@
 #include "ui/people_presenter.h"
 #include "ui/groups_presenter.h"
 #include "ui/schedule_presenter.h"
+#include "ui/stats_widget.h"
 
 
 // класс MainWindow/ГлавноеОкно является классом-прослойкой
@@ -22,12 +23,14 @@ class MainWindow : public QWidget
     QString groupIconPath = "../record/res/img/group.png";
     QString scheduleIconPath = "../record/res/img/schedule.png";
     QString closedScheduleIconPath = "../record/res/img/closed_schedule.png";
+    QString statsIconPath = "../record/res/img/stats.png";
 
     QTabWidget *tabs;
     PeoplePresenter *sportsmenTab;
     PeoplePresenter *trainersTab;
     GroupsPresenter *groupTab;
     SchedulePresenter *scheduleTab;
+    StatsWidget *statsTab;
 
     QList<Person> sportsmen;
     QList<Person> trainers;
@@ -77,6 +80,7 @@ public:
         trainersTab->updateContent(trainers);
         groupTab->updateContent(sportsmen, trainers, groups);
         scheduleTab->updateContent(schedules, closedSchedules, groups);
+        statsTab->updateContent(groups, trainers, sportsmen);
     }
 
 private:
@@ -99,6 +103,11 @@ private:
         scheduleTab->setClosedScheduleIconPath(closedScheduleIconPath);
         scheduleTab->setGroupIconPath(groupIconPath);
 
+        statsTab = new StatsWidget;
+        statsTab->setGroupIconPath(groupIconPath);
+        statsTab->setTrainersIconPath(trainerIconPath);
+        statsTab->setSportsmenIconPath(sportsmanIconPath);
+
         tabs = new QTabWidget(this);
 
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -108,10 +117,11 @@ private:
         tabs->setSizePolicy(sizePolicy);
         tabs->setMovable(true);
 
-        tabs->addTab(scheduleTab, QIcon(scheduleIconPath),   "Расписания");
-        tabs->addTab(groupTab, QIcon(groupIconPath),         "Группы");
-        tabs->addTab(trainersTab, QIcon(trainerIconPath),    "Тренеры");
+        tabs->addTab(scheduleTab,  QIcon(scheduleIconPath),  "Расписания");
+        tabs->addTab(groupTab,     QIcon(groupIconPath),     "Группы");
+        tabs->addTab(trainersTab,  QIcon(trainerIconPath),   "Тренеры");
         tabs->addTab(sportsmenTab, QIcon(sportsmanIconPath), "Спортсмены");
+        tabs->addTab(statsTab,     QIcon(statsIconPath),     "Статистика");
     }
 
     void setUpConnections()

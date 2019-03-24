@@ -45,7 +45,36 @@ public:
             {
                 for (int c = 0; c < columns; c++)
                 {
+                    QModelIndex index = model->index(r, c);
+                    model->setData(index, table.at(r).at(c));
+                }
 
+                if (!icon_path.isEmpty())
+                {
+                    model->setVerticalHeaderItem(
+                                r, new QStandardItem(QIcon(icon_path), ""));
+                }
+            }
+            setModel(model);
+            setHHeader(pattern);
+        }
+    }
+
+    void updateContent(QList<QList<QVariant>> table, QList<QString> pattern = {})
+    {
+        dropContent();
+
+        if (isTableValid(table))
+        {
+            int columns = table.at(0).count();
+            int rows = table.count();
+
+            QStandardItemModel *model = new QStandardItemModel(rows, columns);
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < columns; c++)
+                {
                     QModelIndex index = model->index(r, c);
                     model->setData(index, table.at(r).at(c));
                 }
@@ -83,7 +112,26 @@ private:
         connect(this, &QTableView::clicked, [=] (QModelIndex index) { emit rowIsActivated(index.row()); });
     }
 
-    bool isTableValid(QList<QList<QString>> &table)
+//    bool isTableValid(QList<QList<QString>> &table)
+//    {
+//        if (table.count() <= 0)
+//            return false;
+
+
+//        int length = table.at(0).count();
+
+//        for (auto list : table)
+//        {
+//            if (list.count() != length)
+//            {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+
+    template <class Obj>
+    bool isTableValid(QList<QList<Obj>> table)
     {
         if (table.count() <= 0)
             return false;

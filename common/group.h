@@ -52,7 +52,7 @@ public:
 
     static QList<QString> getSaveablePattern()
     {
-        return {"Группа", "Количество мероприятий"};
+        return {"Группа", "Мероприятий"};
     }
 
     QList<QString> getFullProperty()
@@ -128,6 +128,35 @@ public:
                 return;
             }
         }
+    }
+
+    static QList<QList<QVariant>>
+    getStatsTable(QList<Group> groups)
+    {
+        QList<QList<QVariant>> ret;
+
+        for (auto group : groups)
+        {
+            QList<QVariant> stats;
+            for (QString field : group.getInList())
+            {
+                stats << QVariant(field);
+            }
+            stats << QVariant(group.getGroupRating());
+            stats << QVariant(group.eventNumber);
+
+            ret << stats;
+        }
+        return ret;
+    }
+
+    static QList<QString>
+    getStatsPattern()
+    {
+        auto ret = Group::getPattern();
+        ret << "Рейтинг";
+        ret << "Мероприятий";
+        return ret;
     }
 
     static QList<QList<QString>>
