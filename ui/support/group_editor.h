@@ -88,9 +88,9 @@ public:
         setScheduleLimit("");
 
         groupNameField->setText(group.groupName);
-        sportTypeField->setText(group.getSportTypeByPeople());
+        sportTypeField->setText(group.getSportType());
 
-        ratingField->setText(QString::number(group.getGroupRating()));
+        ratingField->setText(QString::number(group.getRating()));
         eventCountField->setText(QString::number(group.eventNumber));
 
         updateTrainersView(trainers);
@@ -118,7 +118,7 @@ public:
         trainersViewer->updateContent(Person::toPreviewStringTable(group.trainers),
                                       Person::getPreviewPattern());
 
-        sportTypeField->setText(group.getSportTypeByPeople());
+        sportTypeField->setText(group.getSportType());
     }
 
     void updateSportsmenView(QList<Person> sportsmen)
@@ -127,8 +127,8 @@ public:
         sportsmenViewer->updateContent(Person::toPreviewStringTable(group.sportsmen),
                                        Person::getPreviewPattern());
 
-        sportTypeField->setText(group.getSportTypeByPeople());
-        ratingField->setText(QString::number(group.getGroupRating()));
+        sportTypeField->setText(group.getSportType());
+        ratingField->setText(QString::number(group.getRating()));
     }
 
     Group getCurrentGroup()
@@ -210,10 +210,10 @@ private:
         connect(addSportsmanButton, &QPushButton::clicked, [=] ()
         {
             QList<Person> allSportsmenWithSportType = allSportsmen;
-            if (!group.getSportTypeByPeople().isEmpty())
+            if (!group.getSportType().isEmpty())
             {
                 allSportsmenWithSportType = Person::getBySportType(
-                            allSportsmen, group.getSportTypeByPeople());
+                            allSportsmen, group.getSportType());
             }
 
             QList<Person> aviableSportsmen = Person::getFreePeople(
@@ -241,10 +241,10 @@ private:
         connect(addTrainerButton, &QPushButton::clicked, [=] ()
         {
             QList<Person> allTrainersWithSportType = allTrainers;
-            if (!group.getSportTypeByPeople().isEmpty())
+            if (!group.getSportType().isEmpty())
             {
                 allTrainersWithSportType = Person::getBySportType(
-                            allTrainers, group.getSportTypeByPeople());
+                            allTrainers, group.getSportType());
             }
 
             QList<Person> aviableTrainers = Person::getFreePeople(allTrainersWithSportType, group.trainers);

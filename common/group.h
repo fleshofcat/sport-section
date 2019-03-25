@@ -28,7 +28,7 @@ public:
 
     QList<QString> getInList()
     {
-        return {groupName, getSportTypeByPeople()};
+        return {groupName, getSportType()};
     }
 
     static QList<QString> getPattern()
@@ -58,9 +58,9 @@ public:
     QList<QString> getFullProperty()
     {
         return { groupName,
-                    getSportTypeByPeople(),
+                    getSportType(),
                     QString::number(eventNumber),
-                    QString::number(getGroupRating()) };
+                    QString::number(getRating()) };
     }
 
     QList<int> getTrainersIds()
@@ -87,7 +87,7 @@ public:
         return sportsmen_ids;
     }
 
-    QString getSportTypeByPeople()
+    QString getSportType()
     {
         QString sport;
         if (!trainers.isEmpty())
@@ -102,7 +102,7 @@ public:
         return sport;
     }
 
-    double getGroupRating() // was float TODO
+    double getRating()
     {
         if (!sportsmen.isEmpty())
         {
@@ -142,7 +142,7 @@ public:
             {
                 stats << QVariant(field);
             }
-            stats << QVariant(group.getGroupRating());
+            stats << QVariant(group.getRating());
             stats << QVariant(group.eventNumber);
 
             ret << stats;

@@ -28,11 +28,13 @@ class ScheduleEditor : public QWidget
     QPushButton *removeButton;
     QPushButton *exitButton;
 
+    // editors
     QLineEdit *titleEdit;
     QComboBox *eventEdit;
     QDateTimeEdit *dateEdit;
-    QLineEdit *sportTypeEdit;
 
+    // not editable
+    QLineEdit *sportTypeEdit;
 
     QPushButton *addGroupButton;
     RecordsViewer *groupsViewer;
@@ -69,17 +71,16 @@ public:
         this->schedule = schedule;
         this->oldSchedule = schedule;
 
-        setEditors(schedule);
+        updateEditorsView(schedule);
         updateGroups(allGroups);
     }
 
     Schedule getCurrentSchedule()
     {
-        schedule.setFullFields(
+        schedule.setFields(
                     titleEdit->text(),
                     Schedule::Event(eventEdit->currentIndex() + 1),
-                    dateEdit->date(),
-                    sportTypeEdit->text()
+                    dateEdit->date()
                     );
 
         return schedule;
@@ -93,8 +94,7 @@ public:
     void updateGroups(QList<Group> allGroups)
     {
         this->allGroups = allGroups;
-
-        updateGroupsViewer();
+        updateNotEditableView(schedule);
     }
 
 private:
@@ -112,6 +112,8 @@ private:
         eventEdit->addItem("Соревнования");
 
         sportTypeEdit = new QLineEdit;
+        sportTypeEdit->setReadOnly(true);
+        sportTypeEdit->setToolTip("Спорт расписания определяется группами в нем");
 
         QFormLayout *editors = new QFormLayout;
         auto titlesList = Schedule::getFullPattern();
@@ -172,7 +174,11 @@ private:
             {
                 if (!schedule.groups.contains(group))
                 {
-                    groupsToShow << group;
+                    if (schedule.getSportType() == group.getSportType()
+                            || schedule.getSportType().isEmpty())
+                    {
+                        groupsToShow << group;
+                    }
                 }
             }
 
@@ -182,7 +188,7 @@ private:
             if (row >= 0)
             {
                 schedule.groups << groupsToShow.at(row);
-                updateGroupsViewer();
+                updateNotEditableView(schedule);
             }
         });
         connect(groupsViewer, &RecordsViewer::rowIsActivated, [=] (int row)
@@ -195,17 +201,18 @@ private:
                 return;
             }
             schedule.groups.removeAt(row);
-            updateGroupsViewer();
+            updateNotEditableView(schedule);
         });
     }
 
-    void updateGroupsViewer()
+    void updateNotEditableView(Schedule sch)
     {
-        groupsViewer->updateContent(Group::toStringTable(schedule.groups),
+        sportTypeEdit->setText(sch.getSportType());
+        groupsViewer->updateContent(Group::toStringTable(sch.groups),
                                     Group::getPattern());
     }
 
-    void setEditors(Schedule sch)
+    void updateEditorsView(Schedule sch)
     {
         titleEdit->setText(sch.title);
 
@@ -222,8 +229,6 @@ private:
         {
             eventEdit->setCurrentIndex(1);
         }
-
-        sportTypeEdit->setText(sch.sportType);
     }
 };
 

@@ -113,10 +113,10 @@ public slots:
             groupsView->addItem(
                         peopleView, QIcon(groupIconPath),
                         currentGroups[index].groupName + " - "
-                    + QString::number(double(currentGroups[index].getGroupRating()))
+                    + QString::number(double(currentGroups[index].getRating()))
                     + " ( +"
-                    + QString::number(double(currentGroups[index].getGroupRating()
-                                      - oldGroups[index].getGroupRating()))
+                    + QString::number(double(currentGroups[index].getRating()
+                                      - oldGroups[index].getRating()))
                     + ")");
         }
 
@@ -143,8 +143,8 @@ private:
         QList<QPair<double,int>> groupsRatingIndexes;
         for (int r = 0; r < groups.count(); r++)
         {
-            groupsRatingIndexes << QPair<double,int>(groups[r].getGroupRating()
-                               - oldGroups[r].getGroupRating(), r);
+            groupsRatingIndexes << QPair<double,int>(groups[r].getRating()
+                               - oldGroups[r].getRating(), r);
         }
 
 sort_start:

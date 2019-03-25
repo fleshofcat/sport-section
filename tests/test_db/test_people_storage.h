@@ -8,7 +8,7 @@ class TestPeopleStorage : public QObject
 {
     Q_OBJECT
 
-    QString dbPath = "../record/tests/test_res/sport_people.db";
+    QString dbPath = "../sport-section/tests/test_res/sport_people.db";
 
 private slots:
 //    void initTestCase()

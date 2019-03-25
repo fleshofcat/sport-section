@@ -7,8 +7,6 @@
 #include "test_db/test_db_manager.h"
 #include "test_db/test_schedule_manager.h"
 
-#include "test_ui/test_group_editor.h"
-#include "test_ui/test_editors_box.h"
 #include "test_ui/test_schedule_editor.h"
 
 class MainTest : QObject
@@ -24,8 +22,6 @@ public:
         QTest::qExec(new TestGroupManager, argc, argv);
         QTest::qExec(new TestScheduleManager, argc, argv);
 
-        QTest::qExec(new TestGroupEditor, argc, argv);
-        QTest::qExec(new TestEditorsBox, argc, argv);
         QTest::qExec(new TestScheduleEditor, argc, argv);
     }
 };

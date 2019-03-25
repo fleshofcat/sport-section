@@ -20,18 +20,14 @@ public:
     int id = 0;
     Event event_int = Event::TRAINING;
     QString title;
-    QString sportType;
 
     QList<Group> groups;
 
-    Schedule(QString title, Event event, QDate date, QString sportType)
-    {
-        setFullFields(title, event, date, sportType);
-    }
-    Schedule(QList<QString> property)
-    {
-        setFullList(property);
-    }
+    // TODO rm
+//    Schedule(QString title, Event event, QDate date, QString sportType)
+//    {
+//        setFields(title, event, date, sportType);
+//    }
     Schedule(int id)
     {
         this->id = id;
@@ -53,24 +49,24 @@ public:
         date = inputDate;
     }
 
-    void setFullFields(QString title, Event event,
-                         QDate date, QString sportType)
+    void setTitle(QString title)
+    {
+        this->title = title;
+    }
+
+    QString getSportType()
+    {
+        return groups.isEmpty() ?
+                    ""
+                  : groups[0].getSportType();
+    }
+
+    void setFields(QString title, Event event,
+                         QDate date)
     {
         this->title = title;
         this->event_int = event;
         this->date = date;
-        this->sportType = sportType;
-    }
-
-    void setFullList(QList<QString> property)
-    {
-        if (property.count() == getFullPattern().count())
-        {
-            title = property.takeFirst();
-            event_int = Event(property.takeFirst().toInt());
-            setDate(QDate::fromString(property.takeFirst(), "dd.MM.yyyy"));
-            sportType = property.takeFirst();
-        }
     }
 
     static QList<QString> getFullPattern()
@@ -78,9 +74,24 @@ public:
         return {"Заголовок", "Событие", "Дата проведения", "Вид спорта"};
     }
 
-    QList<QString> getFullList()
+    void setSavableProperty(QList<QString> property)
     {
-        return {title, QString::number(int(event_int)), getStringDate(), sportType};
+        if (property.count() == getSaveblePattern().count())
+        {
+            title = property.takeFirst();
+            event_int = Event(property.takeFirst().toInt());
+            setDate(QDate::fromString(property.takeFirst(), "dd.MM.yyyy"));
+        }
+    }
+
+    QList<QString> getSavebleProperty()
+    {
+        return {title, QString::number(int(event_int)), getStringDate()};
+    }
+
+    static QList<QString> getSaveblePattern()
+    {
+        return {"Заголовок", "Событие", "Дата проведения"};
     }
 
     QList<QString> getPreviewList()

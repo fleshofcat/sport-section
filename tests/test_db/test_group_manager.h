@@ -18,7 +18,7 @@ private slots:
     void initTestCase()
     {
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName("../record/tests/test_res/sport_people.db");
+        db.setDatabaseName("../sport-section/tests/test_res/sport_people.db");
         QVERIFY(db.open());
     }
 

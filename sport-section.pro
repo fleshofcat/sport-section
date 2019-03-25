@@ -13,8 +13,6 @@ HEADERS +=                          \
     tests/test_db/test_people_storage.h \
     tests/test_db/test_db_manager.h     \
     tests/test_db/test_group_manager.h  \
-    tests/test_ui/test_group_editor.h   \
-    tests/test_ui/test_editors_box.h    \
     tests/test_db/test_group_links.h    \
     tests/test_db/test_schedule_manager.h   \
     tests/test_ui/test_schedule_editor.h    \

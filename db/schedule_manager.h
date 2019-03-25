@@ -37,7 +37,6 @@ public:
 
     bool saveSchedule(Schedule sch)
     {
-//        if (sch.id > 0)
         if (isRecordExist(sch.id))
             return updateSchedule(sch);
         else
@@ -71,12 +70,13 @@ public:
             {
                 QList<QString> scheduleInList;
 
-                for (int i = 0; i < Schedule::getFullPattern().count(); i++)
+                for (int i = 0; i < Schedule::getSaveblePattern().count(); i++)
                 {
                     scheduleInList << query.record().value(i + 1).toString();
                 }
 
-                Schedule sch(scheduleInList);
+                Schedule sch;
+                sch.setSavableProperty(scheduleInList);
                 sch.id = query.record().value("id").toInt();
 
                 for (int id : refsToGroups.getLinks(sch.id))
@@ -105,12 +105,12 @@ private:
 
             QSqlQuery query;
             query.prepare(QString("INSERT INTO %1 "
-                                  " (id, title, event, date, sport_type) "
-                                  " VALUES  (?, ?, ?, ?, ?) ")
+                                  " (id, title, event, date) "
+                                  " VALUES  (?, ?, ?, ?) ")
                           .arg(scheduleTable));
 
             query.addBindValue(sch.id);
-            bindValueList(query, sch.getFullList());
+            bindValueList(query, sch.getSavebleProperty());
 
             if (query.exec())
             {
@@ -133,13 +133,12 @@ private:
         query.prepare(" UPDATE " + scheduleTable + " SET   \n" +
                       "     title = (:title),              \n"
                       "     event = (:event),              \n"
-                      "     date = (:date),                \n"
-                      "     sport_type = (:sport_type)     \n"
+                      "     date = (:date)                 \n"
                       " WHERE id = (:id)                   \n");
 
 
         query.bindValue(":id", sch.id);
-        bindValueList(query, sch.getFullList());
+        bindValueList(query, sch.getSavebleProperty());
 
         if (query.exec())
         {
@@ -167,8 +166,7 @@ private:
                        " id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,   \n"
                        " title TEXT NOT NULL,                           \n"
                        " event TEXT NOT NULL,                           \n"
-                       " date TEXT NOT NULL,                            \n"
-                       " sport_type TEXT NOT NULL                       \n"
+                       " date TEXT NOT NULL                             \n"
                        ")                                                 ");
 
             if (!query.lastError().isValid())

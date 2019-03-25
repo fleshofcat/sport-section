@@ -7,7 +7,7 @@ class TestDbManager : public QObject
 {
     Q_OBJECT
 
-    QString db_path = "../record/tests/test_res/sport_people.db";
+    QString db_path = "../sport-section/tests/test_res/sport_people.db";
     QString schedule = "schedule";
     QString groups = "groups";
     QString trainers = "trainers";

@@ -9,7 +9,7 @@ class TestScheduleManager : public QObject
 {
     Q_OBJECT
 
-    QString db_path = "../record/tests/test_res/sport_people.db";
+    QString db_path = "../sport-section/tests/test_res/sport_people.db";
 
     QString schedule = "schedule";
     QString groups = "groups";
@@ -30,8 +30,10 @@ private slots:
 
         QDate currentDate = QDate::currentDate();
 
-        Schedule sch("title", Schedule::Event::TRAINING,
-                     currentDate, "climbing");
+        Schedule sch;
+        sch.setTitle("title");
+        sch.setEvent(Schedule::Event::TRAINING);
+        sch.setDate(currentDate);
 
         GroupManager gm(groups, trainers, sportsmen);
         auto justForAdd = gm.getGroups().first();
@@ -65,7 +67,8 @@ private slots:
         QList<Schedule> schs = sh.getSchedules();
 
         QCOMPARE(schs.first().getEventNumber(), Schedule::Event::COMPETITION);
-        QCOMPARE(schs.first().sportType, "смотреть");
+        QCOMPARE(schs.first().getSportType(), ""); // schedule.getSportType() is a
+                                                      // .getSportType() of the first group
     }
 
     void cleanUpTestCase()
@@ -88,10 +91,10 @@ private:
             gm.saveGroup(group);
         }
 
-        Schedule sch("Тестовое расписание",
-                         Schedule::Event::COMPETITION,
-                         QDate::currentDate().addDays(-1),
-                         "смотреть");
+        Schedule sch;
+        sch.setTitle("Тестовое расписание");
+        sch.setEvent(Schedule::Event::COMPETITION);
+        sch.setDate(QDate::currentDate().addDays(-1));
 
         ScheduleManager sm(schedule, groups);
         sm.saveSchedule(sch);
