@@ -19,8 +19,8 @@ public:
     SportSection(QObject *parent = nullptr)
         : QObject(parent)
     {
-        QString path = QDir("../record/res/").exists() ?
-                    "../record/res/sport_people.db"
+        QString path = QDir("../sport-section/res/").exists() ?
+                    "../sport-section/res/sport_people.db"
                   : "sport_people.db";
 
         db.touchDb(path);

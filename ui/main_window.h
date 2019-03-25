@@ -18,12 +18,12 @@ class MainWindow : public QWidget
 {
     Q_OBJECT
 
-    QString sportsmanIconPath = "../record/res/img/sportsman.png";
-    QString trainerIconPath = "../record/res/img/trainer.png";
-    QString groupIconPath = "../record/res/img/group.png";
-    QString scheduleIconPath = "../record/res/img/schedule.png";
-    QString closedScheduleIconPath = "../record/res/img/closed_schedule.png";
-    QString statsIconPath = "../record/res/img/stats.png";
+    QString sportsmanIconPath = "../sport-section/res/img/sportsman.png";
+    QString trainerIconPath = "../sport-section/res/img/trainer.png";
+    QString groupIconPath = "../sport-section/res/img/group.png";
+    QString scheduleIconPath = "../sport-section/res/img/schedule.png";
+    QString closedScheduleIconPath = "../sport-section/res/img/closed_schedule.png";
+    QString statsIconPath = "../sport-section/res/img/stats.png";
 
     QTabWidget *tabs;
     PeoplePresenter *sportsmenTab;
