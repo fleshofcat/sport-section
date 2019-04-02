@@ -1,15 +1,9 @@
 #pragma once
 
-#include <QDateTime>
-
 #include "group.h"
 
 class Schedule
 {
-
-
-    QDate date;
-
 public:
     enum class Event {
         EMPTY,
@@ -17,41 +11,71 @@ public:
         COMPETITION
     };
 
-    int id = 0;
-    Event event_int = Event::TRAINING;
+private:
+    QDate date;
+    Event event = Event::TRAINING;
     QString title;
 
+public:
+    int id = 0;
     QList<Group> groups;
 
-    // TODO rm
-//    Schedule(QString title, Event event, QDate date, QString sportType)
-//    {
-//        setFields(title, event, date, sportType);
-//    }
     Schedule(int id)
     {
         this->id = id;
     }
     Schedule() {}
 
-    QString getStringDate()
+    void setTitle(QString newTitle)
     {
-        return date.toString("dd.MM.yyyy");
+        this->title = newTitle;
+    }
+    QString getTitle()
+    {
+        return this->title;
     }
 
+    void setDate(QDate newDate)
+    {
+        date = newDate;
+    }
+    void setDate(QString newDate)
+    {
+        setDate(QDate::fromString(newDate, "dd.MM.yyyy"));
+    }
     QDate getDate()
     {
         return date;
     }
-
-    void setDate(QDate inputDate)
+    QString getDateInString()
     {
-        date = inputDate;
+        return getDate().toString("dd.MM.yyyy");
     }
 
-    void setTitle(QString title)
+    void setEvent(Schedule::Event newEvent)
     {
-        this->title = title;
+        event = newEvent;
+    }
+    void setEvent(int newEvent)
+    {
+        setEvent(Schedule::Event(newEvent));
+    }
+    Schedule::Event getEvent()
+    {
+        return event;
+    }
+    QString getEventInString()
+    {
+        if (getEvent() == Event::TRAINING)
+        {
+            return "Тренировка";
+        }
+        if (getEvent() == Event::COMPETITION)
+        {
+            return "Соревнование";
+        }
+
+        return "";
     }
 
     QString getSportType()
@@ -61,12 +85,13 @@ public:
                   : groups[0].getSportType();
     }
 
+
     void setFields(QString title, Event event,
                          QDate date)
     {
-        this->title = title;
-        this->event_int = event;
-        this->date = date;
+        setTitle(title);
+        setEvent(event);
+        setDate(date);
     }
 
     static QList<QString> getFullPattern()
@@ -78,15 +103,15 @@ public:
     {
         if (property.count() == getSaveblePattern().count())
         {
-            title = property.takeFirst();
-            event_int = Event(property.takeFirst().toInt());
-            setDate(QDate::fromString(property.takeFirst(), "dd.MM.yyyy"));
+            setTitle(property.takeFirst());
+            setEvent(property.takeFirst().toInt());
+            setDate(property.takeFirst());
         }
     }
 
     QList<QString> getSavebleProperty()
     {
-        return {title, QString::number(int(event_int)), getStringDate()};
+        return {getTitle(), QString::number(int(getEvent())), getDateInString()};
     }
 
     static QList<QString> getSaveblePattern()
@@ -96,36 +121,12 @@ public:
 
     QList<QString> getPreviewList()
     {
-        return {title, getEvent(), getStringDate()};
+        return {getTitle(), getEventInString(), getDateInString()};
     }
 
     static QList<QString> getPreviewPattern()
     {
         return {"Событие", "Вид события", "Дата проведения"};
-    }
-
-    Schedule::Event getEventNumber()
-    {
-        return this->event_int;
-    }
-
-    QString getEvent()
-    {
-        if (event_int == Event::TRAINING)
-        {
-            return "Тренировка";
-        }
-        if (event_int == Event::COMPETITION)
-        {
-            return "Соревнование";
-        }
-
-        return "";
-    }
-
-    void setEvent(Schedule::Event event)
-    {
-        this->event_int = event;
     }
 
     QList<int> getGroupsIds()
@@ -141,7 +142,7 @@ public:
     }
 
     static QList<QList<QString>>
-    toStringTable(QList<Schedule> schedules)
+    toPreviewTable(QList<Schedule> schedules)
     {
         QList<QList<QString>> stringTable;
         for (Schedule sch : schedules)

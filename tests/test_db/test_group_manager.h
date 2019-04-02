@@ -93,7 +93,7 @@ private slots:
 
         QCOMPARE(groups.count(), 2);
         QCOMPARE(swimming.id, 1);
-        QCOMPARE(fraud.getInList().first(), "Группа мошеннег");
+        QCOMPARE(fraud.getPreviewProperty().first(), "Группа мошеннег");
     }
 
     void cleanUpTestCase()
@@ -113,11 +113,11 @@ private:
 
 
         Person artem;
-        artem.setEditableList({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание", "+7xxx"});
+        artem.setEditableProperty({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание", "+7xxx"});
         Person oleg;
-        oleg.setEditableList({"Олег", "Павлович", "Полушин", "01.01.1995", "мошенник", "+7xxx"});
+        oleg.setEditableProperty({"Олег", "Павлович", "Полушин", "01.01.1995", "мошенник", "+7xxx"});
         Person mihail;
-        mihail.setEditableList({"Михаил", "Владимирович", "Черников", "18.09.1997", "макбук", "+7xxx"});
+        mihail.setEditableProperty({"Михаил", "Владимирович", "Черников", "18.09.1997", "макбук", "+7xxx"});
 
         PeopleManager sportsmenManager(sportsmen);
         sportsmenManager.savePerson(artem);
@@ -131,9 +131,9 @@ private:
 
 
         Person ivan;
-        ivan.setEditableList({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "мошенник", "+7xxx"});
+        ivan.setEditableProperty({"Иван", "Владимирович", "Вытовтов", "10.02.1997", "мошенник", "+7xxx"});
         Person vadim;
-        vadim.setEditableList({"Вадим", "Александрович", "Сурков", "26.03.1997", "плавание", "+7xxx"});
+        vadim.setEditableProperty({"Вадим", "Александрович", "Сурков", "26.03.1997", "плавание", "+7xxx"});
 
 
         PeopleManager trainersManager(trainers);
@@ -144,7 +144,7 @@ private:
         vadim.id = 2; // now vadim's id = 2
 
 
-        Group gr(Group::getPattern().first());
+        Group gr(Group::getPreviewPattern().first());
         gr.trainers << ivan;
         gr.sportsmen << artem;
 

@@ -63,8 +63,8 @@ public:
         this->groups = groups;
         this->schedules = schedules;
 
-        scheduleViewer->updateContent(Schedule::toStringTable(schedules), Schedule::getPreviewPattern());
-        closedScheduleViewer->updateContent(Schedule::toStringTable(closedShedules), Schedule::getPreviewPattern());
+        scheduleViewer->updateContent(Schedule::toPreviewTable(schedules), Schedule::getPreviewPattern());
+        closedScheduleViewer->updateContent(Schedule::toPreviewTable(closedShedules), Schedule::getPreviewPattern());
 
         if (widgetStack->currentIndex() == 1)
         {

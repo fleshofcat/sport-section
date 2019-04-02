@@ -84,12 +84,13 @@ public:
 
     Person getCurrentPerson()
     {
-        person.setFullData(firstNameEdit->text(),
-                           secondNameEdit->text(),
-                           lastNameEdit->text(),
-                           birthdayEdit->date(),
-                           sportTypeEdit->text(),
-                           phoneNumberEdit->text());
+        person.setFirstName(firstNameEdit->text());
+        person.setSecondName(secondNameEdit->text());
+        person.setLastName(lastNameEdit->text());
+        person.setBirthday(birthdayEdit->text());
+        person.setSportType(sportTypeEdit->text());
+        person.setPhoneNumber(phoneNumberEdit->text());
+
         return person;
     }
 
@@ -141,17 +142,17 @@ private:
 
     void updateEditorFields(Person pers)
     {
-        firstNameEdit->setText(pers.firstName);
-        secondNameEdit->setText(pers.secondName);
-        lastNameEdit->setText(pers.lastName);
-        phoneNumberEdit->setText(pers.phoneNumber);
-        sportTypeEdit->setText(pers.sportType);
+        firstNameEdit->setText(pers.getFirstName());
+        secondNameEdit->setText(pers.getSecondName());
+        lastNameEdit->setText(pers.getLastName());
+        phoneNumberEdit->setText(pers.getPhoneNumber());
+        sportTypeEdit->setText(pers.getSportType());
 
         birthdayEdit->setDate(QDate());
-        birthdayEdit->setDate(pers.getBirthdayDate());
+        birthdayEdit->setDate(pers.getBirthdayInDate());
 
-        ratingView->setText(QString::number(pers.rating));
-        eventsNumberView->setText(QString::number(pers.eventsNumber));
+        ratingView->setText(QString::number(pers.getRating()));
+        eventsNumberView->setText(QString::number(pers.getEventsNumber()));
     }
 
 private slots:

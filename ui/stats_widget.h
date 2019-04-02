@@ -31,18 +31,18 @@ public:
         for (Person pers : sportsmen)
         {
             QList<QVariant> stats;
-            for (QString field : pers.getPreviewList())
+            for (QString field : pers.getPreviewProperty())
             {
                 stats << QVariant(field);
             }
-            stats << QVariant(pers.rating);
-            stats << QVariant(pers.eventsNumber);
-            stats << QVariant(Group::firstGroupWithSportsmen(
-                                  groups, pers.id).groupName);
+            stats << QVariant(pers.getRating());
+            stats << QVariant(pers.getEventsNumber());
+            stats << QVariant(Group::getFirstGroupWithSportsmen(
+                                  groups, pers.id).getGroupName());
             sportStats << stats;
         }
 
-        groupsStats.updateContent(Group::getStatsTable(groups), Group::getStatsPattern());
+        groupsStats.updateContent(Group::toStatsTable(groups), Group::getStatsPattern());
         trainersStats.updateContent(Person::getStatsTable(trainers), Person::getStatsPattern());
         sportsmenStats.updateContent(sportStats, Person::getStatsPattern() << "Группа");
     }

@@ -23,7 +23,7 @@ private slots:
         DbManager db(dbPath);
 
         Person artem;
-        artem.setEditableList({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание", "+7 888 888 88"});
+        artem.setEditableProperty({"Артем", "Александрович", "Оношко", "12.01.1998", "плавание", "+7 888 888 88"});
 
         QVERIFY(db.saveSportsman(artem));
     }

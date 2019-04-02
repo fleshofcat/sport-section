@@ -106,27 +106,27 @@ private:
         QList<Group> currentGroups = schedule.groups;
 
         // convert person position to additional rating
-        if (schedule.getEventNumber() == Schedule::Event::COMPETITION)
+        if (schedule.getEvent() == Schedule::Event::COMPETITION)
         {
             for (int i = 0; i < sportsmen.count(); i++)
             {
-                sportsmen[i].rating += sportsmen.count() / (i + 1);
-                sportsmen[i].eventsNumber += 1;
+                sportsmen[i].increaseRating(sportsmen.count() / (i + 1));
+                sportsmen[i].increaseEventNumber(1);
             }
         }
         else
         {
             for (int i = 0; i < sportsmen.count(); i++)
             {
-                sportsmen[i].rating += 1;
-                sportsmen[i].eventsNumber += 1;
+                sportsmen[i].increaseRating(1);
+                sportsmen[i].increaseEventNumber(1);
             }
         }
 
         // update the sportsmen in the current groups
         for (int g = 0; g < currentGroups.count(); g++)
         {
-            currentGroups[g].eventNumber += 1;
+            currentGroups[g].increaseEventNumber(1);
             for (Person pers : sportsmen)
             {
                 if (currentGroups[g].getSportsmenIds().contains(pers.id))
@@ -140,13 +140,13 @@ private:
         // by difference between odl and new group condition
         for (int g = 0; g < currentGroups.count(); g++)
         {
-            int additional = currentGroups[g].getFullSportsmenRating()
-                    - oldGroups[g].getFullSportsmenRating();
+            int additionalRating = currentGroups[g].getAccumSportsmenRating()
+                    - oldGroups[g].getAccumSportsmenRating();
 
             for (int t = 0; t < currentGroups[g].trainers.count(); t++)
             {
-                currentGroups[g].trainers[t].rating += additional;
-                currentGroups[g].trainers[t].eventsNumber += 1;
+                currentGroups[g].trainers[t].increaseRating(additionalRating);
+                currentGroups[g].trainers[t].increaseEventNumber(1);
             }
         }
 

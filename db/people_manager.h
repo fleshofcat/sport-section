@@ -93,7 +93,7 @@ public:
                 }
 
                 Person pers;
-                pers.setFullList(persInList);
+                pers.setFullProperty(persInList);
                 pers.id = sqlModel.record(r).value("id").toInt();
 
                 people << pers;
@@ -123,7 +123,7 @@ public:
                 }
 
                 Person pers;
-                pers.setFullList(persInList);
+                pers.setFullProperty(persInList);
                 pers.id = query.record().value("id").toInt();
 
                 return pers;
@@ -159,15 +159,12 @@ private:
                     "  :rating,                 "
                     "  :events)                 ");
 
-        for (QString field : person.getFullList())
+        for (QString field : person.getFullProperty())
         {
             query.addBindValue(field);
         }
 
-        bool ok = query.exec(); // TODO rm the rubbish
-        QString err = query.lastError().text();
-        auto dd = err;
-        return ok;
+        return query.exec();
     }
 
 
@@ -191,7 +188,7 @@ private:
 
         query.bindValue(":id", person.id);
 
-        for (QString field : person.getFullList())
+        for (QString field : person.getFullProperty())
         {
             query.addBindValue(field);
         }

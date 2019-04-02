@@ -209,23 +209,23 @@ private:
     {
         sportTypeEdit->setText(sch.getSportType());
         groupsViewer->updateContent(Group::toStringTable(sch.groups),
-                                    Group::getPattern());
+                                    Group::getPreviewPattern());
     }
 
     void updateEditorsView(Schedule sch)
     {
-        titleEdit->setText(sch.title);
+        titleEdit->setText(sch.getTitle());
 
-        if (sch.getStringDate().isEmpty())
+        if (sch.getDateInString().isEmpty())
             dateEdit->setDate(QDate::currentDate());
         else
             dateEdit->setDate(sch.getDate());
 
-        if (sch.getEventNumber() == Schedule::Event::TRAINING)
+        if (sch.getEvent() == Schedule::Event::TRAINING)
         {
             eventEdit->setCurrentIndex(0);
         }
-        else if (sch.getEventNumber() == Schedule::Event::COMPETITION)
+        else if (sch.getEvent() == Schedule::Event::COMPETITION)
         {
             eventEdit->setCurrentIndex(1);
         }

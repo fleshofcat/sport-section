@@ -66,7 +66,7 @@ private slots:
         ScheduleManager sh(schedule, groups);
         QList<Schedule> schs = sh.getSchedules();
 
-        QCOMPARE(schs.first().getEventNumber(), Schedule::Event::COMPETITION);
+        QCOMPARE(schs.first().getEvent(), Schedule::Event::COMPETITION);
         QCOMPARE(schs.first().getSportType(), ""); // schedule.getSportType() is a
                                                       // .getSportType() of the first group
     }
@@ -122,7 +122,7 @@ private:
     QList<Group> testGroups()
     {
         Group q("q");
-        Group gr(Group::getPattern().first());
+        Group gr(Group::getPreviewPattern().first());
         Group gr_2("Группа мошеннег");
 
         return {q, gr, gr_2};

@@ -46,7 +46,7 @@ public:
     {
         this->people = people;
 
-        peopleViewer->updateContent(Person::toPreviewStringTable(people), Person::getPreviewPattern());
+        peopleViewer->updateContent(Person::toPreviewTable(people), Person::getPreviewPattern());
 
         if (widgetStack->currentIndex() == 1)
         {
@@ -145,7 +145,7 @@ private slots:
         {
             int result = QMessageBox::question(this, " ",
                     "Редактируемый человек был изменен извне:\n"
-                    "'" + personEditor->getCurrentPerson().getPreviewList().join(" ") + "'\n"
+                    "'" + personEditor->getCurrentPerson().getPreviewProperty().join(" ") + "'\n"
                     "Продолжить редактирование?");
 
             if (result == QMessageBox::No)

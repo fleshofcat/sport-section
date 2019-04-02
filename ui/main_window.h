@@ -130,16 +130,16 @@ private:
         connect(sportsmenTab, &PeoplePresenter::needRemove, this, &MainWindow::needRemoveSportsman);
         connect(sportsmenTab, &PeoplePresenter::needEdit, [=] (Person pers)
         {
-            Group groupWithSportsman = Group::firstGroupWithSportsmen(groups, pers.id);
-            sportsmenTab->editPerson(pers, groupWithSportsman.groupName);
+            Group groupWithSportsman = Group::getFirstGroupWithSportsmen(groups, pers.id);
+            sportsmenTab->editPerson(pers, groupWithSportsman.getGroupName());
         });
 
         connect(trainersTab, &PeoplePresenter::needSave, this, &MainWindow::needSaveTrainer);
         connect(trainersTab, &PeoplePresenter::needRemove, this, &MainWindow::needRemoveTrainer);
         connect(trainersTab, &PeoplePresenter::needEdit, [=] (Person pers)
         {
-           Group groupWithTrainer = Group::firstGroupWithTrainer(groups, pers.id);
-           trainersTab->editPerson(pers, groupWithTrainer.groupName);
+           Group groupWithTrainer = Group::getFirstGroupWithTrainer(groups, pers.id);
+           trainersTab->editPerson(pers, groupWithTrainer.getGroupName());
         });
 
         connect(groupTab, &GroupsPresenter::needSave, this, &MainWindow::needSaveGroup);
@@ -147,7 +147,7 @@ private:
         connect(groupTab, &GroupsPresenter::needEdit, [=] (Group group)
         {
             Schedule scheduleWithGroup = Schedule::firstScheduleWithGroup(schedules, group.id);
-            groupTab->editGroup(group, scheduleWithGroup.title);
+            groupTab->editGroup(group, scheduleWithGroup.getTitle());
         });
 
         connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::needSaveSchedule);

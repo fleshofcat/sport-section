@@ -87,11 +87,11 @@ public:
 
         setScheduleLimit("");
 
-        groupNameField->setText(group.groupName);
+        groupNameField->setText(group.getGroupName());
         sportTypeField->setText(group.getSportType());
 
         ratingField->setText(QString::number(group.getRating()));
-        eventCountField->setText(QString::number(group.eventNumber));
+        eventCountField->setText(QString::number(group.getEventsNumber()));
 
         updateTrainersView(trainers);
         updateSportsmenView(sportsmen);
@@ -115,7 +115,7 @@ public:
     void updateTrainersView(QList<Person> trainers)
     {
         this->allTrainers = trainers;
-        trainersViewer->updateContent(Person::toPreviewStringTable(group.trainers),
+        trainersViewer->updateContent(Person::toPreviewTable(group.trainers),
                                       Person::getPreviewPattern());
 
         sportTypeField->setText(group.getSportType());
@@ -124,7 +124,7 @@ public:
     void updateSportsmenView(QList<Person> sportsmen)
     {
         this->allSportsmen = sportsmen;
-        sportsmenViewer->updateContent(Person::toPreviewStringTable(group.sportsmen),
+        sportsmenViewer->updateContent(Person::toPreviewTable(group.sportsmen),
                                        Person::getPreviewPattern());
 
         sportTypeField->setText(group.getSportType());
@@ -133,7 +133,7 @@ public:
 
     Group getCurrentGroup()
     {
-        group.groupName = groupNameField->text();
+        group.setGroupName(groupNameField->text());
         return group;
     }
 
@@ -212,7 +212,7 @@ private:
             QList<Person> allSportsmenWithSportType = allSportsmen;
             if (!group.getSportType().isEmpty())
             {
-                allSportsmenWithSportType = Person::getBySportType(
+                allSportsmenWithSportType = Person::getPeopleBySportType(
                             allSportsmen, group.getSportType());
             }
 
@@ -229,7 +229,7 @@ private:
         connect(sportsmenViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
             bool result = askQuestion("Удалить спортсмена '"
-                                      + group.sportsmen.at(row).firstName
+                                      + group.sportsmen[row].getFirstName()
                                       + "' из группы?");
             if (result)
             {
@@ -243,7 +243,7 @@ private:
             QList<Person> allTrainersWithSportType = allTrainers;
             if (!group.getSportType().isEmpty())
             {
-                allTrainersWithSportType = Person::getBySportType(
+                allTrainersWithSportType = Person::getPeopleBySportType(
                             allTrainers, group.getSportType());
             }
 
@@ -259,7 +259,7 @@ private:
         connect(trainersViewer, &RecordsViewer::rowIsActivated, [=] (int row)
         {
             bool result = askQuestion("Удалить тренера '"
-                                      + group.trainers.at(row).firstName
+                                      + group.trainers[row].getFirstName()
                                       + "' из группы?");
             if (result)
             {
@@ -272,7 +272,7 @@ private:
     Person choosePerson(QList<Person> peopleToShow, QString iconPath)
     {
         int row = RecordChooser::getChoosedRow(
-                    Person::toPreviewStringTable(peopleToShow), this, "Доступные люди", iconPath);
+                    Person::toPreviewTable(peopleToShow), this, "Доступные люди", iconPath);
 
         if (row >= 0)
         {

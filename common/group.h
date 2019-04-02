@@ -7,18 +7,18 @@
 // хранение данных о графике тренировок тренеров и детей
 class Group
 {
+    QString groupName;
+    int eventsNumber = 0;
+
 public:
     int id = 0;         // присваивается в бд
-
-    QString groupName;
-    int eventNumber = 0;
 
     QList<Person> trainers;
     QList<Person> sportsmen;
 
     Group(QString groupName)
     {
-        this->groupName = groupName;
+        setGroupName(groupName);
     }
     Group(int id)
     {
@@ -26,28 +26,51 @@ public:
     }
     Group() {}
 
-    QList<QString> getInList()
+    void setGroupName(QString newGroupName)
     {
-        return {groupName, getSportType()};
+        groupName = newGroupName;
+    }
+    QString getGroupName()
+    {
+        return groupName;
     }
 
-    static QList<QString> getPattern()
+    void setEventsNumber(int newNumber)
+    {
+        eventsNumber = newNumber;
+    }
+    int getEventsNumber()
+    {
+        return eventsNumber;
+    }
+    void increaseEventNumber(int increaseValue)
+    {
+        setEventsNumber(getEventsNumber() + increaseValue);
+    }
+
+    QList<QString> getPreviewProperty()
+    {
+        return {getGroupName(), getSportType()};
+    }
+
+    static QList<QString> getPreviewPattern()
     {
         return {"Группа", "Спорт"};
     }
+
 
     void setSaveableProperty(QList<QString> property)
     {
         if (property.count() == getSaveableProperty().count())
         {
-            groupName   = property.takeFirst();
-            eventNumber = property.takeFirst().toInt();
+            setGroupName(property.takeFirst());
+            setEventsNumber(property.takeFirst().toInt());
         }
     }
 
     QList<QString> getSaveableProperty()
     {
-        return {groupName, QString::number(eventNumber)};
+        return {getGroupName(), QString::number(getEventsNumber())};
     }
 
     static QList<QString> getSaveablePattern()
@@ -55,11 +78,12 @@ public:
         return {"Группа", "Мероприятий"};
     }
 
+
     QList<QString> getFullProperty()
     {
-        return { groupName,
+        return { getGroupName(),
                     getSportType(),
-                    QString::number(eventNumber),
+                    QString::number(getEventsNumber()),
                     QString::number(getRating()) };
     }
 
@@ -92,11 +116,11 @@ public:
         QString sport;
         if (!trainers.isEmpty())
         {
-            sport = trainers.first().sportType;
+            sport = trainers.first().getSportType();
         }
         else if (!sportsmen.isEmpty())
         {
-            sport = sportsmen.first().sportType;
+            sport = sportsmen.first().getSportType();
         }
 
         return sport;
@@ -106,16 +130,16 @@ public:
     {
         if (!sportsmen.isEmpty())
         {
-            int sportsmenRating = getFullSportsmenRating();
+            int sportsmenRating = getAccumSportsmenRating();
 
             return double(sportsmenRating) / double(sportsmen.count());;
         }
         return 0;
     }
 
-    int getFullSportsmenRating()
+    int getAccumSportsmenRating()
     {
-        return Person::getPeopleRating(sportsmen);
+        return Person::getAccumRating(sportsmen);
     }
 
     void updateSportsman(Person pers)
@@ -131,19 +155,19 @@ public:
     }
 
     static QList<QList<QVariant>>
-    getStatsTable(QList<Group> groups)
+    toStatsTable(QList<Group> groups)
     {
         QList<QList<QVariant>> ret;
 
         for (auto group : groups)
         {
             QList<QVariant> stats;
-            for (QString field : group.getInList())
+            for (QString field : group.getPreviewProperty())
             {
                 stats << QVariant(field);
             }
             stats << QVariant(group.getRating());
-            stats << QVariant(group.eventNumber);
+            stats << QVariant(group.getEventsNumber());
 
             ret << stats;
         }
@@ -153,7 +177,7 @@ public:
     static QList<QString>
     getStatsPattern()
     {
-        auto ret = Group::getPattern();
+        auto ret = Group::getPreviewPattern();
         ret << "Рейтинг";
         ret << "Мероприятий";
         return ret;
@@ -165,7 +189,7 @@ public:
         QList<QList<QString>> stringTable;
         for (Group group : groups)
         {
-            stringTable << group.getInList();
+            stringTable << group.getPreviewProperty();
         }
 
         return stringTable;
@@ -195,7 +219,7 @@ public:
     }
 
     static Group
-    firstGroupWithSportsmen(QList<Group> groups, int sportsmen_id)
+    getFirstGroupWithSportsmen(QList<Group> groups, int sportsmen_id)
     {
         for (Group group : groups)
         {
@@ -209,7 +233,7 @@ public:
     }
 
     static Group
-    firstGroupWithTrainer(QList<Group> groups, int trainer_id)
+    getFirstGroupWithTrainer(QList<Group> groups, int trainer_id)
     {
         for (Group group : groups)
         {

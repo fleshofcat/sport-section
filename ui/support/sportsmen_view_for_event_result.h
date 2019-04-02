@@ -67,13 +67,12 @@ public slots:
 
         this->allSportsmen = sportsmen;
 
-
         for (int r = 0; r < sportsmen.count(); r++)
         {
             QString stringPers = QString::number(r+1)
-                    + " " + sportsmen.at(r).firstName
-                    + " " + sportsmen.at(r).secondName
-                    + " " + sportsmen.at(r).lastName;
+                    + " " + sportsmen[r].getFirstName()
+                    + " " + sportsmen[r].getSecondName()
+                    + " " + sportsmen[r].getLastName();
 
             auto item = new QListWidgetItem(QIcon(img_path), stringPers, outersView);
             item->setData(Qt::UserRole, QVariant(sportsmen[r].id));

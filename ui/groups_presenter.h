@@ -55,7 +55,7 @@ public:
         this->groups = groups;
 
         groupsViewer->updateContent(Group::toStringTable(groups),
-                            Group::getPattern());
+                            Group::getPreviewPattern());
 
         if (widgetStack->currentIndex() == 1)
         {
@@ -158,7 +158,7 @@ private slots:
         {
             int result = QMessageBox::question(this, " ",
                     "Редактируемая группа была изменена извне:\n"
-                    "'" + groupEditor->getCurrentGroup().getInList().join(" ") + "'\n"
+                    "'" + groupEditor->getCurrentGroup().getPreviewProperty().join(" ") + "'\n"
                     "Продолжить редактирование?");
 
             if (result == QMessageBox::Ok)

@@ -5,8 +5,6 @@
 #include <QListWidget>
 #include <QVBoxLayout>
 
-#include <QApplication> // TODO
-
 #include "common/group.h"
 
 class PreviewResultCalculation : public QWidget
@@ -112,7 +110,7 @@ public slots:
 
             groupsView->addItem(
                         peopleView, QIcon(groupIconPath),
-                        currentGroups[index].groupName + " - "
+                        currentGroups[index].getGroupName() + " - "
                     + QString::number(double(currentGroups[index].getRating()))
                     + " ( +"
                     + QString::number(double(currentGroups[index].getRating()
@@ -168,27 +166,10 @@ sort_start:
 
     void dropGroupsView()
     {
-        // works both
-
-        // first one hide groupsView offsprings
-        // instead of deleting
-
-//        while (groupsView->count()) // drop the groupView state
-//        {
-//            groupsView->widget(0)->hide();
-//            groupsView->removeItem(0);
-//        }
-
-        // second one realy like a shit
-        // it removing widget,
-        // recreate this
-        // and add to the .layout bottom
-        // supposing as groupView mast be there
-
         delete groupsView;               // smells very bad
         groupsView = new QToolBox;
         groupsView->setStyleSheet("QToolBox{ icon-size: 25px; }");
-        layout()->addWidget(groupsView); // smells very bad
+        layout()->addWidget(groupsView);
     }
 
     QListWidgetItem * getPersonViewItem(Person thePersonNow, Person thePersonEarlier, QString iconPath = "")
@@ -196,12 +177,12 @@ sort_start:
         if (thePersonNow.id != thePersonEarlier.id)
             return nullptr;
 
-        QString stringPers = thePersonNow.firstName
-                     + " " + thePersonNow.secondName
-                     + " " + thePersonNow.lastName
-                     + " - " + QString::number(double(thePersonNow.rating))
-                     + " ( +" + QString::number(double(thePersonNow.rating
-                                                - thePersonEarlier.rating)) + ")";
+        QString stringPers = thePersonNow.getFirstName()
+                     + " " + thePersonNow.getSecondName()
+                     + " " + thePersonNow.getLastName()
+                     + " - " + QString::number(double(thePersonNow.getRating()))
+                     + " ( +" + QString::number(double(thePersonNow.getRating()
+                                                - thePersonEarlier.getRating())) + ")";
 
         auto item = new QListWidgetItem(QIcon(iconPath), stringPers);
         item->setData(Qt::UserRole, QVariant(thePersonNow.id));

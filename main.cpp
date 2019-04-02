@@ -6,7 +6,7 @@
 // точка входа программы
 int main(int argc, char *argv[])
 {
-#if 1 // включить режим запуска программы
+#if 0 // включить режим запуска программы
 
     QApplication app(argc, argv);
 
