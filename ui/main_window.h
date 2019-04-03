@@ -14,27 +14,27 @@
 //
 // он показывает пользователю информацию
 // принимает и обрабатывает его запросы
-class MainWindow : public QWidget
+class Ui : public QWidget
 {
     Q_OBJECT
 
     QString sportsmanIconPath = "../sport-section/res/img/sportsman.png";
-    QString trainerIconPath = "../sport-section/res/img/trainer.png";
-    QString groupIconPath = "../sport-section/res/img/group.png";
-    QString scheduleIconPath = "../sport-section/res/img/schedule.png";
+    QString trainerIconPath =   "../sport-section/res/img/trainer.png";
+    QString groupIconPath =     "../sport-section/res/img/group.png";
+    QString scheduleIconPath =  "../sport-section/res/img/schedule.png";
     QString closedScheduleIconPath = "../sport-section/res/img/closed_schedule.png";
-    QString statsIconPath = "../sport-section/res/img/stats.png";
+    QString statsIconPath =     "../sport-section/res/img/stats.png";
 
-    QTabWidget *tabs;
-    PeoplePresenter *sportsmenTab;
-    PeoplePresenter *trainersTab;
-    GroupsPresenter *groupTab;
-    SchedulePresenter *scheduleTab;
-    StatsWidget *statsTab;
+    QTabWidget          *tabs;
+    PeoplePresenter     *sportsmenTab;
+    PeoplePresenter     *trainersTab;
+    GroupsPresenter     *groupTab;
+    SchedulePresenter   *scheduleTab;
+    StatsWidget         *statsTab;
 
-    QList<Person> sportsmen;
-    QList<Person> trainers;
-    QList<Group> groups;
+    QList<Person>   sportsmen;
+    QList<Person>   trainers;
+    QList<Group>    groups;
     QList<Schedule> schedules;
 
 signals:
@@ -55,13 +55,7 @@ signals:
 public:
     // код который будет выполняться при создании объекта от этого класса
     // имеет 1 не обязательный системный параметр
-    explicit MainWindow(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {
-        setUpUi();
-        setUpConnections();
-    }
-
+    explicit Ui(QWidget *parent = nullptr);
 
     // метод с помощью которого данные от бд
     // будут загружаться в данный класс и отображаться пользователю
@@ -69,97 +63,32 @@ public:
                        QList<Person> trainers,
                        QList<Group> groups,
                        QList<Schedule> schedules,
-                       QList<Schedule> closedSchedules)
-    {
-        this->sportsmen = sportsmen;
-        this->trainers = trainers;
-        this->groups = groups;
-        this->schedules = schedules;
+                       QList<Schedule> closedSchedules);
 
-        sportsmenTab->updateContent(sportsmen);
-        trainersTab->updateContent(trainers);
-        groupTab->updateContent(sportsmen, trainers, groups);
-        scheduleTab->updateContent(schedules, closedSchedules, groups);
-        statsTab->updateContent(groups, trainers, sportsmen);
-    }
+    // TODO make updateTrainers(trainers);
+    //           updateSportsmen(sportsmen);
+    //           upd...
+
+    void resizeEvent(QResizeEvent *resizeEvent);
 
 private:
-    void setUpUi()
-    {
-        setWindowTitle(" ");
-
-        this->resize(800, 400);
-
-        sportsmenTab = new PeoplePresenter(sportsmanIconPath);
-        trainersTab = new PeoplePresenter(trainerIconPath);
-
-        groupTab = new GroupsPresenter;
-        groupTab->setGroupIconPath(groupIconPath);
-        groupTab->setTrainerIconPath(trainerIconPath);
-        groupTab->setSportsmanIconPath(sportsmanIconPath);
-
-        scheduleTab = new SchedulePresenter;
-        scheduleTab->setScheduleIconPath(scheduleIconPath);
-        scheduleTab->setClosedScheduleIconPath(closedScheduleIconPath);
-        scheduleTab->setGroupIconPath(groupIconPath);
-
-        statsTab = new StatsWidget;
-        statsTab->setGroupIconPath(groupIconPath);
-        statsTab->setTrainersIconPath(trainerIconPath);
-        statsTab->setSportsmenIconPath(sportsmanIconPath);
-
-        tabs = new QTabWidget(this);
-
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(tabs->sizePolicy().hasHeightForWidth());
-        tabs->setSizePolicy(sizePolicy);
-        tabs->setMovable(true);
-
-        tabs->addTab(scheduleTab,  QIcon(scheduleIconPath),  "Расписания");
-        tabs->addTab(groupTab,     QIcon(groupIconPath),     "Группы");
-        tabs->addTab(trainersTab,  QIcon(trainerIconPath),   "Тренеры");
-        tabs->addTab(sportsmenTab, QIcon(sportsmanIconPath), "Спортсмены");
-        tabs->addTab(statsTab,     QIcon(statsIconPath),     "Статистика");
-    }
-
-    void setUpConnections()
-    {
-        connect(sportsmenTab, &PeoplePresenter::needSave, this, &MainWindow::needSaveSportsman);
-        connect(sportsmenTab, &PeoplePresenter::needRemove, this, &MainWindow::needRemoveSportsman);
-        connect(sportsmenTab, &PeoplePresenter::needEdit, [=] (Person pers)
-        {
-            Group groupWithSportsman = Group::getFirstGroupWithSportsmen(groups, pers.id);
-            sportsmenTab->editPerson(pers, groupWithSportsman.getGroupName());
-        });
-
-        connect(trainersTab, &PeoplePresenter::needSave, this, &MainWindow::needSaveTrainer);
-        connect(trainersTab, &PeoplePresenter::needRemove, this, &MainWindow::needRemoveTrainer);
-        connect(trainersTab, &PeoplePresenter::needEdit, [=] (Person pers)
-        {
-           Group groupWithTrainer = Group::getFirstGroupWithTrainer(groups, pers.id);
-           trainersTab->editPerson(pers, groupWithTrainer.getGroupName());
-        });
-
-        connect(groupTab, &GroupsPresenter::needSave, this, &MainWindow::needSaveGroup);
-        connect(groupTab, &GroupsPresenter::needRemove, this, &MainWindow::needRemoveGroup);
-        connect(groupTab, &GroupsPresenter::needEdit, [=] (Group group)
-        {
-            Schedule scheduleWithGroup = Schedule::firstScheduleWithGroup(schedules, group.id);
-            groupTab->editGroup(group, scheduleWithGroup.getTitle());
-        });
-
-        connect(scheduleTab, &SchedulePresenter::needSave, this, &MainWindow::needSaveSchedule);
-        connect(scheduleTab, &SchedulePresenter::needRemove, this, &MainWindow::needRemoveSchedule);
-        connect(scheduleTab, &SchedulePresenter::needMakeDone, this, &MainWindow::needMakeDoneSchedule);
-    }
-
-public:
-    void resizeEvent(QResizeEvent *resizeEvent)
-    {
-        tabs->resize(resizeEvent->size());
-    }
+    void setUpUi();
+    void setUpConnections();
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

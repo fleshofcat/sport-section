@@ -20,249 +20,68 @@ class Person
 public:
     int id = 0;             // id в конечном итоге должна устанавливать сама бд
 
-    Person(int id)
-    {
-        this->id = id;
-    }
-    Person() {}
+    explicit Person(int id) : id(id) { }
+    explicit Person() { }
 
-    void setFirstName(QString newFirstName)
-    {
-        this->firstName = newFirstName;
-    }
-    QString getFirstName()
-    {
-        return firstName;
-    }
+    void setFirstName(QString newFirstName);
+    QString getFirstName();
 
-    void setSecondName(QString newSecondName)
-    {
-        secondName = newSecondName;
-    }
-    QString getSecondName()
-    {
-        return secondName;
-    }
+    void setSecondName(QString newSecondName);
+    QString getSecondName();
 
-    void setLastName(QString newLastName)
-    {
-        lastName = newLastName;
-    }
-    QString getLastName()
-    {
-        return lastName;
-    }
+    void setLastName(QString newLastName);
+    QString getLastName();
 
-    void setSportType(QString newSportType)
-    {
-        sportType = newSportType;
-    }
-    QString getSportType()
-    {
-        return sportType;
-    }
+    void setSportType(QString newSportType);
+    QString getSportType();
 
-    void setPhoneNumber(QString newPhoneNumber)
-    {
-        phoneNumber = newPhoneNumber;
-    }
-    QString getPhoneNumber()
-    {
-        return phoneNumber;
-    }
+    void setPhoneNumber(QString newPhoneNumber);
+    QString getPhoneNumber();
 
-    void setBirthday(QDate newBirthday)
-    {
-        birthday = newBirthday;
-    }
-    void setBirthday(QString newBirthday)
-    {
-        setBirthday(QDate::fromString(newBirthday, "dd.MM.yyyy"));
-    }
-    QDate getBirthdayInDate()
-    {
-        return birthday;
-    }
-    QString getBirthdayInString()
-    {
-        return getBirthdayInDate().toString("dd.MM.yyyy");
-    }
+    void setBirthday(QDate newBirthday);
+    void setBirthday(QString newBirthday);
+    QDate getBirthdayInDate();
+    QString getBirthdayInString();
 
-    void setRating(int newRating)
-    {
-        rating = newRating;
-    }
-    int getRating()
-    {
-        return rating;
-    }
-    void increaseRating(int increaseValue)
-    {
-        setRating(getRating() + increaseValue);
-    }
+    void setRating(int newRating);
+    int getRating();
+    void increaseRating(int increaseValue);
 
-    void setEventsNumber(int newNumber)
-    {
-        eventsNumber = newNumber;
-    }
-    int getEventsNumber()
-    {
-        return eventsNumber;
-    }
-    void increaseEventNumber(int increaseValue)
-    {
-        setEventsNumber(getEventsNumber() + increaseValue);
-    }
+    void setEventsNumber(int newNumber);
+    int getEventsNumber();
+    void increaseEventNumber(int increaseValue);
 
 
 
-    QList<QString> getPreviewProperty()
-    {
-        return {getFirstName(), getSecondName(), getLastName(), getSportType()};
-    }
-    static QList<QString> getPreviewPattern()
-    {
-        return {"Имя", "Отчество", "Фамилия", "Спорт"};
-    }
+    QList<QString> getPreviewProperty();
+    static QList<QString> getPreviewPattern();
 
-    void setEditableProperty(QList<QString> personData)
-    {
-        if (personData.count() == getEditablePattern().count())
-        {
-            setFirstName(personData.takeFirst());
-            setSecondName(personData.takeFirst());
-            setLastName(personData.takeFirst());
-            setBirthday(personData.takeFirst());
-            setSportType(personData.takeFirst());
-            setPhoneNumber(personData.takeFirst());
-        }
-    }
-    QList<QString> getEditableProperty()
-    {
-        return {getFirstName(), getSecondName(),
-                    getLastName(), getBirthdayInString(),
-                    getSportType(), getPhoneNumber()};
-    }
-    static QList<QString> getEditablePattern()
-    {
-        return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт", "Номер телефона"};
-    }
+    void setEditableProperty(QList<QString> personData);
+    QList<QString> getEditableProperty();
+    static QList<QString> getEditablePattern();
 
-    void setFullProperty(QList<QString> personData)
-    {
-        if (personData.count() == getFullPattern().count())
-        {
-            setFirstName(personData.takeFirst());
-            setSecondName(personData.takeFirst());
-            setLastName(personData.takeFirst());
-            setBirthday(personData.takeFirst());
-            setSportType(personData.takeFirst());
-            setPhoneNumber(personData.takeFirst());
-
-            setRating(personData.takeFirst().toInt());
-            setEventsNumber(personData.takeFirst().toInt());
-        }
-    }
-    QList<QString> getFullProperty()
-    {
-        return {getFirstName(), getSecondName(),
-                    getLastName(), getBirthdayInString(),
-                    getSportType(), getPhoneNumber(),
-                    QString::number(getRating()),
-                    QString::number(getEventsNumber())};
-    }
-    static QList<QString> getFullPattern()
-    {
-        return {"Имя", "Отчество", "Фамилия", "День рождения", "Спорт", "Номер телефона",
-            "Рейтинг", "Мероприятий"};
-    }
+    void setFullProperty(QList<QString> personData);
+    QList<QString> getFullProperty();
+    static QList<QString> getFullPattern();
 
     static QList<QList<QString>>
-    toPreviewTable(QList<Person> people)
-    {
-        QList<QList<QString>> stringTable;
-        for (Person pers : people)
-        {
-            stringTable << pers.getPreviewProperty();
-        }
+    toPreviewTable(QList<Person> people);
 
-        return stringTable;
-    }
+    static QList<int> getIds(QList<Person> people);
 
-    static QList<int> getIds(QList<Person> people)
-    {
-        QList<int> ids;
-        for (Person pers : people)
-        {
-            ids << pers.id;
-        }
+    static int getAccumRating(QList<Person> people);
 
-        return ids;
-    }
+    static QList<Person>
+    getFreePeople(QList<Person> allPeople,
+                  QList<Person> existingPeople);
 
-    static int getAccumRating(QList<Person> people)
-    {
-        int summRating = 0;
-        for (Person pers : people)
-        {
-            summRating += pers.getRating();
-        }
-
-        return summRating;
-    }
-
-    static QList<Person> getFreePeople(QList<Person> allPeople, QList<Person> existingPeople)
-    {
-        QList<Person> freePeople;
-        for (Person pers : allPeople)
-        {
-            if (!existingPeople.contains(pers))
-                freePeople << pers;
-        }
-
-        return freePeople;
-    }
-
-    static QList<Person> getPeopleBySportType(QList<Person> allPeople, QString sport)
-    {
-        QList<Person> ret;
-        for (Person pers : allPeople)
-        {
-            if (pers.getSportType() == sport)
-                ret << pers;
-        }
-
-        return ret;
-    }
+    static QList<Person>
+    getPeopleBySportType(QList<Person> allPeople, QString sport);
 
     static QList<QList<QVariant>>
-    getStatsTable(QList<Person> people)
-    {
-        QList<QList<QVariant>> ret;
+    getStatsTable(QList<Person> people);
 
-        for (auto pers : people)
-        {
-            QList<QVariant> stats;
-            for (QString field : pers.getPreviewProperty())
-            {
-                stats << QVariant(field);
-            }
-            stats << QVariant(pers.getRating());
-            stats << QVariant(pers.getEventsNumber());
-
-            ret << stats;
-        }
-        return ret;
-    }
-
-    static QList<QString>
-    getStatsPattern()
-    {
-        auto ret = Person::getPreviewPattern();
-        ret << "Рейтинг";
-        ret << "Мероприятий";
-        return ret;
-    }
+    static QList<QString> getStatsPattern();
 
     friend bool operator== (const Person &p1, const Person &p2);
     friend bool operator!= (const Person &p1, const Person &p2);

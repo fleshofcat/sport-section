@@ -32,19 +32,37 @@ HEADERS +=                          \
     ui/support/schedule_editor.h    \
     ui/support/group_editor.h       \
     ui/support/person_editor.h      \
-    ui/support/sportsmen_view_for_event_result.h    \
     ui/support/preview_result_calculation.h         \
     ui/support/schedule_closer.h    \
                                     \
     ui/widgets/record_chooser.h     \
     ui/widgets/records_viewer.h     \
-    ui/widgets/list_view.h
+    ui/support/sportsmen_result_preview.h
 
 SOURCES += \
     main.cpp \
     common/schedule.cpp \
     common/person.cpp \
-    common/group.cpp
+    common/group.cpp \
+    db/db_manager.cpp \
+    db/group_manager.cpp \
+    db/people_manager.cpp \
+    db/relations_in_db.cpp \
+    db/schedule_manager.cpp \
+    ui/support/group_editor.cpp \
+    ui/support/person_editor.cpp \
+    ui/support/preview_result_calculation.cpp \
+    ui/support/schedule_closer.cpp \
+    ui/support/schedule_editor.cpp \
+    ui/support/sportsmen_result_preview.cpp \
+    ui/widgets/record_chooser.cpp \
+    ui/widgets/records_viewer.cpp \
+    ui/groups_presenter.cpp \
+    ui/main_window.cpp \
+    ui/people_presenter.cpp \
+    ui/schedule_presenter.cpp \
+    ui/stats_widget.cpp \
+    sport_section.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -46,190 +46,24 @@ signals:
     void needExit();
 
 public:
-    ScheduleEditor(Schedule schedule,
-                   QList<Group> groups,
-                   QWidget *parent = nullptr)
-        : QWidget(parent)
-    {
-        setUpUi();
-        setUpConnections();
-        showData(schedule, groups);
-    }
+    ScheduleEditor(Schedule schedule, QList<Group> groups,
+                   QWidget *parent = nullptr);
+    ScheduleEditor(QWidget *parent = nullptr);
 
-    ScheduleEditor(QWidget *parent = nullptr)
-        : ScheduleEditor(Schedule(), {} , parent) { }
+    void updateContent(Schedule schedule, QList<Group> allGroups);
+    void setPotentialGroupsForSchedule(QList<Group> allGroups);
 
-    void setGroupIconPath(QString groupIconPath)
-    {
-        this->groupIconPath = groupIconPath;
-        groupsViewer->setIconPath(groupIconPath);
-    }
+    Schedule getCurrentSchedule();
+    Schedule getOldSchedule();
 
-    void showData(Schedule schedule,
-                  QList<Group> allGroups)
-    {
-        this->schedule = schedule;
-        this->oldSchedule = schedule;
-
-        updateEditorsView(schedule);
-        updateGroups(allGroups);
-    }
-
-    Schedule getCurrentSchedule()
-    {
-        schedule.setFields(
-                    titleEdit->text(),
-                    Schedule::Event(eventEdit->currentIndex() + 1),
-                    dateEdit->date()
-                    );
-
-        return schedule;
-    }
-
-    Schedule getOldSchedule()
-    {
-        return this->oldSchedule;
-    }
-
-    void updateGroups(QList<Group> allGroups)
-    {
-        this->allGroups = allGroups;
-        updateNotEditableView(schedule);
-    }
+    void setGroupIconPath(QString groupIconPath);
 
 private:
-    void setUpUi()
-    {
-        // editors
-        dateEdit = new QDateTimeEdit;
-        dateEdit->setCalendarPopup(true);
-        dateEdit->setDisplayFormat("yyyy.MM.dd");
+    void setUpUi();
+    void setUpConnections();
 
-        titleEdit = new QLineEdit;
-
-        eventEdit = new QComboBox;
-        eventEdit->addItem("Тренировка");
-        eventEdit->addItem("Соревнования");
-
-        sportTypeEdit = new QLineEdit;
-        sportTypeEdit->setReadOnly(true);
-        sportTypeEdit->setToolTip("Спорт расписания определяется группами в нем");
-
-        QFormLayout *editors = new QFormLayout;
-        auto titlesList = Schedule::getFullPattern();
-
-        editors->addRow(titlesList.takeFirst(), titleEdit);
-        editors->addRow(titlesList.takeFirst(), eventEdit);
-        editors->addRow(titlesList.takeFirst(), dateEdit);
-        editors->addRow(titlesList.takeFirst(), sportTypeEdit);
-
-        // group viewer
-        addGroupButton = new QPushButton("+");
-        groupsViewer = new RecordsViewer;
-        QVBoxLayout *groupViewerLayout = new QVBoxLayout;
-        groupViewerLayout->addWidget(addGroupButton);
-        groupViewerLayout->addWidget(groupsViewer);
-
-        // standart buttons
-        saveButton = new QPushButton("Сохранить");
-        makeDoneButton = new QPushButton("Закрыть ведомость");
-        removeButton = new QPushButton("Удалить");
-        exitButton = new QPushButton("Выйти");
-        QHBoxLayout *buttonLayout = new QHBoxLayout;
-        buttonLayout->addWidget(saveButton);
-        buttonLayout->addWidget(makeDoneButton);
-        buttonLayout->addWidget(removeButton);
-        buttonLayout->addWidget(exitButton);
-
-        QVBoxLayout *basicLayout = new QVBoxLayout;
-        basicLayout->addLayout(editors);
-        basicLayout->addWidget(new QLabel("Группы для участия"));
-        basicLayout->addLayout(groupViewerLayout);
-        basicLayout->addLayout(buttonLayout);
-
-        setLayout(basicLayout);
-    }
-
-    void setUpConnections()
-    {
-        connect(saveButton, &QPushButton::clicked, [=] ()
-        {
-            emit needSave(getCurrentSchedule());
-        });
-        connect(makeDoneButton, &QPushButton::clicked, [=] ()
-        {
-            emit needMakeDone(getCurrentSchedule());
-        });
-        connect(removeButton, &QPushButton::clicked, [=] ()
-        {
-            emit needRemove(schedule.id);
-        });
-        connect(exitButton, &QPushButton::clicked,
-                this, &ScheduleEditor::needExit);
-
-        connect(addGroupButton, &QPushButton::clicked, [=] ()
-        {
-            QList<Group> groupsToShow;
-            for (Group group : this->allGroups)
-            {
-                if (!schedule.groups.contains(group))
-                {
-                    if (schedule.getSportType() == group.getSportType()
-                            || schedule.getSportType().isEmpty())
-                    {
-                        groupsToShow << group;
-                    }
-                }
-            }
-
-            int row = RecordChooser::getChoosedRow(
-                        Group::toStringTable(groupsToShow), this, "Доступные группы", groupIconPath);
-
-            if (row >= 0)
-            {
-                schedule.groups << groupsToShow.at(row);
-                updateNotEditableView(schedule);
-            }
-        });
-        connect(groupsViewer, &RecordsViewer::rowIsActivated, [=] (int row)
-        {
-            int result = QMessageBox::question(
-                        this, " ", "Убрать группу?");
-
-            if (result != QMessageBox::Yes)
-            {
-                return;
-            }
-            schedule.groups.removeAt(row);
-            updateNotEditableView(schedule);
-        });
-    }
-
-    void updateNotEditableView(Schedule sch)
-    {
-        sportTypeEdit->setText(sch.getSportType());
-        groupsViewer->updateContent(Group::toStringTable(sch.groups),
-                                    Group::getPreviewPattern());
-    }
-
-    void updateEditorsView(Schedule sch)
-    {
-        titleEdit->setText(sch.getTitle());
-
-        if (sch.getDateInString().isEmpty())
-            dateEdit->setDate(QDate::currentDate());
-        else
-            dateEdit->setDate(sch.getDate());
-
-        if (sch.getEvent() == Schedule::Event::TRAINING)
-        {
-            eventEdit->setCurrentIndex(0);
-        }
-        else if (sch.getEvent() == Schedule::Event::COMPETITION)
-        {
-            eventEdit->setCurrentIndex(1);
-        }
-    }
+    void updateNotEditableView(Schedule sch);
+    void updateEditorsView(Schedule sch);
 };
 
 
