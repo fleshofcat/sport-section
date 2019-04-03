@@ -36,7 +36,8 @@ public:
     explicit
     SchedulePresenter(QWidget *parent = nullptr);
 
-    void updateContent(QList<Schedule> schedules, QList<Schedule> closedShedules, QList<Group> groups);
+    void updateContent(QList<Schedule> schedules, QList<Group> groups);
+    void updateClosedSchedule(QList<Schedule> closedShedules);
 
     void editSchedule(Schedule sched = Schedule());
     void closeSchedule(Schedule sched);

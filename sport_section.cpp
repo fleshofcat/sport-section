@@ -99,11 +99,11 @@ updateMainWindow()
     auto schedules = db.getSchedules();
     auto closedSchedules = db.getClosedSchedule();
 
-    ui.updateContent(sportsmen,
-                     trainers,
-                     groups,
-                     schedules,
-                     closedSchedules);
+    ui.updateSportsmen(sportsmen);
+    ui.updateTrainers(trainers);
+    ui.updateGroups(groups);
+    ui.updateSchedules(schedules);
+    ui.updateClosedSchedules(closedSchedules);
 }
 
 

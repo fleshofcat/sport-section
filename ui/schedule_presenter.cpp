@@ -30,18 +30,25 @@ setGroupIconPath(QString groupIconPath)
 }
 
 void SchedulePresenter::
-updateContent(QList<Schedule> schedules, QList<Schedule> closedShedules, QList<Group> groups)
+updateContent(QList<Schedule> schedules, QList<Group> groups)
 {
     this->groups = groups;
     this->schedules = schedules;
 
     scheduleViewer->updateContent(Schedule::toPreviewTable(schedules), Schedule::getPreviewPattern());
-    closedScheduleViewer->updateContent(Schedule::toPreviewTable(closedShedules), Schedule::getPreviewPattern());
 
     if (widgetStack->currentIndex() == 1)
     {
          updateRunningEditor(schedules, groups);
     }
+}
+
+void SchedulePresenter::
+updateClosedSchedule(QList<Schedule> closedShedules)
+{
+    closedScheduleViewer->updateContent(
+                Schedule::toPreviewTable(closedShedules),
+                Schedule::getPreviewPattern());
 }
 
 void SchedulePresenter::editSchedule(Schedule sched)

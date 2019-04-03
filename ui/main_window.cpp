@@ -7,26 +7,46 @@ Ui::Ui(QWidget *parent)
     setUpConnections();
 }
 
-
-// метод с помощью которого данные от бд
-// будут загружаться в данный класс и отображаться пользователю
-void Ui::updateContent(QList<Person> sportsmen,
-                   QList<Person> trainers,
-                   QList<Group> groups,
-                   QList<Schedule> schedules,
-                   QList<Schedule> closedSchedules)
+void Ui::updateSportsmen(QList<Person> sportsmen)
 {
     this->sportsmen = sportsmen;
-    this->trainers = trainers;
-    this->groups = groups;
-    this->schedules = schedules;
-
     sportsmenTab->updateContent(sportsmen);
+    updateStats();
+}
+
+void Ui::updateTrainers(QList<Person> trainers)
+{
+    this->trainers = trainers;
     trainersTab->updateContent(trainers);
+    updateStats();
+}
+
+void Ui::updateGroups(QList<Group> groups)
+{
+    this->groups = groups;
     groupTab->updateContent(sportsmen, trainers, groups);
-    scheduleTab->updateContent(schedules, closedSchedules, groups);
+    updateStats();
+}
+
+void Ui::updateSchedules(QList<Schedule> schedules)
+{
+    this->schedules = schedules;
+    scheduleTab->updateContent(schedules, groups);
+    updateStats();
+}
+
+void Ui::updateClosedSchedules(QList<Schedule> closedSchedules)
+{
+    this->closedSchedules = schedules;
+    scheduleTab->updateClosedSchedule(closedSchedules);
+    updateStats();
+}
+
+void Ui::updateStats()
+{
     statsTab->updateContent(groups, trainers, sportsmen);
 }
+
 
 void Ui::setUpUi()
 {

@@ -20,7 +20,8 @@ public:
 
 private:
     void setUpConnections();
-    // обновление главного окна пользовательского интерфейса
+
+    // обновление пользовательского интерфейса
     void updateMainWindow();
 };
 

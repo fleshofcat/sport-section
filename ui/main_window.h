@@ -36,6 +36,7 @@ class Ui : public QWidget
     QList<Person>   trainers;
     QList<Group>    groups;
     QList<Schedule> schedules;
+    QList<Schedule> closedSchedules;
 
 signals:
     void needSaveSportsman(Person pers);
@@ -57,17 +58,12 @@ public:
     // имеет 1 не обязательный системный параметр
     explicit Ui(QWidget *parent = nullptr);
 
-    // метод с помощью которого данные от бд
-    // будут загружаться в данный класс и отображаться пользователю
-    void updateContent(QList<Person> sportsmen,
-                       QList<Person> trainers,
-                       QList<Group> groups,
-                       QList<Schedule> schedules,
-                       QList<Schedule> closedSchedules);
-
-    // TODO make updateTrainers(trainers);
-    //           updateSportsmen(sportsmen);
-    //           upd...
+    void updateSportsmen(QList<Person> sportsmen);
+    void updateTrainers(QList<Person> trainers);
+    void updateGroups(QList<Group> groups);
+    void updateSchedules(QList<Schedule> schedules);
+    void updateClosedSchedules(QList<Schedule> closedSchedules);
+    void updateStats();
 
     void resizeEvent(QResizeEvent *resizeEvent);
 
