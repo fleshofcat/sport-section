@@ -9,11 +9,7 @@ HEADERS +=                          \
     common/group.h                  \
     common/schedule.h               \
                                     \
-    tests/main_test.h                   \
-    tests/test_db/test_people_storage.h \
-    tests/test_db/test_db_manager.h     \
     tests/test_db/test_group_manager.h  \
-    tests/test_db/test_group_links.h    \
     tests/test_db/test_schedule_manager.h   \
     tests/test_ui/test_schedule_editor.h    \
                                             \
@@ -37,7 +33,9 @@ HEADERS +=                          \
                                     \
     ui/widgets/record_chooser.h     \
     ui/widgets/records_viewer.h     \
-    ui/support/sportsmen_result_preview.h
+    ui/support/sportsmen_result_preview.h \
+    tests/main_test.h \
+    tests/test_db/test_db_manager.h
 
 SOURCES += \
     main.cpp \

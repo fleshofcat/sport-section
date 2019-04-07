@@ -16,7 +16,7 @@ class SportSection : public QObject
 
 public:
     // конструктор, выполняющийся при создании объекта
-    SportSection(QObject *parent = nullptr);
+    explicit SportSection(QObject *parent = nullptr);
 
 private:
     void setUpConnections();
