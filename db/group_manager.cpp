@@ -221,7 +221,7 @@ void GroupManager::touchTable(QString groupTable)
     }
 }
 
-int GroupManager::getMaxIdFromTable(QString table) // возвращает -1 при неудаче
+int GroupManager::getMaxIdFromTable(QString table)
 {
     QSqlQuery query("SELECT MAX(id) FROM " + table);
 

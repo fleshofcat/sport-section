@@ -32,8 +32,6 @@ void DbManager::touchDb(QString db_path)
     }
 }
 
-// методы для взаимодействия с бд
-
 bool DbManager::saveSportsman(Person sportsman)
 {
     return sportsmenManager.savePerson(sportsman);

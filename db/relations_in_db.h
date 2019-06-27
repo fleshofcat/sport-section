@@ -1,13 +1,12 @@
 #pragma once
 
-#include <QtSql> // для работы с бд
+#include <QtSql>
 
 class RelationsInDb : public QObject
 {
     Q_OBJECT
     friend class TestGroupPeopleRelations;
 
-    // table names
     QString main;
     QString secondary;
     QString relations;

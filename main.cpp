@@ -1,25 +1,23 @@
-#include <QApplication> // системная библиотека
+#include <QApplication>
 
-#include "tests/main_test.h" // тесты
-#include "sport_section.h"   // главный класс программы (SportSection)
+#include "tests/main_test.h"
+#include "sport_section.h"
 
-// точка входа программы
 int main(int argc, char *argv[])
 {
-#if 1 // включить режим запуска программы
+#if 1 // run mode
 
     QApplication app(argc, argv);
-
-    SportSection sect;  // сама программа
+    SportSection sect;
 
     return app.exec();
-#elif 1 // режим запуска тестов
+#elif 1 // test mode
     QApplication app(argc, argv);
 
     MainTest::runAllTests(argc, argv);
     return 0;
 
-#else // ручное тестирование
+#else // manual test mode
     QApplication app(argc, argv);
 
     return app.exec();

@@ -21,7 +21,7 @@ void PersonEditor::updateContent(Person person)
     this->person = person;
     this->oldPerson = person;
 
-    setGroupLimit(""); // снимает лимит группы
+    setGroupLimit(""); // get off group limit
     updateEditorFields(person);
 }
 

@@ -3,22 +3,20 @@
 #include <QList>
 #include <QDate>
 
-// класс Person/Человек
-// отвечает за хранение данных любого человека
 class Person
 {
     int rating = 0;
     int eventsNumber = 0;
 
-    QString firstName;      // имя
-    QString secondName;     // Отчество
-    QString lastName;       // фамилия
-    QDate   birthday;       // дата рождения
-    QString sportType;      // вид спорта
-    QString phoneNumber;    // номер телефона
+    QString firstName;
+    QString secondName;
+    QString lastName;
+    QDate   birthday;
+    QString sportType;
+    QString phoneNumber;    
 
 public:
-    int id = 0;             // id в конечном итоге должна устанавливать сама бд
+    int id = 0;             // id is setting in db
 
     explicit Person(int id) : id(id) { }
     explicit Person() { }

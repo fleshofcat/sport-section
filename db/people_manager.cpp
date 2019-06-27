@@ -33,7 +33,6 @@ void PeopleManager::touchManager(QString table)
                     " events TEXT NOT NULL                             \n"
                     " )                                                \n");
 
-        // вывод отладочной информации что таблица в бд была создана
         if (query.lastError().isValid() == false)
             qDebug() << "Creating " + table + " table inside database";
     }
@@ -46,17 +45,13 @@ bool PeopleManager::savePerson(Person pers)
 }
 
 
-// метод удаления человека
 bool PeopleManager::removePerson(int id)
 {
-    // создается и исполняется sql запрос
-    // на удаление человека в бд по id
-
     QSqlQuery query;
     query.prepare("DELETE FROM " + tableName + " WHERE id = (:id)");
     query.bindValue(":id", id);
 
-    return query.exec(); // возвращается результат запроса
+    return query.exec();
 }
 
 
@@ -118,10 +113,8 @@ Person PeopleManager::getPerson(int id)
     return Person();
 }
 
-// метод добавления человека
 bool PeopleManager::addPerson(Person person)
 {
-    // создается и исполняется sql запрос на создания нового человека в бд
     QSqlQuery query;
     query.prepare(
                 "INSERT INTO " + tableName +
@@ -152,11 +145,8 @@ bool PeopleManager::addPerson(Person person)
 }
 
 
-// метод обновления человека в бд
 bool PeopleManager::updatePerson(Person person)
 {
-    // создается и исполняется sql запрос
-    // на обновление человека в бд по id
     QSqlQuery query;
     query.prepare(" UPDATE " + tableName + " SET        " +
                   "     first_name = (:first_name),     "
@@ -177,21 +167,8 @@ bool PeopleManager::updatePerson(Person person)
         query.addBindValue(field);
     }
 
-    return query.exec(); // возвращается результат операции
+    return query.exec();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

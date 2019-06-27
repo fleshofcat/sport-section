@@ -39,7 +39,6 @@ private:
 
     void touchTable(QString groupTable);
 
-    // возвращает -1 при неудаче
     static int getMaxIdFromTable(QString table);
     static void bindValueList(QSqlQuery &query, QList<QString> list);
 };

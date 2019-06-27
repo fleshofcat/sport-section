@@ -9,11 +9,6 @@
 #include "ui/stats_widget.h"
 
 
-// класс MainWindow/ГлавноеОкно является классом-прослойкой
-// между пользователем и программой
-//
-// он показывает пользователю информацию
-// принимает и обрабатывает его запросы
 class Ui : public QWidget
 {
     Q_OBJECT
@@ -54,8 +49,6 @@ signals:
     void needMakeDoneSchedule(Schedule chedule);
 
 public:
-    // код который будет выполняться при создании объекта от этого класса
-    // имеет 1 не обязательный системный параметр
     explicit Ui(QWidget *parent = nullptr);
 
     void updateSportsmen(QList<Person> sportsmen);

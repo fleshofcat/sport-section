@@ -182,7 +182,7 @@ bool ScheduleManager::isRecordExist(int id)
     return false;
 }
 
-int ScheduleManager::getMaxIdFromTable(QString table) // возвращает -1 при неудаче
+int ScheduleManager::getMaxIdFromTable(QString table)
 {
     QSqlQuery query("SELECT MAX(id) FROM " + table);
 

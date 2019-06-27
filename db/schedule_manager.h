@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtSql> // для работы с бд
+#include <QtSql>
 
 #include "common/schedule.h"
 #include "db/relations_in_db.h"
@@ -30,7 +30,7 @@ private:
     bool addSchedule(Schedule sch);
     bool updateSchedule(Schedule sch);
     bool isRecordExist(int id);
-    static int getMaxIdFromTable(QString table); // возвращает -1 при неудаче
+    static int getMaxIdFromTable(QString table); 
     static void bindValueList(QSqlQuery &query, QList<QString> list);
 };
 

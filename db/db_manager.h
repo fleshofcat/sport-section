@@ -26,8 +26,6 @@ public:
 
     void touchDb(QString db_path);
 
-    // методы для взаимодействия с данными в бд
-
     bool saveSportsman(Person sportsman);
     bool saveTrainer(Person trainer);
     bool saveGroup(Group group);
